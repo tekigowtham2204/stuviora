@@ -1,0 +1,266 @@
+
+<style>
+.sr-only{position:absolute;left:-9999px}
+h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin:0 0 .5rem}
+p,li{font-size:13px;color:var(--color-text-secondary);line-height:1.55;margin:0}
+.section{padding:1.1rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.section:last-child{border-bottom:none}
+.sec-label{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-tertiary);margin:0 0 .6rem}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;margin:2px 2px 2px 0}
+.tag-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.tag-green{background:var(--color-background-success);color:var(--color-text-success)}
+.tag-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.tag-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tag-purple{background:#EEEDFE;color:#3C3489}
+.tag-teal{background:#E1F5EE;color:#085041}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.9rem 1.1rem;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem}
+.stat .lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.stat .val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat .sub{font-size:11px;color:var(--color-text-tertiary)}
+.trust-layer{display:flex;gap:12px;padding:.65rem 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start}
+.trust-layer:last-child{border-bottom:none}
+.trust-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.trust-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.feature-row{display:flex;gap:10px;padding:.55rem 0;border-bottom:0.5px solid var(--color-border-tertiary);align-items:flex-start}
+.feature-row:last-child{border-bottom:none}
+.fi{font-size:15px;flex-shrink:0;margin-top:1px}
+.feat-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.feat-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.45}
+.tech-pill{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.5rem .8rem;font-size:12px;text-align:center}
+.tech-name{font-weight:500;color:var(--color-text-primary);margin-bottom:2px;font-size:13px}
+.tech-why{color:var(--color-text-secondary);font-size:11px;line-height:1.4}
+.alert{border-radius:var(--border-radius-md);padding:.75rem 1rem;font-size:13px;line-height:1.5;margin:8px 0}
+.alert-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.alert-green{background:var(--color-background-success);color:var(--color-text-success)}
+.alert-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.alert-purple{background:#EEEDFE;color:#3C3489}
+.svc-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.svc-row:last-child{border-bottom:none}
+.svc-name{color:var(--color-text-primary);font-weight:500}
+.svc-who{color:var(--color-text-secondary);font-size:12px}
+.q-btn{display:block;width:100%;text-align:left;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.6rem .9rem;font-size:13px;color:var(--color-text-primary);cursor:pointer;margin-bottom:7px;transition:background .15s}
+.q-btn:hover{background:var(--color-background-primary);border-color:var(--color-border-primary)}
+</style>
+
+<h2 class="sr-only">Stuviora complete founder blueprint — brand, trust architecture, MVP, and tech stack</h2>
+
+<div class="section">
+  <div class="sec-label">Brand identity</div>
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px">
+    <div style="width:48px;height:48px;border-radius:12px;background:#EEEDFE;display:flex;align-items:center;justify-content:center;border:0.5px solid #AFA9EC">
+      <i class="ti ti-stars" style="font-size:22px;color:#534AB7" aria-hidden="true"></i>
+    </div>
+    <div>
+      <div style="font-size:22px;font-weight:500;color:var(--color-text-primary);letter-spacing:-.3px">Stuviora</div>
+      <div style="font-size:12px;color:var(--color-text-secondary)">Stu(dent) + Viora — "through students, brilliance emerges"</div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <span class="tag tag-purple">stuviora.com</span><br>
+      <span style="font-size:11px;color:var(--color-text-tertiary)">@stuviora everywhere</span>
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:8px">
+    <div class="card" style="padding:.75rem 1rem">
+      <div class="sec-label" style="margin-bottom:4px">Tagline</div>
+      <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">"Hire students. Trust the platform."</div>
+    </div>
+    <div class="card" style="padding:.75rem 1rem">
+      <div class="sec-label" style="margin-bottom:4px">Brand personality</div>
+      <div><span class="tag tag-purple">Ambitious</span><span class="tag tag-teal">Trustworthy</span><span class="tag tag-blue">Smart</span><span class="tag tag-green">India-first</span></div>
+    </div>
+  </div>
+  <div class="card" style="padding:.75rem 1rem">
+    <div class="sec-label" style="margin-bottom:4px">Positioning statement</div>
+    <p>Stuviora is India's first AI-powered student freelancing platform where every deliverable passes an AI quality check before reaching the client — making student talent safe to hire for the first time.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Service categories — from "anything" to a structured map</div>
+  <div class="alert alert-blue" style="margin-bottom:10px">
+    <i class="ti ti-info-circle" aria-hidden="true" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>
+    "Anything" works only if you map it to student streams — so clients can search predictably and students know what to offer.
+  </div>
+  <div class="card">
+    <div class="svc-row"><div><div class="svc-name">Content & copywriting</div><div class="svc-who">Literature · Journalism · Humanities</div></div><span class="tag tag-green">Highest demand</span></div>
+    <div class="svc-row"><div><div class="svc-name">Tech & development</div><div class="svc-who">CS · IT · Engineering</div></div><span class="tag tag-blue">Highest value</span></div>
+    <div class="svc-row"><div><div class="svc-name">Design & creative</div><div class="svc-who">Design · Fine arts · Architecture</div></div><span class="tag tag-purple">High visibility</span></div>
+    <div class="svc-row"><div><div class="svc-name">Business & research</div><div class="svc-who">Commerce · MBA · Economics</div></div><span class="tag tag-amber">Underserved niche</span></div>
+    <div class="svc-row"><div><div class="svc-name">Social media & marketing</div><div class="svc-who">All streams — Gen Z native skill</div></div><span class="tag tag-teal">Easy entry point</span></div>
+    <div class="svc-row" style="border-bottom:none"><div><div class="svc-name">Data & AI services</div><div class="svc-who">Statistics · Data Science · CS</div></div><span class="tag tag-blue">Future moat</span></div>
+  </div>
+  <p style="margin-top:6px;font-size:12px;color:var(--color-text-tertiary)">Every stream is welcome — but each student's profile shows their verified stream so clients filter by trust, not just skill.</p>
+</div>
+
+<div class="section">
+  <div class="sec-label">The trust architecture — solving your #1 fear</div>
+  <div class="alert alert-amber" style="margin-bottom:10px">
+    <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>
+    Trust is not one problem — it is five separate problems stacked on each other. You must solve all five layers.
+  </div>
+  <div class="card">
+    <div class="trust-layer">
+      <div class="trust-num" style="background:#EEEDFE;color:#3C3489">1</div>
+      <div>
+        <div class="trust-title">Identity trust — "Is this student real?"</div>
+        <p>College email OTP verification on signup. Optional Aadhar-linked KYC for students wanting "verified" badge. Every profile shows: college name, stream, city, year of study.</p>
+      </div>
+      <span class="tag tag-purple" style="margin-left:auto;flex-shrink:0">Build in week 3</span>
+    </div>
+    <div class="trust-layer">
+      <div class="trust-num" style="background:#E1F5EE;color:#085041">2</div>
+      <div>
+        <div class="trust-title">Skill trust — "Can they actually do this?"</div>
+        <p>Short AI-graded skill assessment before listing a service (15 min, auto-evaluated). Portfolio samples required. Skill badges from Coursera/NPTEL auto-imported via link.</p>
+      </div>
+      <span class="tag tag-teal" style="margin-left:auto;flex-shrink:0">Build in week 4</span>
+    </div>
+    <div class="trust-layer">
+      <div class="trust-num" style="background:#E6F1FB;color:#185FA5">3</div>
+      <div>
+        <div class="trust-title">Payment trust — "Will I get paid / not get scammed?"</div>
+        <p>Razorpay escrow: client pays upfront into escrow, student gets paid only after client approves delivery. 72-hour auto-release if no dispute. Stuviora holds funds — never touches them.</p>
+      </div>
+      <span class="tag tag-blue" style="margin-left:auto;flex-shrink:0">Critical — day 1</span>
+    </div>
+    <div class="trust-layer">
+      <div class="trust-num" style="background:#FAEEDA;color:#633806">4</div>
+      <div>
+        <div class="trust-title">Quality trust — "Will the work be good?" ← Your moat</div>
+        <p>AI quality gate before every delivery. Student submits work → Claude API checks completeness, coherence, brief alignment → gives student a score + fix suggestions → only "pass" submissions reach the client. Client sees "AI-reviewed" badge.</p>
+      </div>
+      <span class="tag tag-amber" style="margin-left:auto;flex-shrink:0">Your moat</span>
+    </div>
+    <div class="trust-layer">
+      <div class="trust-num" style="background:#EAF3DE;color:#27500A">5</div>
+      <div>
+        <div class="trust-title">Track record trust — "Has anyone hired them before?"</div>
+        <p>First-job guarantee: client gets full refund if first hire from any student fails quality. After 3 completed jobs, "Verified Freelancer" badge unlocks. Review system is mandatory — no delivery closes without a 1-5 star rating.</p>
+      </div>
+      <span class="tag tag-green" style="margin-left:auto;flex-shrink:0">Drives retention</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">MVP feature list — what to build v1</div>
+  <div class="g2">
+    <div>
+      <div class="sec-label" style="color:var(--color-text-success)">Build now (weeks 3–8)</div>
+      <div class="card">
+        <div class="feature-row">
+          <i class="ti ti-user-check fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">Student onboarding</div><div class="feat-desc">College email verify, stream, skills, portfolio upload, short skill test</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-briefcase fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">Client job posting</div><div class="feat-desc">Title, description, budget, deadline, category, file attachments</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-arrows-exchange fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">Matching + bidding</div><div class="feat-desc">Students browse jobs + submit proposals. Client reviews bids, accepts one.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-lock-dollar fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">Razorpay escrow</div><div class="feat-desc">Client pays on hire. Student paid on approval. 72hr auto-release.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-robot fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">AI quality gate</div><div class="feat-desc">Claude API checks submission before delivery. Pass/fail with suggestions.</div></div>
+        </div>
+        <div class="feature-row" style="border-bottom:none">
+          <i class="ti ti-star fi" style="color:var(--color-text-success)" aria-hidden="true"></i>
+          <div><div class="feat-title">Reviews & portfolio</div><div class="feat-desc">Mandatory rating post-delivery. Auto-generates portfolio entry from each job.</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label" style="color:var(--color-text-secondary)">Skip for now (v2 / month 4+)</div>
+      <div class="card">
+        <div class="feature-row">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">Mobile app</div><div class="feat-desc">PWA is fine. App store is 3 months of extra work. Skip.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">Video call integration</div><div class="feat-desc">Use Google Meet link in messages. No need to build this.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">University dashboard</div><div class="feat-desc">Partner with 3 colleges first. Manual reports via email. Build later.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">Team / group projects</div><div class="feat-desc">Solo student jobs only first. Teams add complexity you don't need yet.</div></div>
+        </div>
+        <div class="feature-row">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">Subscription plans</div><div class="feat-desc">Commission-only first. Subscriptions after 100+ repeat clients.</div></div>
+        </div>
+        <div class="feature-row" style="border-bottom:none">
+          <i class="ti ti-x fi" style="color:var(--color-text-danger)" aria-hidden="true"></i>
+          <div><div class="feat-title">AI proposal writer</div><div class="feat-desc">Nice-to-have. Add in month 3 once core loop works.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Tech stack — solo founder, ship in 6 weeks</div>
+  <div class="g3">
+    <div class="tech-pill"><div class="tech-name">Next.js 14</div><div class="tech-why">Frontend + API routes. One codebase. Fast deploy on Vercel.</div></div>
+    <div class="tech-pill"><div class="tech-name">Supabase</div><div class="tech-why">Postgres + Auth + Storage + Realtime. Replaces 4 tools.</div></div>
+    <div class="tech-pill"><div class="tech-name">Razorpay</div><div class="tech-why">India-native. Escrow + split payments. UPI support.</div></div>
+    <div class="tech-pill"><div class="tech-name">Claude API</div><div class="tech-why">Quality gate + proposal help + pricing AI. Core differentiator.</div></div>
+    <div class="tech-pill"><div class="tech-name">Resend</div><div class="tech-why">Transactional emails. Verifications, job alerts, receipts.</div></div>
+    <div class="tech-pill"><div class="tech-name">Vercel</div><div class="tech-why">Zero-config deploy. Free tier covers early traffic.</div></div>
+  </div>
+  <div class="alert alert-green" style="margin-top:8px">
+    <i class="ti ti-clock" aria-hidden="true" style="font-size:14px;vertical-align:-2px;margin-right:5px"></i>
+    Supabase alone saves you 3–4 weeks. Don't build your own auth, storage, or database setup. Ship the product, not the infrastructure.
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Stuviora launch sequence</div>
+  <div class="g2">
+    <div class="card">
+      <div class="sec-label" style="color:#3C3489">Before launch (week 1–2)</div>
+      <ul style="padding-left:14px;margin:0;display:flex;flex-direction:column;gap:5px">
+        <li>Interview 20 students from WhatsApp college groups</li>
+        <li>Post in 5 Indian startup founder communities (LinkedIn, Twitter, Reddit)</li>
+        <li>Get 3 SMB founders to commit to posting a job on launch day</li>
+        <li>Secure stuviora.com domain + social handles</li>
+        <li>Build a waitlist page (Framer, 1 day)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="sec-label" style="color:#085041">Launch day goal</div>
+      <ul style="padding-left:14px;margin:0;display:flex;flex-direction:column;gap:5px">
+        <li>100 student signups from 5+ colleges</li>
+        <li>5 live job postings from clients</li>
+        <li>First completed job within 7 days</li>
+        <li>Share on LinkedIn with behind-the-scenes story</li>
+        <li>Get 1 college placement cell to share internally</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g3" style="margin-top:8px">
+    <div class="stat"><div class="lbl">Month 1 target</div><div class="val">10</div><div class="sub">completed jobs</div></div>
+    <div class="stat"><div class="lbl">Month 3 target</div><div class="val">₹3L</div><div class="sub">GMV · ₹45K revenue</div></div>
+    <div class="stat"><div class="lbl">Break-even est.</div><div class="val">~M6</div><div class="sub">if you stay lean</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Next deep-dives — pick one</div>
+  <button class="q-btn" onclick="sendPrompt('Build me the complete database schema and page structure for Stuviora MVP')">Build the full technical architecture and DB schema for Stuviora ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Design the AI quality gate system for Stuviora — how should the Claude API integration work for reviewing student work?')">Design the AI quality gate in detail — how Claude reviews student work ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Create a go-to-market strategy for Stuviora — how to get the first 100 students and first 10 clients in India')">Write the go-to-market plan — first 100 students + first 10 clients ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Create a pitch deck outline for Stuviora for raising a pre-seed round from Indian angel investors')">Build a pre-seed pitch deck outline for Indian angels ↗</button>
+  <button class="q-btn" onclick="sendPrompt('What should the Stuviora trust score system look like — how do students level up and unlock higher-value jobs?')">Design the student trust score and leveling system ↗</button>
+</div>

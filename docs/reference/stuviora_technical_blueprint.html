@@ -1,0 +1,344 @@
+
+<style>
+.sr-only{position:absolute;left:-9999px}
+h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin:0 0 .4rem}
+p,li{font-size:13px;color:var(--color-text-secondary);line-height:1.55;margin:0}
+.sec{padding:1rem 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.sec:last-child{border-bottom:none}
+.lbl{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-tertiary);margin:0 0 .6rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem}
+.stat .sl{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.stat .sv{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat .ss{font-size:11px;color:var(--color-text-tertiary)}
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.85rem 1rem}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;margin:2px 2px 2px 0}
+.t-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.t-green{background:var(--color-background-success);color:var(--color-text-success)}
+.t-amber{background:var(--color-background-warning);color:var(--color-text-warning)}
+.t-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.t-purple{background:#EEEDFE;color:#3C3489}
+.t-teal{background:#E1F5EE;color:#085041}
+.t-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.arch-row{display:flex;gap:8px;padding:.45rem 0;border-bottom:.5px solid var(--color-border-tertiary);font-size:12px;align-items:flex-start}
+.arch-row:last-child{border-bottom:none}
+.arch-layer{font-weight:500;color:var(--color-text-primary);flex:0 0 90px}
+.arch-mvp{color:var(--color-text-secondary);flex:1}
+.arch-plus{color:var(--color-text-info);flex:0 0 180px;text-align:right;font-size:11px}
+.pg-grp{margin-bottom:.7rem}
+.pg-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.pg-item{font-size:12px;color:var(--color-text-secondary);padding:1px 0 1px 14px;border-left:.5px solid var(--color-border-tertiary);margin-left:4px;font-family:var(--font-mono)}
+.tree{font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);line-height:1.8;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.85rem 1rem}
+.tf{color:var(--color-text-primary);font-weight:500}
+.ta{color:var(--color-text-info)}
+.tai{color:var(--color-text-warning)}
+.tc{color:var(--color-text-tertiary)}
+.db-grp{margin-bottom:.65rem}
+.db-gt{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.db-t{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 7px;display:inline-block;margin:2px 3px 2px 0;color:var(--color-text-secondary)}
+.wf-row{padding:.65rem 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.wf-row:last-child{border-bottom:none}
+.wf-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.wf-steps{font-size:12px;color:var(--color-text-secondary);line-height:1.7}
+.step-arrow{color:var(--color-text-tertiary);margin:0 3px}
+.alert{border-radius:var(--border-radius-md);padding:.7rem 1rem;font-size:13px;line-height:1.5;margin:8px 0}
+.alert-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.q-btn{display:block;width:100%;text-align:left;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.6rem .9rem;font-size:13px;color:var(--color-text-primary);cursor:pointer;margin-bottom:7px;transition:background .15s}
+.q-btn:hover{background:var(--color-background-primary);border-color:var(--color-border-primary)}
+</style>
+
+<h2 class="sr-only">Stuviora complete technical blueprint including architecture, pages, file tree, workflows, and database schema</h2>
+
+<div class="sec">
+  <div class="lbl">Platform scale</div>
+  <div class="g4">
+    <div class="stat"><div class="sl">MVP pages</div><div class="sv">40</div><div class="ss">Next.js routes</div></div>
+    <div class="stat"><div class="sl">Full product</div><div class="sv">55</div><div class="ss">+15 pages v2</div></div>
+    <div class="stat"><div class="sl">DB tables</div><div class="sv">17</div><div class="ss">MVP / 23 full</div></div>
+    <div class="stat"><div class="sl">Core workflows</div><div class="sv">6</div><div class="ss">end-to-end flows</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="lbl">Architecture — MVP vs full product</div>
+  <div class="g2">
+    <div class="card">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">MVP stack (launch)</div>
+      <div class="arch-row"><div class="arch-layer">Frontend</div><div class="arch-mvp">Next.js 14 App Router + Tailwind</div></div>
+      <div class="arch-row"><div class="arch-layer">API</div><div class="arch-mvp">Next.js route handlers (serverless)</div></div>
+      <div class="arch-row"><div class="arch-layer">Database</div><div class="arch-mvp">Supabase Postgres + Auth + Storage</div></div>
+      <div class="arch-row"><div class="arch-layer">Realtime</div><div class="arch-mvp">Supabase Realtime (messages)</div></div>
+      <div class="arch-row"><div class="arch-layer">Payments</div><div class="arch-mvp">Razorpay escrow + webhooks</div></div>
+      <div class="arch-row"><div class="arch-layer">AI</div><div class="arch-mvp">Anthropic Claude API (direct)</div></div>
+      <div class="arch-row"><div class="arch-layer">Email</div><div class="arch-mvp">Resend (transactional)</div></div>
+      <div class="arch-row"><div class="arch-layer">Deploy</div><div class="arch-mvp">Vercel (zero-config)</div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-info);margin-bottom:8px">Full product additions (month 4+)</div>
+      <div class="arch-row"><div class="arch-layer">Cache</div><div class="arch-plus">Upstash Redis</div></div>
+      <div class="arch-row"><div class="arch-layer">Queues</div><div class="arch-plus">Inngest (async AI jobs)</div></div>
+      <div class="arch-row"><div class="arch-layer">Search</div><div class="arch-plus">Meilisearch (student discovery)</div></div>
+      <div class="arch-row"><div class="arch-layer">Analytics</div><div class="arch-plus">PostHog (product + funnel)</div></div>
+      <div class="arch-row"><div class="arch-layer">Monitoring</div><div class="arch-plus">Sentry (errors + perf)</div></div>
+      <div class="arch-row"><div class="arch-layer">CDN</div><div class="arch-plus">Cloudflare (assets + DDoS)</div></div>
+      <div class="arch-row"><div class="arch-layer">Mobile</div><div class="arch-plus">Expo React Native</div></div>
+      <div class="arch-row"><div class="arch-layer">Uni API</div><div class="arch-plus">Custom REST + webhooks</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="lbl">Page inventory — 40 MVP routes</div>
+  <div class="g2">
+    <div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-gray">Public · 4</span></div>
+        <div class="pg-item">/</div>
+        <div class="pg-item">/how-it-works</div>
+        <div class="pg-item">/explore</div>
+        <div class="pg-item">/freelancer/[username]</div>
+      </div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-gray">Auth · 5</span></div>
+        <div class="pg-item">/auth/login</div>
+        <div class="pg-item">/auth/signup</div>
+        <div class="pg-item">/auth/signup/student</div>
+        <div class="pg-item">/auth/signup/client</div>
+        <div class="pg-item">/auth/verify-email</div>
+      </div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-purple">Student portal · 12</span></div>
+        <div class="pg-item">/student/dashboard</div>
+        <div class="pg-item">/student/onboarding</div>
+        <div class="pg-item">/student/jobs</div>
+        <div class="pg-item">/student/jobs/[id]</div>
+        <div class="pg-item">/student/proposals</div>
+        <div class="pg-item">/student/orders</div>
+        <div class="pg-item">/student/orders/[id]</div>
+        <div class="pg-item">/student/orders/[id]/submit</div>
+        <div class="pg-item">/student/services</div>
+        <div class="pg-item">/student/services/new</div>
+        <div class="pg-item">/student/earnings</div>
+        <div class="pg-item">/student/portfolio</div>
+      </div>
+    </div>
+    <div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-teal">Client portal · 9</span></div>
+        <div class="pg-item">/client/dashboard</div>
+        <div class="pg-item">/client/onboarding</div>
+        <div class="pg-item">/client/post-job</div>
+        <div class="pg-item">/client/jobs</div>
+        <div class="pg-item">/client/jobs/[id]</div>
+        <div class="pg-item">/client/jobs/[id]/proposals</div>
+        <div class="pg-item">/client/orders</div>
+        <div class="pg-item">/client/orders/[id]</div>
+        <div class="pg-item">/client/payment/[id]</div>
+      </div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-blue">Shared · 6</span></div>
+        <div class="pg-item">/messages</div>
+        <div class="pg-item">/messages/[id]</div>
+        <div class="pg-item">/notifications</div>
+        <div class="pg-item">/settings/account</div>
+        <div class="pg-item">/settings/payments</div>
+        <div class="pg-item">/settings/profile</div>
+      </div>
+      <div class="pg-grp">
+        <div class="pg-title"><span class="tag t-amber">Admin · 3</span> <span class="tag t-gray">Utility · 2</span></div>
+        <div class="pg-item">/admin &nbsp; /admin/users &nbsp; /admin/disputes</div>
+        <div class="pg-item">/404 &nbsp; /500</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="lbl">File tree — Next.js 14 App Router</div>
+  <pre class="tree"><span class="tf">stuviora/</span>
+├── <span class="tf">app/</span>
+│   ├── <span class="tf">(public)/</span>
+│   │   ├── page.tsx
+│   │   ├── how-it-works/page.tsx
+│   │   ├── explore/page.tsx
+│   │   └── freelancer/[username]/page.tsx
+│   ├── <span class="tf">(auth)/</span>
+│   │   ├── login/page.tsx
+│   │   ├── signup/page.tsx
+│   │   ├── signup/student/page.tsx
+│   │   ├── signup/client/page.tsx
+│   │   └── verify-email/page.tsx
+│   ├── <span class="tf">(student)/</span>
+│   │   ├── layout.tsx               <span class="tc">← student sidebar + auth guard</span>
+│   │   └── <span class="tf">student/</span>
+│   │       ├── dashboard/page.tsx
+│   │       ├── onboarding/page.tsx
+│   │       ├── jobs/page.tsx
+│   │       ├── jobs/[id]/page.tsx
+│   │       ├── proposals/page.tsx
+│   │       ├── orders/page.tsx
+│   │       ├── orders/[id]/page.tsx
+│   │       ├── orders/[id]/submit/page.tsx
+│   │       ├── services/page.tsx
+│   │       ├── services/new/page.tsx
+│   │       ├── earnings/page.tsx
+│   │       └── portfolio/page.tsx
+│   ├── <span class="tf">(client)/</span>
+│   │   ├── layout.tsx               <span class="tc">← client sidebar + auth guard</span>
+│   │   └── <span class="tf">client/</span>
+│   │       ├── dashboard/page.tsx
+│   │       ├── onboarding/page.tsx
+│   │       ├── post-job/page.tsx
+│   │       ├── jobs/page.tsx
+│   │       ├── jobs/[id]/page.tsx
+│   │       ├── jobs/[id]/proposals/page.tsx
+│   │       ├── orders/page.tsx
+│   │       ├── orders/[id]/page.tsx
+│   │       └── payment/[id]/page.tsx
+│   ├── <span class="tf">(shared)/</span>
+│   │   ├── messages/page.tsx
+│   │   ├── messages/[id]/page.tsx
+│   │   ├── notifications/page.tsx
+│   │   └── <span class="tf">settings/</span>
+│   │       ├── account/page.tsx
+│   │       ├── payments/page.tsx
+│   │       └── profile/page.tsx
+│   ├── <span class="tf">(admin)/admin/</span>
+│   │   ├── page.tsx
+│   │   ├── users/page.tsx
+│   │   └── disputes/page.tsx
+│   ├── <span class="ta">api/</span>
+│   │   ├── <span class="ta">auth/callback/route.ts</span>
+│   │   ├── <span class="ta">jobs/route.ts</span>
+│   │   ├── <span class="ta">jobs/[id]/route.ts</span>
+│   │   ├── <span class="ta">proposals/route.ts</span>
+│   │   ├── <span class="ta">orders/route.ts</span>
+│   │   ├── <span class="ta">orders/[id]/submit/route.ts</span>
+│   │   ├── <span class="tai">ai/quality-check/route.ts</span>  <span class="tc">← core AI feature</span>
+│   │   ├── <span class="tai">ai/proposal-help/route.ts</span>
+│   │   ├── <span class="ta">payments/create/route.ts</span>
+│   │   ├── <span class="ta">payments/webhook/route.ts</span>  <span class="tc">← Razorpay events</span>
+│   │   └── <span class="ta">upload/route.ts</span>
+│   ├── layout.tsx
+│   ├── not-found.tsx
+│   └── error.tsx
+├── <span class="tf">components/</span>
+│   ├── <span class="tf">ui/</span>                          <span class="tc">← shadcn/ui base components</span>
+│   ├── <span class="tf">layout/</span>
+│   │   ├── Navbar.tsx
+│   │   ├── StudentSidebar.tsx
+│   │   ├── ClientSidebar.tsx
+│   │   └── Footer.tsx
+│   ├── <span class="tf">jobs/</span>
+│   │   ├── JobCard.tsx
+│   │   ├── JobForm.tsx
+│   │   └── ProposalCard.tsx
+│   ├── <span class="tai">ai/</span>
+│   │   ├── <span class="tai">QualityGateUI.tsx</span>         <span class="tc">← review result display</span>
+│   │   └── <span class="tai">ProposalHelper.tsx</span>
+│   └── <span class="tf">shared/</span>
+│       ├── StudentCard.tsx
+│       ├── TrustBadge.tsx
+│       └── EscrowStatus.tsx
+├── <span class="tf">lib/</span>
+│   ├── <span class="tf">supabase/</span>
+│   │   ├── client.ts                <span class="tc">← browser client</span>
+│   │   └── server.ts               <span class="tc">← server-side client</span>
+│   ├── <span class="tai">claude/</span>
+│   │   ├── <span class="tai">qualityCheck.ts</span>           <span class="tc">← AI gate logic</span>
+│   │   └── <span class="tai">proposalHelp.ts</span>
+│   ├── <span class="tf">razorpay/</span>
+│   │   └── escrow.ts
+│   └── utils.ts
+├── <span class="tf">types/</span>
+│   └── database.types.ts           <span class="tc">← auto-gen from Supabase</span>
+├── middleware.ts                    <span class="tc">← auth + role routing</span>
+├── next.config.ts
+└── <span class="tf">supabase/migrations/</span></pre>
+</div>
+
+<div class="sec">
+  <div class="lbl">Database schema — 17 tables</div>
+  <div class="g3">
+    <div>
+      <div class="db-grp">
+        <div class="db-gt">Users & profiles</div>
+        <span class="db-t">users</span>
+        <span class="db-t">student_profiles</span>
+        <span class="db-t">client_profiles</span>
+        <span class="db-t">colleges</span>
+      </div>
+      <div class="db-grp">
+        <div class="db-gt">Jobs & proposals</div>
+        <span class="db-t">jobs</span>
+        <span class="db-t">proposals</span>
+        <span class="db-t">job_categories</span>
+      </div>
+    </div>
+    <div>
+      <div class="db-grp">
+        <div class="db-gt">Orders & delivery</div>
+        <span class="db-t">orders</span>
+        <span class="db-t">order_submissions</span>
+        <span class="db-t">ai_reviews</span>
+      </div>
+      <div class="db-grp">
+        <div class="db-gt">Payments</div>
+        <span class="db-t">payments</span>
+        <span class="db-t">earnings</span>
+      </div>
+    </div>
+    <div>
+      <div class="db-grp">
+        <div class="db-gt">Trust & portfolio</div>
+        <span class="db-t">reviews</span>
+        <span class="db-t">portfolio_items</span>
+        <span class="db-t">skill_assessments</span>
+      </div>
+      <div class="db-grp">
+        <div class="db-gt">Comms</div>
+        <span class="db-t">conversations</span>
+        <span class="db-t">messages</span>
+        <span class="db-t">notifications</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="lbl">6 core workflows</div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-gray">W1</span> Student onboarding</div>
+    <div class="wf-steps">College email OTP <span class="step-arrow">→</span> Profile details + stream <span class="step-arrow">→</span> Skill assessment (AI-graded) <span class="step-arrow">→</span> Portfolio upload <span class="step-arrow">→</span> First service listing <span class="step-arrow">→</span> Dashboard</div>
+  </div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-gray">W2</span> Client onboarding</div>
+    <div class="wf-steps">Email signup <span class="step-arrow">→</span> Company details <span class="step-arrow">→</span> Razorpay KYC verification <span class="step-arrow">→</span> Post first job (guided) <span class="step-arrow">→</span> Dashboard</div>
+  </div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-teal">W3</span> Job posting + bidding</div>
+    <div class="wf-steps">Client posts job (title, brief, budget, deadline) <span class="step-arrow">→</span> Matching algorithm notifies relevant students <span class="step-arrow">→</span> Students submit proposals (AI pricing hint) <span class="step-arrow">→</span> Client reviews bids + student profiles <span class="step-arrow">→</span> Client shortlists + messages candidates</div>
+  </div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-teal">W4</span> Hiring + escrow</div>
+    <div class="wf-steps">Client selects proposal <span class="step-arrow">→</span> Razorpay escrow payment initiated <span class="step-arrow">→</span> Funds locked on platform <span class="step-arrow">→</span> Order created, student notified <span class="step-arrow">→</span> Kickoff message + deadline confirmed</div>
+  </div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-amber">W5</span> Work delivery + AI gate</div>
+    <div class="wf-steps">Student submits files + notes <span class="step-arrow">→</span> Platform extracts content <span class="step-arrow">→</span> Claude API evaluates vs brief (score 0–100) <span class="step-arrow">→</span> Pass (≥70): client notified, AI-reviewed badge applied <span class="step-arrow">→</span> Fail (&lt;70): issues shown to student, resubmit required <span class="step-arrow">→</span> Max 3 revisions</div>
+  </div>
+  <div class="wf-row">
+    <div class="wf-title"><span class="tag t-green">W6</span> Completion + payout</div>
+    <div class="wf-steps">Client reviews delivery (72hr window) <span class="step-arrow">→</span> Approves: escrow auto-releases to student wallet <span class="step-arrow">→</span> Dispute: admin mediation flow <span class="step-arrow">→</span> Both leave mandatory reviews <span class="step-arrow">→</span> Portfolio item auto-generated <span class="step-arrow">→</span> Trust score updated</div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="lbl">Go deeper</div>
+  <button class="q-btn" onclick="sendPrompt('Write the complete Supabase database schema SQL for Stuviora — all 17 tables with columns, types, relationships, and RLS policies')">Write the full Supabase SQL schema with RLS policies ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Write the Claude API integration code for the Stuviora AI quality gate — the qualityCheck.ts file with the full prompt and response parsing')">Write the qualityCheck.ts Claude integration code ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Write the Razorpay escrow payment flow for Stuviora — create order, lock funds, webhook handler, release on approval')">Write the Razorpay escrow flow code ↗</button>
+  <button class="q-btn" onclick="sendPrompt('Design the student matching algorithm for Stuviora — how do we match the right students to each job posting?')">Design the student-to-job matching algorithm ↗</button>
+</div>

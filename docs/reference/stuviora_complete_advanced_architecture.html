@@ -1,0 +1,501 @@
+
+<style>
+*{box-sizing:border-box}
+.sr-only{position:absolute;left:-9999px}
+.wrap{padding:0 0 2rem}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.tb{font-size:11px;padding:.3rem .75rem;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);cursor:pointer;background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s;font-weight:400}
+.tb.on{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-weight:500}
+.pan{display:none}.pan.on{display:block}
+.lbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:1rem 0 .45rem}
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px;font-size:11px}
+.li{display:flex;align-items:center;gap:4px;color:var(--color-text-secondary)}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.nd{border-radius:var(--border-radius-md);padding:.55rem .7rem;cursor:pointer;transition:all .15s;border:.5px solid}
+.nd:hover{opacity:.82}
+.nx{background:var(--color-background-secondary);border-color:var(--color-border-tertiary)}
+.np{background:#FAEEDA;border-color:#FAC775}
+.nn{background:#FCEBEB;border-color:#F09595}
+.nv{background:var(--color-background-secondary);border-color:var(--color-border-tertiary);opacity:.5}
+.nd-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.nx .nd-title,.nv .nd-title{color:var(--color-text-primary)}
+.np .nd-title{color:#633806}
+.nn .nd-title{color:#791F1F}
+.nd-sub{font-size:10px;line-height:1.35}
+.nx .nd-sub,.nv .nd-sub{color:var(--color-text-secondary)}
+.np .nd-sub{color:#854F0B}
+.nn .nd-sub{color:#A32D2D}
+.ba{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:500;margin-top:4px}
+.bx{background:#EAF3DE;color:#27500A}
+.bp{background:#FAEEDA;color:#633806}
+.bn{background:#FCEBEB;color:#791F1F}
+.bv{background:var(--color-background-secondary);color:var(--color-text-tertiary)}
+.layer-sep{display:flex;align-items:center;gap:8px;margin:8px 0 5px}
+.layer-line{flex:1;height:.5px;background:var(--color-border-tertiary)}
+.layer-lbl{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-tertiary);white-space:nowrap}
+.fs{display:flex;gap:10px;padding:.6rem 0;border-bottom:.5px solid var(--color-border-tertiary);align-items:flex-start}
+.fs:last-child{border-bottom:none}
+.fn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:1px}
+.ft{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.fd{font-size:12px;color:var(--color-text-secondary);line-height:1.45}
+.co{font-family:var(--font-mono);font-size:11px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.65rem .85rem;line-height:1.9;color:var(--color-text-secondary);overflow-x:auto;white-space:pre}
+.ck{color:#534AB7}.cc{color:var(--color-text-tertiary)}.cs{color:#085041}.cn{color:#633806}.ce{color:#791F1F}
+.dpx{font-family:var(--font-mono);font-size:11px;border-radius:4px;padding:2px 8px;display:inline-block;margin:2px 2px 2px 0;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.dpn{font-family:var(--font-mono);font-size:11px;border-radius:4px;padding:2px 8px;display:inline-block;margin:2px 2px 2px 0;background:#FCEBEB;border:.5px solid #F09595;color:#791F1F}
+.jc{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.6rem .8rem;margin-bottom:6px}
+.jt{font-size:13px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap}
+.jd{font-size:12px;color:var(--color-text-secondary);line-height:1.4}
+.jtag{font-size:10px;padding:1px 6px;border-radius:20px;font-weight:500}
+.tcron{background:#E6F1FB;color:#0C447C}
+.tevent{background:#EEEDFE;color:#3C3489}
+.sp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.ss{background:#EAF3DE;border-radius:var(--border-radius-md);padding:.7rem}
+.spp{background:#EEEDFE;border-radius:var(--border-radius-md);padding:.7rem}
+.sl2{font-size:11px;font-weight:500;margin-bottom:3px}
+.ss .sl2{color:#27500A}.spp .sl2{color:#3C3489}
+.sv2{font-size:20px;font-weight:500}.ss .sv2{color:#27500A}.spp .sv2{color:#3C3489}
+.sd3{font-size:11px;margin-top:2px}.ss .sd3{color:#3B6D11}.spp .sd3{color:#534AB7}
+.sr2{padding:.55rem 0;border-bottom:.5px solid var(--color-border-tertiary);display:flex;gap:10px}
+.sr2:last-child{border-bottom:none}
+.si{font-size:15px;flex-shrink:0;margin-top:1px}
+.st{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.sdd{font-size:12px;color:var(--color-text-secondary);line-height:1.4}
+.al{border-radius:var(--border-radius-md);padding:.6rem .9rem;font-size:12px;line-height:1.5;margin:6px 0}
+.al-b{background:#E6F1FB;color:#0C447C}
+.al-a{background:#FAEEDA;color:#633806}
+.al-g{background:#EAF3DE;color:#27500A}
+.al-r{background:#FCEBEB;color:#791F1F}
+.pipe-wrap{display:flex;gap:0;margin:8px 0;border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden}
+.ps{flex:1;padding:.6rem .6rem;border-right:.5px solid var(--color-border-tertiary)}
+.ps:last-child{border-right:none}
+.ps-title{font-weight:500;font-size:12px;color:var(--color-text-primary);margin-bottom:4px}
+.ps-body{font-size:11px;color:var(--color-text-secondary);line-height:1.7}
+</style>
+
+<h2 class="sr-only">Stuviora complete advanced system architecture — all layers, payment engine, 37 tables, AI pipeline, background jobs, security</h2>
+
+<div class="wrap">
+<div class="tabs">
+  <button class="tb on" onclick="sw('arch',this)">Architecture</button>
+  <button class="tb" onclick="sw('pay',this)">Payment engine</button>
+  <button class="tb" onclick="sw('db',this)">Database · 37 tables</button>
+  <button class="tb" onclick="sw('ai',this)">AI pipeline</button>
+  <button class="tb" onclick="sw('jobs',this)">Background jobs</button>
+  <button class="tb" onclick="sw('sec',this)">Security</button>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="t-arch" class="pan on">
+  <div class="leg">
+    <div class="li"><div class="ld" style="background:#639922"></div>Designed ✓</div>
+    <div class="li"><div class="ld" style="background:#EF9F27"></div>Partial — needs design</div>
+    <div class="li"><div class="ld" style="background:#E24B4A"></div>Missing — new build</div>
+    <div class="li"><div class="ld" style="background:#B4B2A9"></div>v2 planned</div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 1 — client interfaces</div><div class="layer-line"></div></div>
+  <div class="g4" style="margin-bottom:5px">
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-school" aria-hidden="true" style="margin-right:3px"></i>Student portal</div><div class="nd-sub">12 pages · onboarding → earnings</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-building-store" aria-hidden="true" style="margin-right:3px"></i>Client portal</div><div class="nd-sub">9 pages · post jobs → pay</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the complete Stuviora admin dashboard — GMV, daily revenue, dispute queue, payout controls, and platform health metrics')"><div class="nd-title"><i class="ti ti-layout-dashboard" aria-hidden="true" style="margin-right:3px"></i>Admin dashboard</div><div class="nd-sub">3 routes exist — zero UI, zero data design ↗</div><span class="ba bn">New design needed</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-world" aria-hidden="true" style="margin-right:3px"></i>Public + auth pages</div><div class="nd-sub">4 public · 5 auth routes</div><span class="ba bx">Designed ✓</span></div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 2 — edge, CDN & middleware</div><div class="layer-line"></div></div>
+  <div class="g4" style="margin-bottom:5px">
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-brand-vercel" aria-hidden="true" style="margin-right:3px"></i>Vercel Edge Network</div><div class="nd-sub">CDN · serverless · zero config</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-route" aria-hidden="true" style="margin-right:3px"></i>middleware.ts</div><div class="nd-sub">Auth check + role-based routing guard</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the Stuviora rate limiting system — per-user, per-endpoint limits using Upstash Redis sliding window')"><div class="nd-title"><i class="ti ti-gauge" aria-hidden="true" style="margin-right:3px"></i>Rate limiter</div><div class="nd-sub">Not in any file — API abuse risk ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nv"><div class="nd-title"><i class="ti ti-cloud" aria-hidden="true" style="margin-right:3px"></i>Cloudflare</div><div class="nd-sub">DDoS + asset CDN</div><span class="ba bv">v2</span></div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 3 — API services (Next.js route handlers)</div><div class="layer-line"></div></div>
+  <div class="g4" style="margin-bottom:5px">
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-lock" aria-hidden="true" style="margin-right:3px"></i>Auth service</div><div class="nd-sub">OTP · JWT · college email · roles</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-briefcase" aria-hidden="true" style="margin-right:3px"></i>Job service</div><div class="nd-sub">CRUD · proposals · status lifecycle</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-clipboard-list" aria-hidden="true" style="margin-right:3px"></i>Order service</div><div class="nd-sub">Lifecycle · submission · 72hr timer</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd np" onclick="sendPrompt('Write the complete Razorpay Route payment service for Stuviora — escrow creation, Transfer API split, commission ledger, and full webhook handler')"><div class="nd-title"><i class="ti ti-currency-rupee" aria-hidden="true" style="margin-right:3px"></i>Payment service</div><div class="nd-sub">Concept exists — split mechanism missing ↗</div><span class="ba bp">Partial</span></div>
+  </div>
+  <div class="g5" style="margin-bottom:5px">
+    <div class="nd np" onclick="sendPrompt('Write the complete Stuviora AI service — file extraction pipeline for PDF/DOCX/ZIP/images, Claude quality gate, proposal helper, and pricing engine')"><div class="nd-title"><i class="ti ti-robot" aria-hidden="true" style="margin-right:3px"></i>AI service</div><div class="nd-sub">Gate concept defined — extraction missing ↗</div><span class="ba bp">Partial</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the Stuviora matching engine — scoring formula, weighting criteria, and notification cutoff logic for student-to-job matching')"><div class="nd-title"><i class="ti ti-arrows-exchange" aria-hidden="true" style="margin-right:3px"></i>Matching engine</div><div class="nd-sub">W3 mentions it — zero algorithm exists ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the Stuviora trust score engine — full calculation formula, tier levels, unlock conditions, and badge system')"><div class="nd-title"><i class="ti ti-shield-check" aria-hidden="true" style="margin-right:3px"></i>Trust score engine</div><div class="nd-sub">Referenced in W6 — zero design ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the complete Stuviora dispute state machine — all states, transitions, admin tools, evidence collection, and commission rollback logic')"><div class="nd-title"><i class="ti ti-gavel" aria-hidden="true" style="margin-right:3px"></i>Dispute engine</div><div class="nd-sub">W6 says "admin mediation" — not designed ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the complete TDS and GST compliance engine for Stuviora — deduction thresholds, tax event logging, Form 16A generation, and GSTIN invoice flow')"><div class="nd-title"><i class="ti ti-receipt-tax" aria-hidden="true" style="margin-right:3px"></i>Tax engine</div><div class="nd-sub">GST 18% + TDS 5% — zero mention ↗</div><span class="ba bn">New</span></div>
+  </div>
+  <div class="g3" style="margin-bottom:5px">
+    <div class="nd np"><div class="nd-title"><i class="ti ti-bell" aria-hidden="true" style="margin-right:3px"></i>Notification service</div><div class="nd-sub">Table exists — trigger logic + prefs missing</div><span class="ba bp">Partial</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the Stuviora withdrawal service — how students request payouts, bank account linking, minimum threshold, and processing time')"><div class="nd-title"><i class="ti ti-wallet" aria-hidden="true" style="margin-right:3px"></i>Withdrawal service</div><div class="nd-sub">How do students get paid out? Not designed ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-upload" aria-hidden="true" style="margin-right:3px"></i>File upload service</div><div class="nd-sub">upload/route.ts exists — validation needed</div><span class="ba bx">Partial ✓</span></div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 4 — external integrations</div><div class="layer-line"></div></div>
+  <div class="g5" style="margin-bottom:5px">
+    <div class="nd np" onclick="sendPrompt('Write the complete Razorpay Route Marketplace configuration for Stuviora — linked account setup, Transfer API call, webhook secret verification, and split config')"><div class="nd-title"><i class="ti ti-currency-rupee" aria-hidden="true" style="margin-right:3px"></i>Razorpay Route</div><div class="nd-sub">Wrong product assumed in blueprint ↗</div><span class="ba bp">Partial</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-robot" aria-hidden="true" style="margin-right:3px"></i>Claude API</div><div class="nd-sub">claude-sonnet-4 · quality + proposals</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-mail" aria-hidden="true" style="margin-right:3px"></i>Resend</div><div class="nd-sub">Transactional email · OTP · digests</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-file-upload" aria-hidden="true" style="margin-right:3px"></i>Supabase Storage</div><div class="nd-sub">Work files · portfolio assets · private buckets</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nn" onclick="sendPrompt('Design the Stuviora college domain registry — how to build and maintain a verified list of 500+ Indian university email domains with an admin approval queue')"><div class="nd-title"><i class="ti ti-school" aria-hidden="true" style="margin-right:3px"></i>College domain registry</div><div class="nd-sub">500+ .ac.in / .edu.in domains — not designed ↗</div><span class="ba bn">New</span></div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 5 — data layer</div><div class="layer-line"></div></div>
+  <div class="g4" style="margin-bottom:5px">
+    <div class="nd np" onclick="sendPrompt('Write the complete Supabase SQL schema for all 37 Stuviora tables — including the 20 new tables with full columns, types, foreign keys, indexes, and RLS policies')"><div class="nd-title"><i class="ti ti-database" aria-hidden="true" style="margin-right:3px"></i>Supabase Postgres</div><div class="nd-sub">17 of 37 tables named only — 20 new needed ↗</div><span class="ba bp">Partial</span></div>
+    <div class="nd nx"><div class="nd-title"><i class="ti ti-message" aria-hidden="true" style="margin-right:3px"></i>Supabase Realtime</div><div class="nd-sub">Messages · live order status · notifications</div><span class="ba bx">Designed ✓</span></div>
+    <div class="nd nv"><div class="nd-title"><i class="ti ti-stack-3" aria-hidden="true" style="margin-right:3px"></i>Upstash Redis</div><div class="nd-sub">Session cache · rate limiting store</div><span class="ba bv">v2 — needed for rate limiting</span></div>
+    <div class="nd nv"><div class="nd-title"><i class="ti ti-search" aria-hidden="true" style="margin-right:3px"></i>Meilisearch</div><div class="nd-sub">Student + job full-text discovery</div><span class="ba bv">v2</span></div>
+  </div>
+
+  <div class="layer-sep"><div class="layer-line"></div><div class="layer-lbl">Layer 6 — background processing (all new — not in any file)</div><div class="layer-line"></div></div>
+  <div class="g4" style="margin-bottom:5px">
+    <div class="nd nn" onclick="sendPrompt('Write all 10 Inngest worker functions for Stuviora — triggers, payloads, retry logic, and idempotency')"><div class="nd-title"><i class="ti ti-player-play" aria-hidden="true" style="margin-right:3px"></i>Inngest workers</div><div class="nd-sub">10 async event-driven jobs — all undesigned ↗</div><span class="ba bn">New</span></div>
+    <div class="nd nn"><div class="nd-title"><i class="ti ti-clock" aria-hidden="true" style="margin-right:3px"></i>Vercel Cron</div><div class="nd-sub">72hr release · reconcile · TDS checker</div><span class="ba bn">New</span></div>
+    <div class="nd nv"><div class="nd-title"><i class="ti ti-chart-dots" aria-hidden="true" style="margin-right:3px"></i>PostHog</div><div class="nd-sub">Funnel analytics · event tracking</div><span class="ba bv">v2</span></div>
+    <div class="nd nv"><div class="nd-title"><i class="ti ti-bug" aria-hidden="true" style="margin-right:3px"></i>Sentry</div><div class="nd-sub">Error tracking · webhook failure alerts</div><span class="ba bv">v2</span></div>
+  </div>
+
+  <div class="al al-r" style="margin-top:8px">
+    <strong>Audit result:</strong> 8 systems fully designed · 5 partial · 10 completely new · 4 deferred to v2. The payment split engine, dispute state machine, background job system, tax compliance layer, and matching algorithm are all zero-designed and must be architected before building begins.
+  </div>
+</div>
+
+<!-- PAYMENT ENGINE -->
+<div id="t-pay" class="pan">
+  <div class="al al-r" style="margin-top:0">Blueprint assumes generic "Razorpay escrow." The correct product is <strong>Razorpay Route (Marketplace)</strong> — this is a different API that enables automatic percentage splits without manual transfers.</div>
+
+  <div class="lbl">Step-by-step payment flow</div>
+  <div style="background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.85rem 1rem">
+    <div class="fs">
+      <div class="fn" style="background:#E6F1FB;color:#0C447C">1</div>
+      <div><div class="ft">Client accepts proposal → payment order created</div><div class="fd">Frontend calls <code style="font-size:11px">POST /api/payments/create</code>. Server calls Razorpay Orders API with linked account transfer config baked in. Inserts <code style="font-size:11px">payments</code> row with status <code style="font-size:11px">PENDING</code>. Returns order_id to client.</div></div>
+    </div>
+    <div class="fs">
+      <div class="fn" style="background:#EEEDFE;color:#3C3489">2</div>
+      <div><div class="ft">Client pays via Razorpay Checkout (UPI / card / netbanking)</div><div class="fd">Full amount (e.g. ₹10,000) captured into Stuviora's Razorpay account. Webhook fires <code style="font-size:11px">payment.captured</code>. Server verifies HMAC-SHA256 signature, checks <code style="font-size:11px">webhook_events</code> for duplicate event_id (idempotency), then updates DB.</div></div>
+    </div>
+    <div class="fs">
+      <div class="fn" style="background:#FAEEDA;color:#633806">3</div>
+      <div><div class="ft">Funds locked → escrow state in DB + both parties notified</div><div class="fd">Payment record updated to <code style="font-size:11px">ESCROWED</code>. Insert into <code style="font-size:11px">platform_ledger</code> as gross credit. Insert <code style="font-size:11px">commission_events</code> row with status <code style="font-size:11px">PENDING</code>. Resend fires to student ("You have a new order") and client ("Payment locked — safe to proceed").</div></div>
+    </div>
+    <div class="fs">
+      <div class="fn" style="background:#EAF3DE;color:#27500A">4</div>
+      <div><div class="ft">AI gate passes → client approves (or 72hr Cron auto-releases)</div><div class="fd">Three paths trigger release: (a) client clicks approve in dashboard, (b) Vercel Cron finds 72hr-expired approvals every 30 min and auto-fires, (c) admin manually releases post-dispute. All three call the same idempotent <code style="font-size:11px">releaseEscrow(orderId)</code> function.</div></div>
+    </div>
+    <div class="fs">
+      <div class="fn" style="background:#EAF3DE;color:#27500A">5</div>
+      <div><div class="ft">Razorpay Transfer API fires — atomic split, cannot partially fail</div><div class="fd">Server calls Razorpay Transfer API. Platform 15% stays in Stuviora Razorpay account automatically. 85% transferred to student's linked bank/UPI account. This is one atomic API call — it cannot partially succeed.</div>
+        <div class="sp">
+          <div class="ss"><div class="sl2"><i class="ti ti-school" aria-hidden="true" style="font-size:11px;margin-right:3px"></i>Student receives</div><div class="sv2">₹8,500</div><div class="sd3">85% → linked bank / UPI. Direct. No wallet intermediary.</div></div>
+          <div class="spp"><div class="sl2"><i class="ti ti-stars" aria-hidden="true" style="font-size:11px;margin-right:3px"></i>Stuviora keeps</div><div class="sv2">₹1,500</div><div class="sd3">15% stays in Stuviora Razorpay account automatically. Zero manual action.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="fs">
+      <div class="fn" style="background:#EEEDFE;color:#3C3489">6</div>
+      <div><div class="ft">transfer.settled webhook → commission recorded + downstream triggers</div><div class="fd">Update <code style="font-size:11px">commission_events</code> status to <code style="font-size:11px">SETTLED</code>. Update <code style="font-size:11px">earnings</code> for student. Debit <code style="font-size:11px">platform_ledger</code> with net (gross minus GST). Fire Inngest events: <code style="font-size:11px">portfolio.generate</code> + <code style="font-size:11px">trust.recalculate</code>. Both parties receive completion email.</div></div>
+    </div>
+  </div>
+
+  <div class="lbl">Webhook event state machine</div>
+  <div class="co"><span class="cc">// app/api/payments/webhook/route.ts</span>
+<span class="ck">switch</span>(event.event) {
+  <span class="ck">case</span> <span class="cs">'payment.captured'</span>:
+    <span class="ck">await</span> verifySignature(req)          <span class="cc">// HMAC-SHA256 — reject if fails</span>
+    <span class="ck">await</span> guardIdempotency(event.id)    <span class="cc">// check webhook_events table</span>
+    <span class="ck">await</span> lockEscrow(paymentId, orderId)
+    <span class="ck">await</span> notifyBothParties(orderId)
+    <span class="ck">break</span>
+  <span class="ck">case</span> <span class="cs">'transfer.created'</span>:
+    <span class="ck">await</span> logTransfer(transferId, studentId, amount) <span class="cc">// transfer_log</span>
+    <span class="ck">break</span>
+  <span class="ck">case</span> <span class="cs">'transfer.settled'</span>:
+    <span class="ck">await</span> settleCommission(orderId)
+    <span class="ck">await</span> inngest.send(<span class="cs">'portfolio/generate'</span>, {orderId})
+    <span class="ck">await</span> inngest.send(<span class="cs">'trust/recalculate'</span>, {studentId})
+    <span class="ck">break</span>
+  <span class="ck">case</span> <span class="cs">'payment.failed'</span>:
+    <span class="ck">await</span> cancelEscrow(orderId)
+    <span class="ck">await</span> notifyFailure(clientId, studentId)
+    <span class="ck">break</span>
+  <span class="ck">case</span> <span class="cs">'refund.created'</span>:    <span class="cc">// dispute resolved in client's favour</span>
+    <span class="ck">await</span> reverseCommission(orderId, refundAmount)
+    <span class="ck">await</span> updatePlatformLedger(<span class="cs">'REVERSAL'</span>, -amount)
+    <span class="ck">break</span>
+}</div>
+
+  <div class="lbl">Tax compliance (missing from all files)</div>
+  <div class="g2">
+    <div style="border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.7rem">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px"><i class="ti ti-receipt-tax" aria-hidden="true" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>GST on platform commission</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">18% GST on Stuviora's 15% fee once registered. On ₹1,500 commission → ₹270 GST → ₹1,230 net revenue. GST invoice auto-generated per transaction. Stored in <span class="dpn">tax_events</span>. Required: GSTIN registration.</div>
+    </div>
+    <div style="border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.7rem">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px"><i class="ti ti-file-invoice" aria-hidden="true" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>TDS on student earnings (Sec. 194H)</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.5">5% TDS deducted once student earns &gt;₹30,000/year on platform. Platform deducts and deposits to government. Track cumulative in <span class="dpn">tax_events</span>. Issue Form 16A annually. Requires student PAN (mandatory at onboarding).</div>
+    </div>
+  </div>
+</div>
+
+<!-- DATABASE -->
+<div id="t-db" class="pan">
+  <div class="al al-b">Blueprint named 17 tables. 20 additional tables are required. Total: <strong>37 tables</strong>. <span class="dpn" style="font-size:11px">red = new</span> <span class="dpx" style="font-size:11px">gray = existing</span></div>
+
+  <div class="lbl">Users & identity</div>
+  <div style="margin-bottom:8px"><span class="dpx">users</span><span class="dpx">student_profiles</span><span class="dpx">client_profiles</span><span class="dpx">colleges</span><span class="dpn">college_domains</span><span class="dpn">notification_preferences</span><span class="dpn">admin_actions</span></div>
+
+  <div class="lbl">Skills taxonomy (entirely missing)</div>
+  <div style="margin-bottom:8px"><span class="dpn">skill_tags</span><span class="dpn">student_skills</span><span class="dpn">job_skill_requirements</span></div>
+
+  <div class="lbl">Jobs, proposals & service listings</div>
+  <div style="margin-bottom:8px"><span class="dpx">jobs</span><span class="dpx">proposals</span><span class="dpx">job_categories</span><span class="dpn">service_listings</span><span class="dpn">service_packages</span><span class="dpn">matching_scores</span></div>
+
+  <div class="lbl">Orders & delivery</div>
+  <div style="margin-bottom:8px"><span class="dpx">orders</span><span class="dpx">order_submissions</span><span class="dpx">ai_reviews</span><span class="dpn">file_attachments</span></div>
+
+  <div class="lbl">Payments & ledger (most critical gap)</div>
+  <div style="margin-bottom:8px"><span class="dpx">payments</span><span class="dpx">earnings</span><span class="dpn">platform_ledger</span><span class="dpn">commission_events</span><span class="dpn">student_wallets</span><span class="dpn">transfer_log</span><span class="dpn">withdrawal_requests</span><span class="dpn">tax_events</span><span class="dpn">webhook_events</span></div>
+
+  <div class="lbl">Trust, reviews & portfolio</div>
+  <div style="margin-bottom:8px"><span class="dpx">reviews</span><span class="dpx">portfolio_items</span><span class="dpx">skill_assessments</span><span class="dpn">trust_score_history</span></div>
+
+  <div class="lbl">Disputes (entirely missing)</div>
+  <div style="margin-bottom:8px"><span class="dpn">dispute_cases</span><span class="dpn">dispute_evidences</span></div>
+
+  <div class="lbl">Communications</div>
+  <div style="margin-bottom:8px"><span class="dpx">conversations</span><span class="dpx">messages</span><span class="dpx">notifications</span></div>
+
+  <div class="lbl">Critical new table schemas</div>
+  <div class="co"><span class="cc">-- platform_ledger: every rupee in/out for Stuviora</span>
+<span class="ck">CREATE TABLE</span> platform_ledger (
+  id uuid <span class="ck">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  order_id uuid <span class="ck">REFERENCES</span> orders(id),
+  type text <span class="ck">CHECK</span>(type <span class="ck">IN</span>(<span class="cs">'COMMISSION','REFUND','ADJUSTMENT'</span>)),
+  gross_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),     <span class="cc">-- full job amount</span>
+  commission_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>), <span class="cc">-- 15% of gross</span>
+  gst_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),        <span class="cc">-- 18% GST on commission</span>
+  net_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),        <span class="cc">-- actual Stuviora revenue</span>
+  razorpay_payment_id text,
+  created_at timestamptz <span class="ck">DEFAULT</span> now()
+);
+
+<span class="cc">-- commission_events: per-order split record</span>
+<span class="ck">CREATE TABLE</span> commission_events (
+  id uuid <span class="ck">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  order_id uuid, student_id uuid, client_id uuid,
+  job_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),
+  commission_rate numeric(<span class="cn">5</span>,<span class="cn">2</span>) <span class="ck">DEFAULT</span> <span class="cn">15.00</span>,
+  commission_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),
+  student_payout numeric(<span class="cn">10</span>,<span class="cn">2</span>),   <span class="cc">-- 85% of gross</span>
+  razorpay_transfer_id text,
+  status text <span class="ck">CHECK</span>(status <span class="ck">IN</span>(<span class="cs">'PENDING','SETTLED','REVERSED'</span>)),
+  settled_at timestamptz
+);
+
+<span class="cc">-- webhook_events: idempotency guard — prevents double-credit</span>
+<span class="ck">CREATE TABLE</span> webhook_events (
+  razorpay_event_id text <span class="ck">PRIMARY KEY</span>,
+  event_type text,
+  processed_at timestamptz <span class="ck">DEFAULT</span> now(),
+  payload jsonb
+);
+
+<span class="cc">-- tax_events: TDS + GST audit trail</span>
+<span class="ck">CREATE TABLE</span> tax_events (
+  id uuid <span class="ck">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  order_id uuid, user_id uuid,
+  tax_type text <span class="ck">CHECK</span>(tax_type <span class="ck">IN</span>(<span class="cs">'TDS','GST'</span>)),
+  taxable_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),
+  tax_rate numeric(<span class="cn">5</span>,<span class="cn">2</span>),
+  tax_amount numeric(<span class="cn">10</span>,<span class="cn">2</span>),
+  financial_year text,  <span class="cc">-- e.g. '2025-26'</span>
+  created_at timestamptz <span class="ck">DEFAULT</span> now()
+);</div>
+</div>
+
+<!-- AI PIPELINE -->
+<div id="t-ai" class="pan">
+  <div class="al al-a">Critical gap: the blueprint never addresses how text is extracted from student files before Claude can evaluate them. A PDF upload is just bytes — Claude can't read it without extraction. This kills the quality gate if unaddressed.</div>
+
+  <div class="lbl">File extraction → Claude evaluation → verdict routing</div>
+  <div class="pipe-wrap">
+    <div class="ps" style="background:#E6F1FB">
+      <div class="ps-title" style="color:#0C447C">1. Receive</div>
+      <div class="ps-body" style="color:#185FA5">Student submits files<br>Upload to Supabase Storage (private bucket)<br>Trigger Inngest job<br>Return "review in progress" state</div>
+    </div>
+    <div class="ps" style="background:#FAEEDA">
+      <div class="ps-title" style="color:#633806">2. Extract</div>
+      <div class="ps-body" style="color:#854F0B">PDF → pdf-parse lib<br>DOCX → mammoth lib<br>Images → Claude Vision API<br>Code files → raw string<br>ZIP → unzip + loop each file</div>
+    </div>
+    <div class="ps">
+      <div class="ps-title">3. Evaluate</div>
+      <div class="ps-body">Fetch job brief from DB<br>Build structured prompt<br>Call claude-sonnet-4<br>Force JSON response<br>Parse + validate schema</div>
+    </div>
+    <div class="ps" style="background:#EAF3DE">
+      <div class="ps-title" style="color:#27500A">4. Score</div>
+      <div class="ps-body" style="color:#3B6D11">score: 0–100<br>brief_alignment: 0–40<br>completeness: 0–30<br>quality: 0–30<br>issues: string[]<br>suggestions: string[]</div>
+    </div>
+    <div class="ps">
+      <div class="ps-title">5. Route</div>
+      <div class="ps-body">≥70 → PASS<br>AI badge applied<br>Client notified<br>&lt;70 → FAIL<br>Issues shown to student<br>3rd fail → admin queue</div>
+    </div>
+  </div>
+
+  <div class="lbl">Claude quality gate prompt (structured JSON output)</div>
+  <div class="co"><span class="cc">// lib/claude/qualityCheck.ts</span>
+<span class="ck">const</span> systemPrompt = <span class="cs">`You are a freelance work quality reviewer.
+Always respond in strict JSON. No prose before or after.`</span>
+
+<span class="ck">const</span> userPrompt = <span class="cs">`JOB BRIEF:
+Title: ${job.title}
+Description: ${job.description}
+Budget: ₹${job.budget} | Category: ${job.category}
+
+SUBMITTED WORK:
+${extractedContent.slice(0, 8000)} /* truncate for token safety */
+
+EVALUATE and respond ONLY with this JSON:
+{
+  "score": number 0-100,
+  "brief_alignment": number 0-40,
+  "completeness": number 0-30,
+  "quality": number 0-30,
+  "verdict": "PASS" or "FAIL",
+  "issues": ["specific issue 1", "specific issue 2"],
+  "suggestions": ["improvement 1", "improvement 2"],
+  "ai_reviewer_note": "one sentence summary for client card"
+}`</span>
+
+<span class="cc">// Always store full response in ai_reviews — never show raw Claude output to client</span>
+<span class="cc">// Use Inngest for files > 2MB to avoid Vercel 10-second function timeout</span></div>
+
+  <div class="lbl">Vercel timeout fix — async via Inngest</div>
+  <div class="co"><span class="cc">// For large files or slow Claude responses, never call inline</span>
+<span class="cc">// api/orders/[id]/submit/route.ts</span>
+<span class="ck">export async function</span> POST(req: Request) {
+  <span class="ck">const</span> { files } = <span class="ck">await</span> req.json()
+  <span class="cc">// Upload to Supabase Storage — fast, within timeout</span>
+  <span class="ck">const</span> uploadedPaths = <span class="ck">await</span> uploadFiles(files)
+  <span class="cc">// Fire Inngest event — non-blocking, returns immediately</span>
+  <span class="ck">await</span> inngest.send({
+    name: <span class="cs">'ai/quality.check'</span>,
+    data: { orderId, submissionId, filePaths: uploadedPaths }
+  })
+  <span class="cc">// Supabase Realtime pushes result to client when Inngest job completes</span>
+  <span class="ck">return</span> Response.json({ status: <span class="cs">'REVIEW_IN_PROGRESS'</span> })
+}</div>
+
+  <div class="lbl">AI-assisted proposal writer + pricing engine</div>
+  <div class="co"><span class="cc">// lib/claude/proposalHelp.ts — called on bid page</span>
+<span class="ck">const</span> proposalPrompt = <span class="cs">`Client needs: ${job.description}
+Student stream: ${student.stream} | Skills: ${student.skills.join(', ')}
+Completed jobs: ${student.completedJobs} | Avg rating: ${student.avgRating}/5
+
+Write a 120-word proposal. Friendly but professional.
+Include: why they're a great fit, realistic timeline, one smart clarifying question.
+DO NOT mention AI tools were used.`</span>
+
+<span class="cc">// lib/claude/pricingEngine.ts — called on service creation</span>
+<span class="ck">const</span> pricingPrompt = <span class="cs">`Job: ${job.description}
+Estimated hours: ${student.estimate}
+Student trust tier: ${student.trustLevel} | Category: ${job.category}
+Market context: India, SMB client, student freelancer
+
+Suggest 3 pricing options (JSON):
+{ basic: number, standard: number, premium: number, reasoning: string }`</span></div>
+</div>
+
+<!-- BACKGROUND JOBS -->
+<div id="t-jobs" class="pan">
+  <div class="al al-b">None of these exist in any blueprint file. All 10 are new designs. Inngest handles event-triggered async work. Vercel Cron handles timed scheduled jobs.</div>
+
+  <div class="jc">
+    <div class="jt"><span class="jtag tcron">CRON · every 30 min</span><i class="ti ti-clock-play" aria-hidden="true" style="font-size:14px"></i>Escrow auto-release</div>
+    <div class="jd">Finds orders where <code style="font-size:11px">status = AWAITING_APPROVAL AND approved_at + 72h &lt; NOW()</code>. Fires <code style="font-size:11px">releaseEscrow()</code> for each. Uses IST timezone. Idempotent — safe to run multiple times. This is the heartbeat of client trust.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · order.completed</span><i class="ti ti-shield-check" aria-hidden="true" style="font-size:14px"></i>Trust score recalculator</div>
+    <div class="jd">Formula: <code style="font-size:11px">(avg_rating × 0.40) + (on_time_rate × 0.25) + (ai_pass_rate × 0.20) + (response_score × 0.15)</code>. Stores result in <code style="font-size:11px">trust_score_history</code>. Unlocks tier badges (Bronze / Silver / Gold / Platinum). Higher tiers unlock higher-budget jobs.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · order.completed</span><i class="ti ti-file-plus" aria-hidden="true" style="font-size:14px"></i>Portfolio auto-generator</div>
+    <div class="jd">Calls Claude API to generate a case study from: job brief + final submission + client review text. Output: title, problem, approach, outcome, skills used. Stored in <code style="font-size:11px">portfolio_items</code>. Student can edit — it's a first draft, not final copy.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · job.posted</span><i class="ti ti-bell-ringing" aria-hidden="true" style="font-size:14px"></i>Smart match notifier</div>
+    <div class="jd">Matching engine scores all eligible students: <code style="font-size:11px">(skill_overlap × 0.45) + (budget_fit × 0.25) + (trust_score × 0.20) + (availability × 0.10)</code>. Top 20 students get push + email. Hard cap: max 3 job alert emails per student per day to prevent notification fatigue.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tcron">CRON · daily 2AM IST</span><i class="ti ti-scale" aria-hidden="true" style="font-size:14px"></i>Commission reconciler</div>
+    <div class="jd">Fetches Razorpay account balance via API. Compares to sum of <code style="font-size:11px">platform_ledger</code> net credits. Flags discrepancy &gt; ₹10 to founder via Slack/email. Generates daily revenue digest: GMV, commission earned, Stuviora net, TDS held, pending payouts.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tcron">CRON · Monday 9AM IST</span><i class="ti ti-coin" aria-hidden="true" style="font-size:14px"></i>Weekly student earnings digest</div>
+    <div class="jd">Sends each active student a weekly summary via Resend: earnings this week, pending orders, new matching jobs, profile views, trust score change. Key retention driver — students who see progress weekly churn 40% less.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · dispute.raised</span><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px"></i>Dispute escalation timer</div>
+    <div class="jd">Sets a 48hr resolution deadline on every new dispute. If admin hasn't resolved by deadline, Slack alert fires to founder. Commission held in <code style="font-size:11px">DISPUTE_HOLD</code> status in <code style="font-size:11px">commission_events</code> until resolved. State machine: OPEN → EVIDENCE_COLLECTION → ADMIN_REVIEW → RESOLVED.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tcron">CRON · 1st of month</span><i class="ti ti-receipt-tax" aria-hidden="true" style="font-size:14px"></i>TDS threshold checker</div>
+    <div class="jd">Calculates each student's cumulative earnings for the financial year. Flags students approaching ₹30,000 threshold. On next payout after crossing: automatically deducts 5% TDS, logs in <code style="font-size:11px">tax_events</code>, deposits to government account. Generates Form 16A data in April.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · submission.received</span><i class="ti ti-robot" aria-hidden="true" style="font-size:14px"></i>Async AI quality checker (Inngest)</div>
+    <div class="jd">All quality checks run via Inngest (not inline) to bypass Vercel's 10-second timeout. For large files (&gt;2MB / DOCX / ZIP), inline execution would always fail. Inngest job has 3 retries with exponential backoff. Result pushed to client via Supabase Realtime channel.</div>
+  </div>
+  <div class="jc">
+    <div class="jt"><span class="jtag tevent">EVENT · user.signup</span><i class="ti ti-school" aria-hidden="true" style="font-size:14px"></i>College email domain verifier</div>
+    <div class="jd">On student signup, extract domain from email. Check against <code style="font-size:11px">college_domains</code> table (500+ verified Indian university domains: .ac.in, .edu.in, plus named domains like iitb.ac.in). If domain not found: flag for manual review, block profile creation, send "domain not recognized" email with appeal form.</div>
+  </div>
+</div>
+
+<!-- SECURITY -->
+<div id="t-sec" class="pan">
+  <div class="sr2">
+    <i class="ti ti-database-lock si" style="color:#534AB7" aria-hidden="true"></i>
+    <div><div class="st">Row Level Security on every table</div><div class="sdd">Students can only SELECT/UPDATE their own rows in <code style="font-size:11px">orders</code>, <code style="font-size:11px">earnings</code>, <code style="font-size:11px">proposals</code>. Clients only see their own <code style="font-size:11px">jobs</code>. <code style="font-size:11px">platform_ledger</code>, <code style="font-size:11px">commission_events</code>, <code style="font-size:11px">admin_actions</code> are service_role only — inaccessible from any client session. RLS enforced at the Postgres level, not just in code.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-shield-check si" style="color:#085041" aria-hidden="true"></i>
+    <div><div class="st">Razorpay webhook signature verification + idempotency</div><div class="sdd">Every webhook: verify <code style="font-size:11px">x-razorpay-signature</code> header using HMAC-SHA256 with webhook secret. Reject unsigned requests with 400. Before processing, check <code style="font-size:11px">webhook_events</code> table for duplicate <code style="font-size:11px">razorpay_event_id</code>. Razorpay retries on 5xx — without this guard, a student gets paid twice.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-gauge si" style="color:#633806" aria-hidden="true"></i>
+    <div><div class="st">API rate limiting (per user, per endpoint)</div><div class="sdd"><code style="font-size:11px">POST /api/proposals</code>: 10/hr/user. <code style="font-size:11px">POST /api/orders/[id]/submit</code>: 5/day/student. <code style="font-size:11px">POST /api/ai/quality-check</code>: 3/order (max revisions). <code style="font-size:11px">POST /api/auth/signup</code>: 3/hr/IP. MVP: in-memory with Redis fallback. v2: Upstash Redis sliding window.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-file-alert si" style="color:#791F1F" aria-hidden="true"></i>
+    <div><div class="st">File upload validation</div><div class="sdd">Allowlist MIME types only: PDF, DOCX, PNG, JPG, ZIP. Max 50MB. Strip EXIF from images. Scan ZIP contents for path traversal attacks. Store in private Supabase bucket — generate signed URLs (1hr expiry) per request. Never serve user files from a public CDN URL.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-school si" style="color:#0C447C" aria-hidden="true"></i>
+    <div><div class="st">College email allowlist + disposable email blocklist</div><div class="sdd">Maintain <code style="font-size:11px">college_domains</code> table: 500+ verified Indian university domains. Block known disposable email providers (Mailinator, TempMail, etc.). OTP sent only to allowlisted domains. New domain requests go to admin approval queue with LinkedIn/university link verification.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-lock si" style="color:#534AB7" aria-hidden="true"></i>
+    <div><div class="st">Secrets management + PII encryption</div><div class="sdd">Razorpay key, Claude API key, Supabase service_role, Resend key — all in Vercel encrypted environment variables. Never in repo. Student PAN numbers and bank account details stored in Supabase Vault (AES-256 encrypted). Never returned in any API response. DPDP Act (India's data protection law) compliance required.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-user-shield si" style="color:#27500A" aria-hidden="true"></i>
+    <div><div class="st">Admin role separation + immutable audit trail</div><div class="sdd">Admin users have a separate role in Supabase Auth custom claims. All admin routes check <code style="font-size:11px">user.role === 'admin'</code> in JWT at middleware level. Every admin action (dispute resolution, payout override, user ban) is logged immutably in <code style="font-size:11px">admin_actions</code> table with timestamp + reason. Cannot be deleted.</div></div>
+  </div>
+  <div class="sr2">
+    <i class="ti ti-eye-off si" style="color:var(--color-text-secondary)" aria-hidden="true"></i>
+    <div><div class="st">Contact info gating — privacy by design</div><div class="sdd">Client can see student name + college in proposals — NOT email/phone/social handles. Direct contact details are only visible after order is in <code style="font-size:11px">ACTIVE</code> status. This protects the platform from disintermediation (clients bypassing Stuviora to hire students directly off-platform).</div></div>
+  </div>
+</div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.pan').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));
+  document.getElementById('t-'+id).classList.add('on');
+  el.classList.add('on');
+}
+</script>

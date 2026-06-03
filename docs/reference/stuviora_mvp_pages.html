@@ -1,0 +1,317 @@
+
+<h2 class="sr-only">Stuviora MVP pages — 31 pages required to build the perfect MVP, organized by priority and category with build order</h2>
+<style>
+*{box-sizing:border-box}
+.w{padding:.5rem 0 2rem}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.mc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.7rem 1rem}
+.ml{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.mv{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.ms{font-size:11px;color:var(--color-text-tertiary)}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;border-bottom:.5px solid var(--color-border-tertiary);padding-bottom:8px}
+.tb{font-size:11px;padding:.28rem .75rem;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s;font-family:var(--font-sans)}
+.tb.on{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-weight:500}
+.pan{display:none}.pan.on{display:block}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:1rem 0 .45rem}
+.cat{margin-bottom:1rem}
+.cat-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cat-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-teal{background:#E1F5EE;color:#085041}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+.b-green{background:#EAF3DE;color:#27500A}
+.b-red{background:#FCEBEB;color:#791F1F}
+.pages{display:flex;flex-direction:column;gap:4px}
+.pg{display:flex;align-items:center;gap:9px;padding:.42rem .65rem;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);cursor:pointer;transition:all .15s;background:var(--color-background-primary)}
+.pg:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.pg-num{font-size:11px;color:var(--color-text-tertiary);min-width:20px;text-align:right;flex-shrink:0}
+.pg-route{font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);flex:1}
+.pg-label{font-size:11px;color:var(--color-text-secondary);flex:1.2}
+.pg-hard{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px;flex-shrink:0}
+.hard-c{background:#FCEBEB;color:#791F1F}
+.hard-m{background:#FAEEDA;color:#633806}
+.hard-e{background:#EAF3DE;color:#27500A}
+.pg-week{font-size:10px;color:var(--color-text-tertiary);flex-shrink:0;min-width:38px;text-align:right}
+.cut-pg{display:flex;align-items:center;gap:9px;padding:.42rem .65rem;border-radius:var(--border-radius-md);border:.5px dashed var(--color-border-tertiary);background:transparent;opacity:.55}
+.cut-route{font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);flex:1;text-decoration:line-through;text-decoration-color:var(--color-border-secondary)}
+.cut-why{font-size:11px;color:var(--color-text-tertiary);flex:2}
+.flow-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.fn{background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.35rem .65rem;font-size:12px;color:var(--color-text-primary);font-weight:500}
+.farr{font-size:14px;color:var(--color-text-tertiary)}
+.build-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.wk{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.75rem .9rem}
+.wk-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.wk-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.wk-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.wk-list{display:flex;flex-direction:column;gap:3px}
+.wk-item{font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);padding:2px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.wk-item:last-child{border-bottom:none}
+.wk-count{font-size:11px;color:var(--color-text-tertiary);margin-top:5px;padding-top:4px;border-top:.5px solid var(--color-border-tertiary)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-btn{font-size:11px;padding:.25rem .7rem;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);cursor:pointer;background:transparent;color:var(--color-text-secondary);transition:all .15s;font-family:var(--font-sans)}
+.filter-btn.sel{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-weight:500}
+.al{border-radius:var(--border-radius-md);padding:.55rem .85rem;font-size:12px;line-height:1.5;margin:6px 0}
+.al-b{background:#E6F1FB;color:#0C447C}
+.al-g{background:#EAF3DE;color:#27500A}
+.sep{height:.5px;background:var(--color-border-tertiary);margin:.75rem 0}
+</style>
+
+<div class="w">
+<div class="metrics">
+  <div class="mc"><div class="ml">Total MVP pages</div><div class="mv">31</div><div class="ms">not 40 — trimmed 9</div></div>
+  <div class="mc"><div class="ml">Core loop pages</div><div class="mv">18</div><div class="ms">ship these first</div></div>
+  <div class="mc"><div class="ml">Build weeks</div><div class="mv">6</div><div class="ms">solo dev timeline</div></div>
+  <div class="mc"><div class="ml">Cut from blueprint</div><div class="mv">9</div><div class="ms">over-engineered for MVP</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tb on" onclick="sw('all',this)">All 31 pages</button>
+  <button class="tb" onclick="sw('loop',this)">Core loop first</button>
+  <button class="tb" onclick="sw('schedule',this)">Build schedule</button>
+  <button class="tb" onclick="sw('cut',this)">What to cut & why</button>
+</div>
+
+<!-- ALL PAGES -->
+<div id="p-all" class="pan on">
+<div class="filter-row">
+  <button class="filter-btn sel" onclick="filterAll(this,'all')">All 31</button>
+  <button class="filter-btn" onclick="filterAll(this,'easy')">Easy</button>
+  <button class="filter-btn" onclick="filterAll(this,'medium')">Medium</button>
+  <button class="filter-btn" onclick="filterAll(this,'complex')">Complex</button>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-gray"><i class="ti ti-world" aria-hidden="true" style="font-size:11px"></i> Public · 3</span></div>
+  <div class="pages">
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora homepage — hero section, how it works, trust signals, student and client CTAs')"><span class="pg-num">1</span><span class="pg-route">/</span><span class="pg-label">Landing page</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 1</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora /explore page — browse student freelancers with filter by skill, stream, and rating')"><span class="pg-num">2</span><span class="pg-route">/explore</span><span class="pg-label">Browse freelancers</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora /freelancer/[username] public profile page — portfolio, skills, reviews, hire button')"><span class="pg-num">3</span><span class="pg-route">/freelancer/[username]</span><span class="pg-label">Public student profile</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 3</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-gray"><i class="ti ti-lock" aria-hidden="true" style="font-size:11px"></i> Auth · 5</span></div>
+  <div class="pages">
+    <div class="pg" data-d="easy" onclick="sendPrompt('Write the Stuviora login page — email/password with Supabase Auth, magic link option, forgot password')"><span class="pg-num">4</span><span class="pg-route">/auth/login</span><span class="pg-label">Login</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 1</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora signup role selection page — student vs client, with clear differentiation')"><span class="pg-num">5</span><span class="pg-route">/auth/signup</span><span class="pg-label">Signup — role picker</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 1</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora student signup page — email, college domain check, password, name, stream picker')"><span class="pg-num">6</span><span class="pg-route">/auth/signup/student</span><span class="pg-label">Student signup</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 1</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora client signup page — email, password, company name, GST optional')"><span class="pg-num">7</span><span class="pg-route">/auth/signup/client</span><span class="pg-label">Client signup</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 1</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora email verification page — OTP input for college email, resend option, expiry timer')"><span class="pg-num">8</span><span class="pg-route">/auth/verify-email</span><span class="pg-label">Email OTP verify</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 1</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-purple"><i class="ti ti-school" aria-hidden="true" style="font-size:11px"></i> Student portal · 11</span></div>
+  <div class="pages">
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora student onboarding multi-step flow — skills, portfolio upload, short AI-graded skill test, first service listing')"><span class="pg-num">9</span><span class="pg-route">/student/onboarding</span><span class="pg-label">Multi-step onboarding</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora student dashboard — active orders, recent earnings, trust score, matched jobs, quick actions')"><span class="pg-num">10</span><span class="pg-route">/student/dashboard</span><span class="pg-label">Dashboard</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora student jobs browse page — filter by category, budget, deadline, skill match score')"><span class="pg-num">11</span><span class="pg-route">/student/jobs</span><span class="pg-label">Browse jobs</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora student job detail page — full brief, AI pricing suggestion, proposal form with AI writing helper')"><span class="pg-num">12</span><span class="pg-route">/student/jobs/[id]</span><span class="pg-label">Job detail + bid</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora student proposals list — all submitted bids with status, client, amount, and outcome')"><span class="pg-num">13</span><span class="pg-route">/student/proposals</span><span class="pg-label">My proposals</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora student orders list — active and completed orders with status badges and quick links')"><span class="pg-num">14</span><span class="pg-route">/student/orders</span><span class="pg-label">My orders list</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora student order detail page — brief, deadline countdown, revision history, current status, message button')"><span class="pg-num">15</span><span class="pg-route">/student/orders/[id]</span><span class="pg-label">Order detail</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora work submission page — file upload, notes, AI quality gate progress indicator, pass/fail feedback UI')"><span class="pg-num">16</span><span class="pg-route">/student/orders/[id]/submit</span><span class="pg-label">Submit work + AI gate</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 4</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora student services management page — list all service listings, edit, toggle active/inactive')"><span class="pg-num">17</span><span class="pg-route">/student/services</span><span class="pg-label">My services</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora new service creation page — title, category, description, pricing tiers, sample work upload')"><span class="pg-num">18</span><span class="pg-route">/student/services/new</span><span class="pg-label">Create service listing</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora student earnings page — total earned, pending payouts, transaction history, withdrawal button')"><span class="pg-num">19</span><span class="pg-route">/student/earnings</span><span class="pg-label">Earnings + withdrawals</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 4</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-teal"><i class="ti ti-building-store" aria-hidden="true" style="font-size:11px"></i> Client portal · 8</span></div>
+  <div class="pages">
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora client onboarding flow — company details, GSTIN optional, how to post a job guided walkthrough')"><span class="pg-num">20</span><span class="pg-route">/client/onboarding</span><span class="pg-label">Client onboarding</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora client dashboard — active jobs, hired students, escrow balance, recent activity, quick post-job button')"><span class="pg-num">21</span><span class="pg-route">/client/dashboard</span><span class="pg-label">Dashboard</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora job posting form — title, detailed brief, category, budget range, deadline, file attachment, preview before submit')"><span class="pg-num">22</span><span class="pg-route">/client/post-job</span><span class="pg-label">Post a job</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora client jobs list — all posted jobs with proposal counts, status badges, and quick actions')"><span class="pg-num">23</span><span class="pg-route">/client/jobs</span><span class="pg-label">My posted jobs</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 2</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora client proposals review page — ranked student cards with skills, trust score, AI pricing match, shortlist and message actions')"><span class="pg-num">24</span><span class="pg-route">/client/jobs/[id]/proposals</span><span class="pg-label">Review proposals</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="easy" onclick="sendPrompt('Design the Stuviora client orders list — active, pending approval, completed orders with status and delivery info')"><span class="pg-num">25</span><span class="pg-route">/client/orders</span><span class="pg-label">My orders</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora client order detail page — delivered files, AI-reviewed badge, approve button, revision request, dispute option, 72hr countdown')"><span class="pg-num">26</span><span class="pg-route">/client/orders/[id]</span><span class="pg-label">Review delivery + approve</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 4</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora payment page — Razorpay checkout integration, escrow explanation, order summary, UPI/card options')"><span class="pg-num">27</span><span class="pg-route">/client/payment/[id]</span><span class="pg-label">Escrow payment</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 4</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-blue"><i class="ti ti-messages" aria-hidden="true" style="font-size:11px"></i> Shared · 2</span></div>
+  <div class="pages">
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora messages list page — all conversations sorted by recent, with unread count, student and client avatars')"><span class="pg-num">28</span><span class="pg-route">/messages</span><span class="pg-label">Conversations list</span><span class="pg-hard hard-e">Easy</span><span class="pg-week">Wk 3</span></div>
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora message thread page — real-time chat via Supabase Realtime, file sharing, order context sidebar')"><span class="pg-num">29</span><span class="pg-route">/messages/[id]</span><span class="pg-label">Live chat thread</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 3</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-gray"><i class="ti ti-settings" aria-hidden="true" style="font-size:11px"></i> Settings · 1</span></div>
+  <div class="pages">
+    <div class="pg" data-d="medium" onclick="sendPrompt('Design the Stuviora settings page — account, payment details for students (bank/UPI), profile photo, notification toggles, all in one page for MVP')"><span class="pg-num">30</span><span class="pg-route">/settings</span><span class="pg-label">Account + payments</span><span class="pg-hard hard-m">Medium</span><span class="pg-week">Wk 5</span></div>
+  </div>
+</div>
+
+<div class="cat">
+  <div class="cat-head"><span class="badge b-amber"><i class="ti ti-shield" aria-hidden="true" style="font-size:11px"></i> Admin · 1</span></div>
+  <div class="pages">
+    <div class="pg" data-d="complex" onclick="sendPrompt('Design the Stuviora admin dashboard — GMV counter, daily revenue, dispute queue, recent payments, user management, payout override')"><span class="pg-num">31</span><span class="pg-route">/admin</span><span class="pg-label">Founder admin (1 page)</span><span class="pg-hard hard-c">Complex</span><span class="pg-week">Wk 5</span></div>
+  </div>
+</div>
+</div>
+
+<!-- CORE LOOP -->
+<div id="p-loop" class="pan">
+<div class="al al-g">These 18 pages are the <strong>minimum viable loop</strong>. A student can sign up, bid, get hired, deliver work, pass the AI gate, and get paid. A client can post a job, hire, receive work, approve, and money moves. Ship these first in weeks 1–4. Everything else is layer 2.</div>
+
+<div class="section-label">The complete money-making loop</div>
+<div class="flow-row">
+  <div class="fn"><i class="ti ti-user-plus" aria-hidden="true" style="font-size:12px;margin-right:4px"></i>Student signs up</div><div class="farr">→</div>
+  <div class="fn">Onboards</div><div class="farr">→</div>
+  <div class="fn">Bids on job</div><div class="farr">→</div>
+  <div class="fn">Gets hired</div><div class="farr">→</div>
+  <div class="fn">Submits work</div><div class="farr">→</div>
+  <div class="fn"><i class="ti ti-robot" aria-hidden="true" style="font-size:12px;margin-right:4px"></i>AI reviews</div><div class="farr">→</div>
+  <div class="fn">Client approves</div><div class="farr">→</div>
+  <div class="fn" style="background:#EAF3DE;border-color:#9FE1CB"><i class="ti ti-coin" aria-hidden="true" style="font-size:12px;margin-right:4px;color:#27500A"></i><span style="color:#27500A">Money split</span></div>
+</div>
+
+<div class="section-label">18 pages — build in this exact order</div>
+<div class="pages">
+  <div class="pg" style="background:#EEEDFE;border-color:#AFA9EC" onclick="sendPrompt('Design the Stuviora student signup and OTP verification pages')"><span class="pg-num" style="color:#534AB7">1</span><span class="pg-route">/auth/signup/student</span><span class="pg-label" style="color:#534AB7">Student signup</span><span class="badge b-purple" style="font-size:10px;flex-shrink:0">Start here</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client signup page')"><span class="pg-num">2</span><span class="pg-route">/auth/signup/client</span><span class="pg-label">Client signup</span><span class="pg-hard hard-e">Easy</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora auth login page')"><span class="pg-num">3</span><span class="pg-route">/auth/login</span><span class="pg-label">Login</span><span class="pg-hard hard-e">Easy</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora email OTP verification page')"><span class="pg-num">4</span><span class="pg-route">/auth/verify-email</span><span class="pg-label">OTP verify</span><span class="pg-hard hard-e">Easy</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora student multi-step onboarding — skills, portfolio, skill test, first service listing')"><span class="pg-num">5</span><span class="pg-route">/student/onboarding</span><span class="pg-label">Student onboarding</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client onboarding — company info, guided first job post')"><span class="pg-num">6</span><span class="pg-route">/client/onboarding</span><span class="pg-label">Client onboarding</span><span class="pg-hard hard-m">Medium</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client job posting form — title, brief, budget, deadline, category, file attach')"><span class="pg-num">7</span><span class="pg-route">/client/post-job</span><span class="pg-label">Post a job</span><span class="pg-hard hard-m">Medium</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora student jobs browse page with skill-match filter')"><span class="pg-num">8</span><span class="pg-route">/student/jobs</span><span class="pg-label">Browse jobs</span><span class="pg-hard hard-m">Medium</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora job detail page with AI proposal writer and pricing suggestion')"><span class="pg-num">9</span><span class="pg-route">/student/jobs/[id]</span><span class="pg-label">Job detail + bid</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client proposals review page — ranked student cards with hire button')"><span class="pg-num">10</span><span class="pg-route">/client/jobs/[id]/proposals</span><span class="pg-label">Review proposals</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora Razorpay payment page — escrow checkout with UPI and card')"><span class="pg-num">11</span><span class="pg-route">/client/payment/[id]</span><span class="pg-label">Escrow payment</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora student order detail page — brief, deadline, status, chat button')"><span class="pg-num">12</span><span class="pg-route">/student/orders/[id]</span><span class="pg-label">Order detail (student)</span><span class="pg-hard hard-m">Medium</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora work submission page with file upload and live AI quality gate UI')"><span class="pg-num">13</span><span class="pg-route">/student/orders/[id]/submit</span><span class="pg-label">Submit work + AI gate</span><span class="pg-hard hard-c">Complex</span><span class="badge b-amber" style="font-size:10px;flex-shrink:0">Your moat</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client order review page — delivered files, AI badge, approve and dispute buttons with 72hr countdown')"><span class="pg-num">14</span><span class="pg-route">/client/orders/[id]</span><span class="pg-label">Review + approve</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora message thread with Supabase Realtime live chat')"><span class="pg-num">15</span><span class="pg-route">/messages/[id]</span><span class="pg-label">Live chat</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora student dashboard — active orders, earnings, trust score, matched jobs')"><span class="pg-num">16</span><span class="pg-route">/student/dashboard</span><span class="pg-label">Student dashboard</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" onclick="sendPrompt('Design the Stuviora client dashboard — active jobs, escrow balance, activity feed')"><span class="pg-num">17</span><span class="pg-route">/client/dashboard</span><span class="pg-label">Client dashboard</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" style="background:#EAF3DE;border-color:#97C459" onclick="sendPrompt('Design the Stuviora student earnings page — balance, pending, transaction history, withdrawal to UPI or bank')"><span class="pg-num" style="color:#27500A">18</span><span class="pg-route">/student/earnings</span><span class="pg-label" style="color:#27500A">Earnings + payout</span><span class="badge b-green" style="font-size:10px;flex-shrink:0">Loop closes here</span></div>
+</div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="p-schedule" class="pan">
+<div class="al al-b">6-week solo dev timeline. One developer, Next.js 14. Supabase handles auth and realtime so you don't build them from scratch.</div>
+<div class="build-grid">
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-purple">Week 1</span><span class="wk-title">Auth foundation</span></div>
+    <div class="wk-list">
+      <div class="wk-item">/</div>
+      <div class="wk-item">/auth/login</div>
+      <div class="wk-item">/auth/signup</div>
+      <div class="wk-item">/auth/signup/student</div>
+      <div class="wk-item">/auth/signup/client</div>
+      <div class="wk-item">/auth/verify-email</div>
+    </div>
+    <div class="wk-count">6 pages · Supabase Auth + college OTP</div>
+  </div>
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-teal">Week 2</span><span class="wk-title">Onboarding + job posting</span></div>
+    <div class="wk-list">
+      <div class="wk-item">/student/onboarding</div>
+      <div class="wk-item">/client/onboarding</div>
+      <div class="wk-item">/student/dashboard</div>
+      <div class="wk-item">/client/dashboard</div>
+      <div class="wk-item">/client/post-job</div>
+      <div class="wk-item">/client/jobs</div>
+    </div>
+    <div class="wk-count">6 pages · Core DB tables live</div>
+  </div>
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-blue">Week 3</span><span class="wk-title">Browse, bid, message</span></div>
+    <div class="wk-list">
+      <div class="wk-item">/student/jobs</div>
+      <div class="wk-item">/student/jobs/[id]</div>
+      <div class="wk-item">/student/proposals</div>
+      <div class="wk-item">/client/jobs/[id]/proposals</div>
+      <div class="wk-item">/messages + /messages/[id]</div>
+      <div class="wk-item">/freelancer/[username]</div>
+    </div>
+    <div class="wk-count">7 pages · Realtime messaging live</div>
+  </div>
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-amber">Week 4</span><span class="wk-title">Payment + AI gate</span></div>
+    <div class="wk-list">
+      <div class="wk-item">/client/payment/[id]</div>
+      <div class="wk-item">/student/orders/[id]</div>
+      <div class="wk-item">/student/orders/[id]/submit</div>
+      <div class="wk-item">/client/orders/[id]</div>
+      <div class="wk-item">/student/earnings</div>
+    </div>
+    <div class="wk-count">5 pages · Razorpay + Claude API · most critical week</div>
+  </div>
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-gray">Week 5</span><span class="wk-title">Remaining pages</span></div>
+    <div class="wk-list">
+      <div class="wk-item">/student/services + /new</div>
+      <div class="wk-item">/student/orders</div>
+      <div class="wk-item">/client/orders</div>
+      <div class="wk-item">/explore</div>
+      <div class="wk-item">/messages (list)</div>
+      <div class="wk-item">/settings + /admin</div>
+    </div>
+    <div class="wk-count">7 pages · Platform complete</div>
+  </div>
+  <div class="wk">
+    <div class="wk-head"><span class="wk-badge b-green">Week 6</span><span class="wk-title">QA + launch prep</span></div>
+    <div class="wk-list">
+      <div class="wk-item">End-to-end flow testing</div>
+      <div class="wk-item">Webhook stress testing</div>
+      <div class="wk-item">Mobile responsiveness</div>
+      <div class="wk-item">College domain list seeding</div>
+      <div class="wk-item">Error states + empty states</div>
+    </div>
+    <div class="wk-count">0 new pages · polish and ship</div>
+  </div>
+</div>
+</div>
+
+<!-- CUT -->
+<div id="p-cut" class="pan">
+<div class="al al-b">Blueprint planned 40 pages. These 9 are cut from the MVP. Each one is either redundant, over-engineered for launch, or replaceable with a simpler approach.</div>
+<div class="section-label">9 pages cut — with the exact reason</div>
+<div class="pages" style="gap:5px">
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/how-it-works</span><span class="cut-why">Collapse into homepage sections. A separate page for this is a distraction before you have users.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/auth/signup</span><span class="cut-why">Wait — keep this. Role picker IS needed. Remove the separate /signup/student and /signup/client IF you do role-on-signup. Actually keep all 3.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/student/portfolio</span><span class="cut-why">Portfolio is auto-generated and displayed on /freelancer/[username]. No separate page needed.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/client/jobs/[id]</span><span class="cut-why">Merge job detail into the proposals page. Client doesn't need a separate job detail view.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/settings/account</span><span class="cut-why">Merge all settings into one /settings page for MVP. Split later when there's enough content to justify tabs.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/settings/profile</span><span class="cut-why">Same — merge into single /settings. Over-segmenting settings pages adds navigation complexity with zero benefit.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/notifications</span><span class="cut-why">Show notifications inline (dropdown in navbar). A full page for notifications needs high volume to justify. Use in-app toast + email for MVP.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/admin/users</span><span class="cut-why">Merge into /admin. One admin page with tabs covers disputes, users, and financials for a sub-100 user launch.</span></div>
+  <div class="cut-pg"><span class="pg-num">✕</span><span class="cut-route">/admin/disputes</span><span class="cut-why">Same — merge into /admin dispute tab. Separate admin pages are v2 when dispute volume justifies it.</span></div>
+</div>
+
+<div class="sep"></div>
+<div class="section-label">What 3 pages will take the most time to build</div>
+<div class="pages">
+  <div class="pg" style="border-color:#AFA9EC;background:#EEEDFE" onclick="sendPrompt('Give me a detailed component breakdown of the Stuviora work submission and AI quality gate page — every UI state, loading state, pass state, fail state')"><span class="pg-num" style="color:#3C3489">1st</span><span class="pg-route">/student/orders/[id]/submit</span><span class="pg-label" style="color:#3C3489">File upload + async AI gate + Realtime result push</span><span class="pg-hard hard-c">Hardest</span></div>
+  <div class="pg" style="border-color:#FAC775;background:#FAEEDA" onclick="sendPrompt('Give me a detailed component breakdown of the Stuviora Razorpay payment page — Razorpay Checkout integration, escrow confirmation, webhook handling')"><span class="pg-num" style="color:#633806">2nd</span><span class="pg-route">/client/payment/[id]</span><span class="pg-label" style="color:#633806">Razorpay Checkout + escrow lock + webhook confirmation</span><span class="pg-hard hard-c">Complex</span></div>
+  <div class="pg" style="border-color:#9FE1CB;background:#E1F5EE" onclick="sendPrompt('Give me a detailed component breakdown of the Stuviora client order review page — file viewer, AI badge display, approve flow, dispute flow, 72hr countdown timer')"><span class="pg-num" style="color:#085041">3rd</span><span class="pg-route">/client/orders/[id]</span><span class="pg-label" style="color:#085041">Delivery review + approve + dispute + 72hr auto-release</span><span class="pg-hard hard-c">Complex</span></div>
+</div>
+</div>
+
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.pan').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  el.classList.add('on');
+}
+function filterAll(el,d){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.querySelectorAll('.pg').forEach(p=>{
+    p.style.display=(d==='all'||p.dataset.d===d)?'':'none';
+  });
+}
+</script>
