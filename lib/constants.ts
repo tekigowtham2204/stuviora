@@ -1,0 +1,115 @@
+/** Domain constants for Stuviora — single source of truth for brand + taxonomy. */
+
+export const BRAND = {
+  name: "Stuviora",
+  meaning: "Stu(dent) + Viora: through students, brilliance emerges",
+  tagline: "Hire students. Trust the platform.",
+  positioning:
+    "India's first AI-powered student freelancing platform where every deliverable passes an AI quality check before reaching the client.",
+  domain: "stuviora.com",
+  handle: "@stuviora",
+} as const;
+
+export const COMMISSION_RATE = 0.15;
+export const AI_GATE_PASS_THRESHOLD = 70;
+export const ESCROW_AUTO_RELEASE_HOURS = 72;
+export const MAX_REVISIONS = 3;
+
+/** Service categories, mapped from "anything" to student streams. */
+export const SERVICE_CATEGORIES = [
+  {
+    slug: "content-copywriting",
+    name: "Content & copywriting",
+    streams: "Literature · Journalism · Humanities",
+    note: "Highest demand",
+    tone: "trust",
+  },
+  {
+    slug: "tech-development",
+    name: "Tech & development",
+    streams: "CS · IT · Engineering",
+    note: "Highest value",
+    tone: "info",
+  },
+  {
+    slug: "design-creative",
+    name: "Design & creative",
+    streams: "Design · Fine arts · Architecture",
+    note: "High visibility",
+    tone: "brand",
+  },
+  {
+    slug: "business-research",
+    name: "Business & research",
+    streams: "Commerce · MBA · Economics",
+    note: "Underserved niche",
+    tone: "warning",
+  },
+  {
+    slug: "social-marketing",
+    name: "Social media & marketing",
+    streams: "All streams · Gen Z native skill",
+    note: "Easy entry point",
+    tone: "trust",
+  },
+  {
+    slug: "data-ai",
+    name: "Data & AI services",
+    streams: "Statistics · Data Science · CS",
+    note: "Future moat",
+    tone: "info",
+  },
+] as const;
+
+/** The five-layer trust architecture. */
+export type TrustLayer = {
+  n: number;
+  title: string;
+  q: string;
+  desc: string;
+  moat?: boolean;
+};
+
+export const TRUST_LAYERS: readonly TrustLayer[] = [
+  {
+    n: 1,
+    title: "Identity trust",
+    q: "Is this student real?",
+    desc: "College-email OTP verification on signup. Optional Aadhaar-linked KYC badge. Every profile shows college, stream, city, and year.",
+  },
+  {
+    n: 2,
+    title: "Skill trust",
+    q: "Can they actually do this?",
+    desc: "Short AI-graded skill assessment before listing. Portfolio samples required. Imported Coursera / NPTEL badges.",
+  },
+  {
+    n: 3,
+    title: "Payment trust",
+    q: "Will I get paid / not get scammed?",
+    desc: "Razorpay escrow: client pays into escrow, student is paid only after approval. 72-hour auto-release if no dispute.",
+  },
+  {
+    n: 4,
+    title: "Quality trust",
+    q: "Will the work be good?",
+    desc: "AI quality gate before every delivery: completeness, coherence, brief alignment. Only passing work reaches the client.",
+    moat: true,
+  },
+  {
+    n: 5,
+    title: "Track-record trust",
+    q: "Has anyone hired them before?",
+    desc: "First-job money-back guarantee. 'Verified Freelancer' badge after 3 jobs. Mandatory reviews on every delivery.",
+  },
+];
+
+/** Trust-score tiers unlocked by completed work. */
+export const TRUST_TIERS = [
+  { name: "Bronze", min: 0, color: "#a16207" },
+  { name: "Silver", min: 60, color: "#71717a" },
+  { name: "Gold", min: 78, color: "#b45309" },
+  { name: "Platinum", min: 90, color: "#3c3489" },
+] as const;
+
+export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];

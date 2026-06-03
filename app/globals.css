@@ -1,0 +1,286 @@
+@import "tailwindcss";
+
+/* Tailwind v4 dark variant: matches when `.dark` class is on <html> or any ancestor. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Stuviora design system — trust-and-security color psychology
+  ----------------------------------------------------------
+  Brand (constant across modes):
+    purple  = ambition + premium (Stuviora's character)
+    teal    = financial safety + escrow (the trust signal)
+    gold    = the human-warmth contact moment (handshake highlight)
+    indigo  = deep trust anchor (banks worldwide use this hue)
+
+  Two themes, one product. Dark is the cinematic default; light is editorial-premium.
+  Semantic tokens (--color-background, --color-foreground, etc) swap at runtime via
+  next-themes. Tailwind utilities reference these so dashboard cards and the hero
+  speak the same language across modes.
+*/
+
+@theme {
+  /* Brand purple — ambition */
+  --color-brand-50: #f5f4fe;
+  --color-brand-100: #eeedfe;
+  --color-brand-200: #dad7fb;
+  --color-brand-300: #afa9ec;
+  --color-brand-400: #8b82e0;
+  --color-brand-500: #6a5fd6;
+  --color-brand-600: #534ab7;
+  --color-brand-700: #3c3489;
+  --color-brand-800: #2c2766;
+  --color-brand-900: #1f1b49;
+
+  /* Trust teal — financial safety, escrow */
+  --color-trust-50: #effaf6;
+  --color-trust-100: #e1f5ee;
+  --color-trust-200: #9fe1cb;
+  --color-trust-300: #5cc8a6;
+  --color-trust-400: #2ba784;
+  --color-trust-500: #138a6a;
+  --color-trust-600: #0a6e55;
+  --color-trust-700: #085041;
+  --color-trust-800: #073d32;
+  --color-trust-900: #052a23;
+
+  /* Indigo — deep trust anchor (used in dark cinematic surfaces) */
+  --color-indigo-500: #4338ca;
+  --color-indigo-600: #3730a3;
+  --color-indigo-700: #312e81;
+  --color-indigo-800: #1e1b4b;
+  --color-indigo-900: #0f0d3a;
+  --color-indigo-950: #0a0d1c;
+
+  /* Gold — the warm contact moment of the handshake */
+  --color-gold-300: #f4cc8a;
+  --color-gold-400: #e0b070;
+  --color-gold-500: #c89048;
+  --color-gold-600: #a87330;
+  --color-gold-700: #875a24;
+
+  /* Status (constant across modes) */
+  --color-success: #27500a;
+  --color-success-bg: #eaf3de;
+  --color-warning: #633806;
+  --color-warning-bg: #faeeda;
+  --color-danger: #791f1f;
+  --color-danger-bg: #fcebeb;
+  --color-info: #0c447c;
+  --color-info-bg: #e6f1fb;
+
+  /* Radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Motion — Emil's custom curves */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ============================================================
+   Semantic tokens (runtime-swappable). Components reference
+   bg-background, text-foreground, etc; both themes get them.
+   ============================================================ */
+:root {
+  /* LIGHT — editorial premium, warm off-white (not sterile) */
+  --color-background: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f1ec;
+  --color-surface-subtle: #f7f5f1;
+  --color-foreground: #0e0d12;
+  --color-muted: #5a5862;
+  --color-subtle: #8c8b95;
+  --color-border: #e8e6e0;
+  --color-border-strong: #d4d1c9;
+
+  /* Accent surfaces (subtle warm depth) */
+  --color-elevated: #ffffff;
+  --color-elevated-border: #e0ddd5;
+
+  /* Hero canvas (light): warm cream with brand-tinged radial */
+  --hero-canvas-from: #fbfaf7;
+  --hero-canvas-via: #f3eef8;
+  --hero-canvas-to: #ebf5f1;
+  --hero-fog: rgba(83, 74, 183, 0.12);
+}
+
+.dark {
+  /* DARK — cinematic indigo-night sky, warm-tinted near-black */
+  --color-background: #0a0d1c;
+  --color-surface: #11142a;
+  --color-surface-muted: #161a31;
+  --color-surface-subtle: #0d1023;
+  --color-foreground: #f0eef0;
+  --color-muted: #9e9da6;
+  --color-subtle: #6a6976;
+  --color-border: #1f2342;
+  --color-border-strong: #2d3158;
+
+  --color-elevated: #161a31;
+  --color-elevated-border: #232847;
+
+  /* Hero canvas (dark): deep night with aurora */
+  --hero-canvas-from: #050719;
+  --hero-canvas-via: #0a0d1c;
+  --hero-canvas-to: #0d1126;
+  --hero-fog: rgba(139, 130, 224, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 220ms var(--ease-out-strong), color 220ms var(--ease-out-strong);
+}
+
+/* The cinematic gradient that backs the landing. Subtle in light, atmospheric in dark. */
+.bg-brand-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-brand-700) 0%,
+    var(--color-brand-600) 55%,
+    var(--color-trust-600) 130%
+  );
+}
+
+.bg-hero-canvas {
+  background: radial-gradient(
+      120% 80% at 50% 0%,
+      var(--hero-canvas-via) 0%,
+      var(--hero-canvas-from) 60%,
+      var(--hero-canvas-to) 100%
+    );
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Aurora — a soft bloom that lives behind dark-mode hero sections.
+   Subtle; only one per viewport. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 30% at 28% 30%, var(--color-brand-600) 0%, transparent 60%),
+    radial-gradient(36% 28% at 76% 64%, var(--color-trust-500) 0%, transparent 60%),
+    radial-gradient(22% 20% at 50% 90%, var(--color-gold-500) 0%, transparent 65%);
+  opacity: 0.18;
+  filter: blur(60px);
+}
+
+.dark .aurora {
+  opacity: 0.35;
+}
+
+/* Entrance: never from scale(0). */
+@keyframes sv-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sv-rise {
+  animation: sv-rise 0.5s var(--ease-out-strong) both;
+}
+
+/* Reduced motion: keep opacity transitions, drop movement. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Legal / long-form typography. */
+.prose-stuviora h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+  color: var(--color-foreground);
+}
+.prose-stuviora h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-foreground);
+}
+.prose-stuviora p,
+.prose-stuviora li {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+  max-width: 65ch;
+}
+.prose-stuviora p + p,
+.prose-stuviora ul + p,
+.prose-stuviora p + ul {
+  margin-top: 0.75rem;
+}
+.prose-stuviora ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.prose-stuviora ul li + li {
+  margin-top: 0.35rem;
+}
+.prose-stuviora .meta {
+  font-size: 0.8125rem;
+  color: var(--color-subtle);
+  margin-bottom: 1.5rem;
+}
+.prose-stuviora strong {
+  color: var(--color-foreground);
+}
+
+/* Cinematic page transition (used by app shell). */
+@keyframes sv-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+main.sv-page,
+.sv-page {
+  animation: sv-page-in 0.42s var(--ease-out-strong) both;
+}
