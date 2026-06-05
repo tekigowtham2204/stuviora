@@ -1,0 +1,16 @@
+# Default owner for everything in the repo.
+* @tekigowtham2204
+
+# Engines are domain-critical, keep extra eyes on them.
+/lib/trust/        @tekigowtham2204
+/lib/matching/     @tekigowtham2204
+/lib/disputes/     @tekigowtham2204
+/lib/tax/          @tekigowtham2204
+/lib/razorpay/     @tekigowtham2204
+/lib/ai/           @tekigowtham2204
+
+# Migrations are append-only; reviewer must confirm RLS impact.
+/supabase/migrations/ @tekigowtham2204
+
+# CI changes change the safety net.
+/.github/          @tekigowtham2204

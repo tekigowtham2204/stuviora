@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Kolkata
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    groups:
+      next-react:
+        patterns: ["next", "react", "react-dom", "eslint-config-next"]
+      supabase:
+        patterns: ["@supabase/*"]
+      testing:
+        patterns: ["vitest", "@vitest/*", "@playwright/*", "playwright"]
+    ignore:
+      # Pin majors; review by hand.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    labels: [dependencies, ci]
