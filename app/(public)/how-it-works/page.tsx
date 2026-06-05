@@ -5,11 +5,19 @@ import {
   GraduationCap,
   Building2,
   BadgeCheck,
+  Sparkles,
+  type LucideIcon,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Section,
+  SectionEyebrow,
+  SectionTitle,
+  SectionLede,
+} from "@/components/ui/section";
 import { Reveal } from "@/components/motion/reveal";
 import { TRUST_LAYERS } from "@/lib/constants";
 
@@ -19,7 +27,13 @@ export const metadata = {
     "A guided walkthrough of how Stuviora works for students and clients, from signup to AI-reviewed delivery and escrow-protected payout.",
 };
 
-const STUDENT_STEPS = [
+interface Step {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+}
+
+const STUDENT_STEPS: Step[] = [
   {
     icon: GraduationCap,
     title: "Verify with your college email",
@@ -32,8 +46,8 @@ const STUDENT_STEPS = [
   },
   {
     icon: BadgeCheck,
-    title: "List services, bid on jobs",
-    body: "Create service packages or apply to jobs with one-click AI proposal hints (the pitch stays yours). Higher trust tiers unlock higher-budget jobs.",
+    title: "List services and bid on matched jobs",
+    body: "Create service packages or apply to jobs with one-click AI proposal hints. Higher trust tiers unlock higher-budget jobs.",
   },
   {
     icon: Wallet,
@@ -42,16 +56,16 @@ const STUDENT_STEPS = [
   },
 ];
 
-const CLIENT_STEPS = [
+const CLIENT_STEPS: Step[] = [
   {
     icon: Building2,
     title: "Post a job, set your budget",
-    body: "Describe what you need, add a budget range and deadline. Our matching engine notifies the best-fit students within minutes.",
+    body: "Describe what you need, add a budget range and deadline. The matching engine notifies the best-fit students within minutes.",
   },
   {
     icon: ShieldCheck,
     title: "Hire and fund escrow",
-    body: "Review proposals ranked by trust score and fit. Pick the student you like, fund Razorpay escrow, and work begins. Funds are locked, safe.",
+    body: "Review proposals ranked by trust and fit. Pick the student you like, fund Razorpay escrow, and work begins. Funds are locked, safe.",
   },
   {
     icon: Bot,
@@ -61,132 +75,166 @@ const CLIENT_STEPS = [
   {
     icon: BadgeCheck,
     title: "Approve, or 72-hour auto-release",
-    body: "Approve to release payment to the student. Don't respond? Auto-release after 72 hours. Have a problem? Open a dispute, we mediate.",
+    body: "Approve to release payment to the student. Do not respond? Auto-release after 72 hours. Have a problem? Open a dispute, we mediate.",
   },
 ];
 
 export default function HowItWorksPage() {
   return (
     <>
-      <section className="bg-surface-muted">
-        <Container className="py-16 lg:py-20">
+      <Section spacing="tight" tone="cream" className="bg-hero-canvas">
+        <Container>
           <Reveal className="mx-auto max-w-2xl text-center">
-            <Badge tone="brand">How Stuviora works</Badge>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+            <SectionEyebrow>How Stuviora works</SectionEyebrow>
+            <SectionTitle as="h1" className="mt-4 sm:text-5xl">
               One safe loop, from signup to settled payout.
-            </h1>
-            <p className="mt-4 text-lg text-muted">
-              Two sides, same loop. Both protected by escrow, both held to the same AI-reviewed quality standard.
-            </p>
+            </SectionTitle>
+            <SectionLede className="mx-auto">
+              Two sides, same loop. Both protected by escrow, both held to the same
+              AI-reviewed quality standard.
+            </SectionLede>
           </Reveal>
         </Container>
-      </section>
+      </Section>
 
       {/* Student path */}
-      <section className="py-16">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
-            <div>
-              <Badge tone="brand">For students</Badge>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                Your skills are worth money. We make them safe to sell.
-              </h2>
-              <p className="mt-3 text-sm text-muted">
-                Get verified, get matched, get paid. We remove the scary parts (pricing, pitching, getting scammed) so you can focus on the work itself.
-              </p>
-              <Button href="/auth/signup/student" className="mt-5">
-                Start earning
-              </Button>
-            </div>
-            <ol className="space-y-3">
-              {STUDENT_STEPS.map((s, i) => (
-                <Reveal key={s.title} index={i} as="li">
-                  <Card className="flex items-start gap-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
-                      <s.icon className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold uppercase tracking-wider text-muted">
-                        Step {i + 1}
-                      </div>
-                      <h3 className="mt-1 text-base font-semibold">{s.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted">{s.body}</p>
-                    </div>
-                  </Card>
-                </Reveal>
-              ))}
-            </ol>
-          </div>
-        </Container>
-      </section>
+      <PathSection
+        accent="sage"
+        eyebrow="For students"
+        title="Your skills are worth money. We make them safe to sell."
+        body="Get verified, get matched, get paid. We remove the scary parts so you can focus on the work itself."
+        cta={{ href: "/auth/signup/student", label: "Start earning" }}
+        steps={STUDENT_STEPS}
+      />
 
       {/* Client path */}
-      <section className="bg-surface-muted py-16">
-        <Container>
-          <div className="grid gap-10 lg:grid-cols-[280px_1fr]">
-            <div>
-              <Badge tone="trust">For clients</Badge>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-                Hire student talent without rolling the dice.
-              </h2>
-              <p className="mt-3 text-sm text-muted">
-                Every deliverable passes an AI quality check before it reaches you. Pay only on approval, with a first-job money-back guarantee.
-              </p>
-              <Button href="/auth/signup/client" variant="trust" className="mt-5">
-                Hire talent
-              </Button>
-            </div>
-            <ol className="space-y-3">
-              {CLIENT_STEPS.map((s, i) => (
-                <Reveal key={s.title} index={i} as="li">
-                  <Card className="flex items-start gap-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-trust-100 text-trust-700">
-                      <s.icon className="h-5 w-5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold uppercase tracking-wider text-muted">
-                        Step {i + 1}
-                      </div>
-                      <h3 className="mt-1 text-base font-semibold">{s.title}</h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted">{s.body}</p>
-                    </div>
-                  </Card>
-                </Reveal>
-              ))}
-            </ol>
-          </div>
-        </Container>
-      </section>
+      <PathSection
+        accent="orange"
+        eyebrow="For clients"
+        title="Hire student talent without rolling the dice."
+        body="Every deliverable passes an AI quality check before it reaches you. Pay only on approval, with a first-job money-back guarantee."
+        cta={{ href: "/auth/signup/client", label: "Hire talent" }}
+        steps={CLIENT_STEPS}
+        tone="warm"
+      />
 
       {/* Trust architecture */}
-      <section className="py-16">
+      <Section spacing="default">
         <Container>
           <Reveal className="max-w-2xl">
-            <Badge tone="info">Why it's safe</Badge>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">Five layers of trust</h2>
-            <p className="mt-3 text-muted">
-              Trust isn't one problem; it's five. Stuviora solves all five so a first-time client can hire a first-time student with confidence.
-            </p>
+            <SectionEyebrow>Why it's safe</SectionEyebrow>
+            <SectionTitle>Five layers of trust.</SectionTitle>
+            <SectionLede>
+              Trust is not one problem. It is five. Stuviora solves all five so a
+              first-time client can hire a first-time student with confidence.
+            </SectionLede>
           </Reveal>
-          <ol className="mt-8 grid gap-3 md:grid-cols-2">
+          <ol className="mt-12 grid gap-4 md:grid-cols-2">
             {TRUST_LAYERS.map((l, i) => (
               <Reveal key={l.n} index={i} as="li">
-                <Card className={l.moat ? "ring-2 ring-brand-300" : ""}>
-                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+                <Card
+                  className={
+                    "h-full " +
+                    (l.moat
+                      ? "ring-2 ring-[var(--color-sage)] ring-offset-2 ring-offset-[var(--color-background)]"
+                      : "")
+                  }
+                >
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                    <span className="font-display flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-brown)] text-[var(--color-cream)]">
                       {l.n}
                     </span>
-                    {l.title}
-                    {l.moat && <Badge tone="warning">The moat</Badge>}
+                    <span className="text-[var(--color-ink)]">{l.title}</span>
+                    {l.moat && (
+                      <Badge tone="sage" className="ml-auto">
+                        <Sparkles className="h-3 w-3" /> The moat
+                      </Badge>
+                    )}
                   </div>
-                  <p className="mt-2 text-sm font-medium text-foreground">&ldquo;{l.q}&rdquo;</p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted">{l.desc}</p>
+                  <p className="mt-3 text-sm font-medium italic text-[var(--color-ink-muted)]">
+                    {l.q}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+                    {l.desc}
+                  </p>
                 </Card>
               </Reveal>
             ))}
           </ol>
         </Container>
-      </section>
+      </Section>
     </>
+  );
+}
+
+function PathSection({
+  accent,
+  eyebrow,
+  title,
+  body,
+  cta,
+  steps,
+  tone = "cream",
+}: {
+  accent: "sage" | "orange";
+  eyebrow: string;
+  title: string;
+  body: string;
+  cta: { href: string; label: string };
+  steps: Step[];
+  tone?: "cream" | "warm";
+}) {
+  return (
+    <Section spacing="default" tone={tone}>
+      <Container>
+        <div className="grid gap-10 lg:grid-cols-[320px_1fr]">
+          <div>
+            <Badge tone={accent}>{eyebrow}</Badge>
+            <h2 className="mt-4 font-display text-3xl font-medium tracking-tight text-[var(--color-ink)] sm:text-4xl">
+              {title}
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+              {body}
+            </p>
+            <Button
+              href={cta.href}
+              variant={accent === "sage" ? "sage" : "primary"}
+              className="mt-6"
+            >
+              {cta.label}
+            </Button>
+          </div>
+          <ol className="space-y-3">
+            {steps.map((s, i) => (
+              <Reveal key={s.title} index={i} as="li">
+                <Card className="flex items-start gap-4">
+                  <span
+                    className={
+                      "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl " +
+                      (accent === "sage"
+                        ? "bg-[var(--color-sage)] text-[var(--color-brown-900)]"
+                        : "bg-[var(--color-orange)] text-[var(--color-brown-900)]")
+                    }
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-ink-muted)]">
+                      Step {i + 1}
+                    </div>
+                    <h3 className="mt-1 font-display text-lg font-medium text-[var(--color-ink)]">
+                      {s.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+                      {s.body}
+                    </p>
+                  </div>
+                </Card>
+              </Reveal>
+            ))}
+          </ol>
+        </div>
+      </Container>
+    </Section>
   );
 }
