@@ -229,7 +229,8 @@ export async function getMatchesForJob(
  * Demo: always 0 (no cap hit). Live: select count from `notification_log`
  * where `student_id = ?` and `kind = 'match_email'` and `created_at >= today`.
  */
-export async function getTodaysMatchEmailCount(_studentId: string): Promise<number> {
+export async function getTodaysMatchEmailCount(studentId: string): Promise<number> {
+  void studentId;
   return 0;
 }
 

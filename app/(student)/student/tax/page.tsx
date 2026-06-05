@@ -165,7 +165,7 @@ export default async function TaxPage({
             </div>
             <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
               Stuviora charges {Math.round(GST_RATE * 100)}% GST on its 15% platform
-              fee, not on your earnings. It appears as a line item on each order's
+              fee, not on your earnings. It appears as a line item on each order&apos;s
               GST invoice, available from the order page. Your payout is unaffected
               by GST.
             </p>

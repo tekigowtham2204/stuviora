@@ -122,7 +122,7 @@ export default function HowItWorksPage() {
       <Section spacing="default">
         <Container>
           <Reveal className="max-w-2xl">
-            <SectionEyebrow>Why it's safe</SectionEyebrow>
+            <SectionEyebrow>Why it&apos;s safe</SectionEyebrow>
             <SectionTitle>Five layers of trust.</SectionTitle>
             <SectionLede>
               Trust is not one problem. It is five. Stuviora solves all five so a
