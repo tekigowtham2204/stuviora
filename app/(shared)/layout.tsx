@@ -41,7 +41,12 @@ export default async function SharedLayout({ children }: { children: React.React
       };
 
   return (
-    <PortalShell nav={NAV} accent={isClient ? "trust" : "brand"} user={user}>
+    <PortalShell
+      nav={NAV}
+      accent={isClient ? "orange" : "sage"}
+      personaLabel={isClient ? "Client" : "Student"}
+      user={user}
+    >
       {children}
     </PortalShell>
   );

@@ -106,10 +106,10 @@ export const TRUST_LAYERS: readonly TrustLayer[] = [
 
 /** Trust-score tiers unlocked by completed work. */
 export const TRUST_TIERS = [
-  { name: "Bronze", min: 0, color: "#a16207" },
-  { name: "Silver", min: 60, color: "#71717a" },
-  { name: "Gold", min: 78, color: "#b45309" },
-  { name: "Platinum", min: 90, color: "#3c3489" },
+  { name: "Bronze", min: 0, color: "#7A6957" },
+  { name: "Silver", min: 60, color: "#6F6258" },
+  { name: "Gold", min: 78, color: "#E9B04E" },
+  { name: "Platinum", min: 90, color: "#8FA85A" },
 ] as const;
 
 export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];

@@ -12,6 +12,7 @@ import type {
   AdminUser,
   AdminAction,
   PlatformMetrics,
+  NotificationPreferences,
 } from "@/lib/types";
 
 export interface ServicePackage {
@@ -75,7 +76,7 @@ export const students: StudentProfile[] = [
     stream: "Computer Science",
     city: "Mumbai",
     yearOfStudy: 3,
-    headline: "Full-stack dev & automation — I ship fast.",
+    headline: "Full-stack dev & automation. I ship fast.",
     bio: "3rd-year CS student. I build web apps, scrapers, and automations. Comfortable with React, Python, and APIs.",
     skills: ["React", "Next.js", "Python", "Automation", "APIs"],
     categorySlug: "tech-development",
@@ -86,6 +87,9 @@ export const students: StudentProfile[] = [
     jobsCompleted: 14,
     verified: true,
     hourlyFrom: 400,
+    isAvailable: true,
+    activeOrderCount: 1,
+    medianResponseHours: 3,
   },
   {
     id: "stu-2",
@@ -107,6 +111,9 @@ export const students: StudentProfile[] = [
     jobsCompleted: 27,
     verified: true,
     hourlyFrom: 300,
+    isAvailable: true,
+    activeOrderCount: 0,
+    medianResponseHours: 2,
   },
   {
     id: "stu-3",
@@ -117,7 +124,7 @@ export const students: StudentProfile[] = [
     stream: "Communication Design",
     city: "Ahmedabad",
     yearOfStudy: 4,
-    headline: "Brand & social design that stops the scroll.",
+    headline: "Brand and social design that stops the scroll.",
     bio: "Logos, social kits, decks. Figma native.",
     skills: ["Figma", "Branding", "Social design", "Illustration"],
     categorySlug: "design-creative",
@@ -128,6 +135,9 @@ export const students: StudentProfile[] = [
     jobsCompleted: 38,
     verified: true,
     hourlyFrom: 500,
+    isAvailable: true,
+    activeOrderCount: 1,
+    medianResponseHours: 4,
   },
   {
     id: "stu-4",
@@ -138,7 +148,7 @@ export const students: StudentProfile[] = [
     stream: "Statistics",
     city: "Bengaluru",
     yearOfStudy: 3,
-    headline: "Data analysis, dashboards & research.",
+    headline: "Data analysis, dashboards, and research.",
     bio: "I turn messy spreadsheets into clear insights and dashboards.",
     skills: ["Excel", "Python", "Data viz", "Research"],
     categorySlug: "data-ai",
@@ -149,6 +159,9 @@ export const students: StudentProfile[] = [
     jobsCompleted: 10,
     verified: true,
     hourlyFrom: 350,
+    isAvailable: true,
+    activeOrderCount: 1,
+    medianResponseHours: 5,
   },
   {
     id: "stu-5",
@@ -170,6 +183,9 @@ export const students: StudentProfile[] = [
     jobsCompleted: 5,
     verified: false,
     hourlyFrom: 250,
+    isAvailable: false,
+    activeOrderCount: 0,
+    medianResponseHours: 9,
   },
 ];
 
@@ -596,6 +612,23 @@ export const trustHistory: TrustHistoryEntry[] = [
   { id: "th-3", delta: -3.2, score: 78.5, reason: "AI gate failed on first attempt (SV-0998)", ago: "1mo ago" },
   { id: "th-4", delta: 4.0, score: 81.7, reason: "Reached 10 completed jobs", ago: "2mo ago" },
   { id: "th-5", delta: 1.8, score: 77.7, reason: "Fast response time this month (~3h median)", ago: "2mo ago" },
+];
+
+export const notificationPreferences: NotificationPreferences[] = [
+  {
+    userId: DEMO_STUDENT_ID,
+    emailJobMatches: true,
+    emailOrderUpdates: true,
+    emailWeeklyDigest: true,
+    emailMarketing: false,
+  },
+  {
+    userId: DEMO_CLIENT_ID,
+    emailJobMatches: false,
+    emailOrderUpdates: true,
+    emailWeeklyDigest: false,
+    emailMarketing: false,
+  },
 ];
 
 export const platformMetrics: PlatformMetrics = {

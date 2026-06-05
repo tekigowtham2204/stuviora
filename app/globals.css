@@ -4,133 +4,188 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Stuviora design system — trust-and-security color psychology
+  Stuviora design system. Warm-earth, premium-craft.
   ----------------------------------------------------------
-  Brand (constant across modes):
-    purple  = ambition + premium (Stuviora's character)
-    teal    = financial safety + escrow (the trust signal)
-    gold    = the human-warmth contact moment (handshake highlight)
-    indigo  = deep trust anchor (banks worldwide use this hue)
+  Palette is rooted in four anchors:
+    sage    (#ABC270) primary brand accent, trust, success
+    yellow  (#FEC868) earnings, premium tier, highlights
+    orange  (#FDA769) primary CTA, alerts, actions
+    brown   (#473C33) all body text, high-emphasis surfaces
 
-  Two themes, one product. Dark is the cinematic default; light is editorial-premium.
-  Semantic tokens (--color-background, --color-foreground, etc) swap at runtime via
-  next-themes. Tailwind utilities reference these so dashboard cards and the hero
-  speak the same language across modes.
+  Cream (#F8F2E3) is the page canvas. White cards float on it.
+  Each surface picks ONE accent. No rainbow chrome.
 */
 
 @theme {
-  /* Brand purple — ambition */
-  --color-brand-50: #f5f4fe;
-  --color-brand-100: #eeedfe;
-  --color-brand-200: #dad7fb;
-  --color-brand-300: #afa9ec;
-  --color-brand-400: #8b82e0;
-  --color-brand-500: #6a5fd6;
-  --color-brand-600: #534ab7;
-  --color-brand-700: #3c3489;
-  --color-brand-800: #2c2766;
-  --color-brand-900: #1f1b49;
+  /* Warm cream surfaces */
+  --color-cream: #f8f2e3;
+  --color-cream-deep: #f0e8d2;
+  --color-surface: #ffffff;
+  --color-surface-warm: #fdf6e8;
 
-  /* Trust teal — financial safety, escrow */
-  --color-trust-50: #effaf6;
-  --color-trust-100: #e1f5ee;
-  --color-trust-200: #9fe1cb;
-  --color-trust-300: #5cc8a6;
-  --color-trust-400: #2ba784;
-  --color-trust-500: #138a6a;
-  --color-trust-600: #0a6e55;
-  --color-trust-700: #085041;
-  --color-trust-800: #073d32;
-  --color-trust-900: #052a23;
+  /* Ink (warm brown body text replaces near-black) */
+  --color-ink: #473c33;
+  --color-ink-muted: #6f6258;
+  --color-ink-faint: #a89e92;
+  --color-line: #ebe3cf;
+  --color-line-strong: #d8cdb1;
 
-  /* Indigo — deep trust anchor (used in dark cinematic surfaces) */
-  --color-indigo-500: #4338ca;
-  --color-indigo-600: #3730a3;
-  --color-indigo-700: #312e81;
-  --color-indigo-800: #1e1b4b;
-  --color-indigo-900: #0f0d3a;
-  --color-indigo-950: #0a0d1c;
+  /* Sage — primary brand accent */
+  --color-sage-50: #f4f7e9;
+  --color-sage-100: #e8eed3;
+  --color-sage-200: #d3dea8;
+  --color-sage-300: #bcce85;
+  --color-sage: #abc270;
+  --color-sage-deep: #8fa85a;
+  --color-sage-700: #6c8540;
+  --color-sage-900: #3e4e22;
 
-  /* Gold — the warm contact moment of the handshake */
-  --color-gold-300: #f4cc8a;
-  --color-gold-400: #e0b070;
-  --color-gold-500: #c89048;
-  --color-gold-600: #a87330;
-  --color-gold-700: #875a24;
+  /* Yellow — premium, earnings */
+  --color-yellow-50: #fdf7e4;
+  --color-yellow-100: #fbeec0;
+  --color-yellow-200: #f8df8c;
+  --color-yellow: #fec868;
+  --color-yellow-deep: #e9b04e;
+  --color-yellow-700: #8a6712;
+  --color-yellow-900: #4a3705;
 
-  /* Status (constant across modes) */
-  --color-success: #27500a;
-  --color-success-bg: #eaf3de;
-  --color-warning: #633806;
-  --color-warning-bg: #faeeda;
-  --color-danger: #791f1f;
-  --color-danger-bg: #fcebeb;
-  --color-info: #0c447c;
-  --color-info-bg: #e6f1fb;
+  /* Orange — primary CTA, alerts */
+  --color-orange-50: #fef1e3;
+  --color-orange-100: #fde0c2;
+  --color-orange-200: #fcc391;
+  --color-orange: #fda769;
+  --color-orange-deep: #e89253;
+  --color-orange-700: #a45a1f;
+  --color-orange-900: #5e2f08;
 
-  /* Radii */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  /* Brown — dark surfaces, sidebar */
+  --color-brown-100: #ebe3d4;
+  --color-brown-300: #b6a692;
+  --color-brown-500: #7a6957;
+  --color-brown-700: #5a4d40;
+  --color-brown: #473c33;
+  --color-brown-900: #2c241d;
 
+  /* Warm red for destructive / disputes */
+  --color-danger: #c45a4e;
+  --color-danger-soft: #f6e3df;
+  --color-danger-deep: #9c4239;
+
+  /* Semantic mapping (kept legacy names so existing components keep working) */
+  --color-brand-50: var(--color-sage-50);
+  --color-brand-100: var(--color-sage-100);
+  --color-brand-200: var(--color-sage-200);
+  --color-brand-300: var(--color-sage-300);
+  --color-brand-400: var(--color-sage);
+  --color-brand-500: var(--color-sage);
+  --color-brand-600: var(--color-sage-deep);
+  --color-brand-700: var(--color-sage-700);
+  --color-brand-900: var(--color-sage-900);
+
+  --color-trust-50: var(--color-sage-50);
+  --color-trust-100: var(--color-sage-100);
+  --color-trust-200: var(--color-sage-200);
+  --color-trust-300: var(--color-sage-300);
+  --color-trust-400: var(--color-sage);
+  --color-trust-500: var(--color-sage-deep);
+  --color-trust-600: var(--color-sage-deep);
+  --color-trust-700: var(--color-sage-700);
+  --color-trust-800: var(--color-sage-900);
+  --color-trust-900: var(--color-sage-900);
+
+  --color-indigo-500: var(--color-brown-500);
+  --color-indigo-600: var(--color-brown-700);
+  --color-indigo-700: var(--color-brown);
+  --color-indigo-800: var(--color-brown-900);
+  --color-indigo-900: var(--color-brown-900);
+  --color-indigo-950: var(--color-brown-900);
+
+  --color-gold-300: var(--color-yellow-100);
+  --color-gold-400: var(--color-yellow-200);
+  --color-gold-500: var(--color-yellow);
+  --color-gold-600: var(--color-yellow-deep);
+  --color-gold-700: var(--color-yellow-700);
+
+  /* Status (tinted on cream, warm family) */
+  --color-success: var(--color-sage-900);
+  --color-success-bg: var(--color-sage-100);
+  --color-warning: var(--color-orange-900);
+  --color-warning-bg: var(--color-orange-100);
+  --color-danger-text: var(--color-danger-deep);
+  --color-danger-bg: var(--color-danger-soft);
+  --color-info: var(--color-brown);
+  --color-info-bg: var(--color-cream-deep);
+
+  /* Radii — generous */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-card: 1.25rem;
+  --radius-pill: 9999px;
+
+  /* Shadows — soft, warm */
+  --shadow-card: 0 1px 0 rgba(71, 60, 51, 0.04), 0 8px 24px -16px rgba(71, 60, 51, 0.18);
+  --shadow-card-lg: 0 2px 0 rgba(71, 60, 51, 0.05), 0 24px 48px -24px rgba(71, 60, 51, 0.22);
+  --shadow-glow-orange: 0 8px 24px -8px rgba(253, 167, 105, 0.45);
+  --shadow-glow-sage: 0 8px 24px -8px rgba(171, 194, 112, 0.45);
+
+  /* Typography */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Motion — Emil's custom curves */
+  /* Motion */
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ============================================================
-   Semantic tokens (runtime-swappable). Components reference
-   bg-background, text-foreground, etc; both themes get them.
+   Semantic tokens. Components reference bg-background,
+   text-foreground, etc. Cream-and-brown light theme;
+   warm-night dark theme.
    ============================================================ */
 :root {
-  /* LIGHT — editorial premium, warm off-white (not sterile) */
-  --color-background: #fbfaf7;
+  --color-background: var(--color-cream);
   --color-surface: #ffffff;
-  --color-surface-muted: #f3f1ec;
-  --color-surface-subtle: #f7f5f1;
-  --color-foreground: #0e0d12;
-  --color-muted: #5a5862;
-  --color-subtle: #8c8b95;
-  --color-border: #e8e6e0;
-  --color-border-strong: #d4d1c9;
+  --color-surface-muted: var(--color-surface-warm);
+  --color-surface-subtle: var(--color-cream-deep);
+  --color-foreground: var(--color-ink);
+  --color-muted: var(--color-ink-muted);
+  --color-subtle: var(--color-ink-faint);
+  --color-border: var(--color-line);
+  --color-border-strong: var(--color-line-strong);
 
-  /* Accent surfaces (subtle warm depth) */
   --color-elevated: #ffffff;
-  --color-elevated-border: #e0ddd5;
+  --color-elevated-border: var(--color-line);
 
-  /* Hero canvas (light): warm cream with brand-tinged radial */
-  --hero-canvas-from: #fbfaf7;
-  --hero-canvas-via: #f3eef8;
-  --hero-canvas-to: #ebf5f1;
-  --hero-fog: rgba(83, 74, 183, 0.12);
+  /* Hero canvas: warm cream with sage radial bloom */
+  --hero-canvas-from: var(--color-cream);
+  --hero-canvas-via: #f3eccf;
+  --hero-canvas-to: #ece4cd;
+  --hero-fog: rgba(171, 194, 112, 0.22);
 }
 
 .dark {
-  /* DARK — cinematic indigo-night sky, warm-tinted near-black */
-  --color-background: #0a0d1c;
-  --color-surface: #11142a;
-  --color-surface-muted: #161a31;
-  --color-surface-subtle: #0d1023;
-  --color-foreground: #f0eef0;
-  --color-muted: #9e9da6;
-  --color-subtle: #6a6976;
-  --color-border: #1f2342;
-  --color-border-strong: #2d3158;
+  --color-background: #1f1812;
+  --color-surface: #2b2218;
+  --color-surface-muted: #251d14;
+  --color-surface-subtle: #1a140d;
+  --color-foreground: #f3eddc;
+  --color-muted: #c8bba6;
+  --color-subtle: #8e8273;
+  --color-border: #3a2f23;
+  --color-border-strong: #4a3d2d;
 
-  --color-elevated: #161a31;
-  --color-elevated-border: #232847;
+  --color-elevated: #2b2218;
+  --color-elevated-border: #3a2f23;
 
-  /* Hero canvas (dark): deep night with aurora */
-  --hero-canvas-from: #050719;
-  --hero-canvas-via: #0a0d1c;
-  --hero-canvas-to: #0d1126;
-  --hero-fog: rgba(139, 130, 224, 0.18);
+  --hero-canvas-from: #1a140d;
+  --hero-canvas-via: #251d14;
+  --hero-canvas-to: #1a140d;
+  --hero-fog: rgba(253, 167, 105, 0.16);
 }
 
 * {
@@ -152,48 +207,69 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
   transition: background-color 220ms var(--ease-out-strong), color 220ms var(--ease-out-strong);
 }
 
-/* The cinematic gradient that backs the landing. Subtle in light, atmospheric in dark. */
+/* Display headings use Fraunces for the premium-craft feel. */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 60, "WONK" 0;
+  letter-spacing: -0.02em;
+}
+
+/* Tabular numerals for money columns and stat counters. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cream-and-sage gradient that backs landing hero. */
 .bg-brand-gradient {
-  background: linear-gradient(
-    135deg,
-    var(--color-brand-700) 0%,
-    var(--color-brand-600) 55%,
-    var(--color-trust-600) 130%
-  );
+  background: linear-gradient(135deg, var(--color-sage-deep) 0%, var(--color-sage) 55%, var(--color-yellow) 130%);
+}
+
+.bg-warm-gradient {
+  background: linear-gradient(135deg, var(--color-yellow) 0%, var(--color-orange) 100%);
 }
 
 .bg-hero-canvas {
-  background: radial-gradient(
-      120% 80% at 50% 0%,
-      var(--hero-canvas-via) 0%,
-      var(--hero-canvas-from) 60%,
-      var(--hero-canvas-to) 100%
-    );
+  background:
+    radial-gradient(80% 60% at 20% 10%, var(--hero-fog) 0%, transparent 60%),
+    radial-gradient(60% 50% at 80% 20%, rgba(253, 167, 105, 0.18) 0%, transparent 60%),
+    radial-gradient(120% 80% at 50% 90%, var(--hero-canvas-via) 0%, var(--hero-canvas-from) 60%, var(--hero-canvas-to) 100%);
 }
 
 .text-balance {
   text-wrap: balance;
 }
 
-/* Aurora — a soft bloom that lives behind dark-mode hero sections.
-   Subtle; only one per viewport. */
+.text-pretty {
+  text-wrap: pretty;
+}
+
+/* Soft warm bloom — used behind hero sections. One per viewport. */
 .aurora {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(40% 30% at 28% 30%, var(--color-brand-600) 0%, transparent 60%),
-    radial-gradient(36% 28% at 76% 64%, var(--color-trust-500) 0%, transparent 60%),
-    radial-gradient(22% 20% at 50% 90%, var(--color-gold-500) 0%, transparent 65%);
+    radial-gradient(40% 30% at 28% 30%, var(--color-sage) 0%, transparent 60%),
+    radial-gradient(36% 28% at 76% 64%, var(--color-orange) 0%, transparent 60%),
+    radial-gradient(22% 20% at 50% 90%, var(--color-yellow) 0%, transparent 65%);
   opacity: 0.18;
-  filter: blur(60px);
+  filter: blur(70px);
 }
 
 .dark .aurora {
-  opacity: 0.35;
+  opacity: 0.28;
+}
+
+/* Subtle linen texture overlay for hero surfaces. */
+.texture-linen {
+  background-image:
+    radial-gradient(rgba(71, 60, 51, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* Entrance: never from scale(0). */
@@ -212,6 +288,27 @@ body {
   animation: sv-rise 0.5s var(--ease-out-strong) both;
 }
 
+/* Warm shimmer for skeletons. */
+@keyframes sv-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.sv-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-warm) 0%,
+    var(--color-cream-deep) 50%,
+    var(--color-surface-warm) 100%
+  );
+  background-size: 200% 100%;
+  animation: sv-shimmer 1.8s var(--ease-in-out-strong) infinite;
+}
+
 /* Reduced motion: keep opacity transitions, drop movement. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -224,18 +321,20 @@ body {
   }
 }
 
-/* Legal / long-form typography. */
+/* Long-form typography. */
 .prose-stuviora h1 {
-  font-size: 1.875rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 500;
   letter-spacing: -0.02em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   color: var(--color-foreground);
 }
 .prose-stuviora h2 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 500;
+  margin-top: 2.25rem;
   margin-bottom: 0.5rem;
   color: var(--color-foreground);
 }
@@ -268,7 +367,7 @@ body {
   color: var(--color-foreground);
 }
 
-/* Cinematic page transition (used by app shell). */
+/* Page transition. */
 @keyframes sv-page-in {
   from {
     opacity: 0;
@@ -283,4 +382,11 @@ body {
 main.sv-page,
 .sv-page {
   animation: sv-page-in 0.42s var(--ease-out-strong) both;
+}
+
+/* Focus ring — warm ink, always visible. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
 }

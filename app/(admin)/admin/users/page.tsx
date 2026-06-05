@@ -1,10 +1,11 @@
 import { PageHeader } from "@/components/ui/page-header";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Money } from "@/components/ui/money";
+import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { listAdminUsers } from "@/lib/data/queries";
 import { toggleUserActive } from "@/app/actions/admin";
-import { formatINR } from "@/lib/utils";
 
 export const metadata = { title: "Users" };
 
@@ -14,54 +15,75 @@ export default async function AdminUsersPage() {
   return (
     <>
       <PageHeader
-        title="Users"
+        eyebrow="Admin"
+        title="Users."
         subtitle="Every account, its lifetime value, and account controls."
       />
 
       <Card className="p-0">
-        {/* Header (desktop) */}
-        <div className="hidden grid-cols-[1.5fr_1fr_0.8fr_1fr_auto] gap-4 border-b border-border px-5 py-3 text-xs font-medium text-subtle md:grid">
+        <div className="hidden grid-cols-[1.5fr_1fr_0.8fr_1fr_auto] gap-4 border-b border-[var(--color-line)] px-6 py-3.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)] md:grid">
           <span>User</span>
           <span>Role / tier</span>
           <span>Status</span>
           <span className="text-right">Lifetime value</span>
           <span className="text-right">Action</span>
         </div>
-        <div className="divide-y divide-border">
+        <div className="divide-y divide-[var(--color-line)]">
           {users.map((u) => (
             <div
               key={u.id}
-              className="grid grid-cols-1 gap-3 px-5 py-4 md:grid-cols-[1.5fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-4"
+              className="grid grid-cols-1 gap-3 px-6 py-4 md:grid-cols-[1.5fr_1fr_0.8fr_1fr_auto] md:items-center md:gap-4"
             >
               <div className="min-w-0">
-                <div className="truncate font-medium">{u.name}</div>
-                <div className="truncate text-xs text-muted">{u.email}</div>
-                <div className="text-xs text-subtle">Joined {u.joinedAgo}</div>
+                <div className="truncate font-medium text-[var(--color-ink)]">
+                  {u.name}
+                </div>
+                <div className="truncate text-xs text-[var(--color-ink-muted)]">
+                  {u.email}
+                </div>
+                <div className="text-xs text-[var(--color-ink-faint)]">
+                  Joined {u.joinedAgo}
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge tone={u.role === "client" ? "trust" : u.role === "admin" ? "brand" : "info"} className="capitalize">
+                <Badge
+                  tone={
+                    u.role === "client" ? "orange" : u.role === "admin" ? "yellow" : "sage"
+                  }
+                  className="capitalize"
+                >
                   {u.role}
                 </Badge>
-                {u.trustTier && (
-                  <span className="text-xs capitalize text-muted">{u.trustTier}</span>
-                )}
+                {u.trustTier && <TrustTierBadge tier={u.trustTier} size="sm" />}
               </div>
               <div>
-                <Badge tone={u.isActive ? "success" : "danger"}>
+                <Badge tone={u.isActive ? "sage" : "danger"}>
                   {u.isActive ? "Active" : "Suspended"}
                 </Badge>
               </div>
-              <div className="font-semibold md:text-right">{formatINR(u.gmv)}</div>
+              <div className="font-display text-base tabular-nums text-[var(--color-ink)] md:text-right">
+                <Money value={u.gmv} compact />
+              </div>
               <div className="md:text-right">
                 <form action={toggleUserActive}>
                   <input type="hidden" name="userId" value={u.id} />
-                  <input type="hidden" name="activate" value={u.isActive ? "false" : "true"} />
+                  <input
+                    type="hidden"
+                    name="activate"
+                    value={u.isActive ? "false" : "true"}
+                  />
                   <input
                     type="hidden"
                     name="reason"
-                    value={u.isActive ? "Manual suspension by admin" : "Reactivated by admin"}
+                    value={
+                      u.isActive ? "Manual suspension by admin" : "Reactivated by admin"
+                    }
                   />
-                  <Button type="submit" variant={u.isActive ? "ghost" : "outline"} size="sm">
+                  <Button
+                    type="submit"
+                    variant={u.isActive ? "ghost" : "outline"}
+                    size="sm"
+                  >
                     {u.isActive ? "Suspend" : "Reactivate"}
                   </Button>
                 </form>
@@ -71,9 +93,9 @@ export default async function AdminUsersPage() {
         </div>
       </Card>
 
-      <p className="mt-3 text-xs text-subtle">
-        Suspending an account blocks new orders and is recorded in the audit trail. It does not
-        affect in-flight escrow.
+      <p className="mt-4 text-xs text-[var(--color-ink-faint)]">
+        Suspending an account blocks new orders and is recorded in the audit trail. It
+        does not affect in-flight escrow.
       </p>
     </>
   );

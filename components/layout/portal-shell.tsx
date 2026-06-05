@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Sparkles, LogOut, type LucideIcon } from "lucide-react";
+import { LogOut, type LucideIcon } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { Logomark } from "@/components/brand/logomark";
 
 export interface NavItem {
   href: string;
@@ -11,53 +12,132 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
+/** Accent maps to the persona theme on the sidebar. */
+type Accent = "sage" | "orange" | "yellow" | "brand" | "trust";
+
 interface PortalShellProps {
   nav: NavItem[];
-  accent: "brand" | "trust";
+  accent: Accent;
   user: { name: string; initials: string; sub: string };
+  /** Persona label shown in the sidebar header. */
+  personaLabel?: string;
   children: React.ReactNode;
 }
 
-export function PortalShell({ nav, accent, user, children }: PortalShellProps) {
-  const accentChip =
-    accent === "trust" ? "bg-trust-100 text-trust-700" : "bg-brand-100 text-brand-600";
+const accentStyles: Record<
+  Accent,
+  { chip: string; activeBar: string; pill: string; sidebarTint: string }
+> = {
+  sage: {
+    chip: "bg-[var(--color-sage)] text-[var(--color-brown-900)]",
+    activeBar: "bg-[var(--color-sage)]",
+    pill: "bg-[var(--color-sage)]/15 text-[var(--color-sage)]",
+    sidebarTint: "before:bg-[var(--color-sage)]",
+  },
+  orange: {
+    chip: "bg-[var(--color-orange)] text-[var(--color-brown-900)]",
+    activeBar: "bg-[var(--color-orange)]",
+    pill: "bg-[var(--color-orange)]/15 text-[var(--color-orange)]",
+    sidebarTint: "before:bg-[var(--color-orange)]",
+  },
+  yellow: {
+    chip: "bg-[var(--color-yellow)] text-[var(--color-brown-900)]",
+    activeBar: "bg-[var(--color-yellow)]",
+    pill: "bg-[var(--color-yellow)]/15 text-[var(--color-yellow)]",
+    sidebarTint: "before:bg-[var(--color-yellow)]",
+  },
+  brand: {
+    chip: "bg-[var(--color-sage)] text-[var(--color-brown-900)]",
+    activeBar: "bg-[var(--color-sage)]",
+    pill: "bg-[var(--color-sage)]/15 text-[var(--color-sage)]",
+    sidebarTint: "before:bg-[var(--color-sage)]",
+  },
+  trust: {
+    chip: "bg-[var(--color-orange)] text-[var(--color-brown-900)]",
+    activeBar: "bg-[var(--color-orange)]",
+    pill: "bg-[var(--color-orange)]/15 text-[var(--color-orange)]",
+    sidebarTint: "before:bg-[var(--color-orange)]",
+  },
+};
+
+export function PortalShell({
+  nav,
+  accent,
+  user,
+  personaLabel,
+  children,
+}: PortalShellProps) {
+  const s = accentStyles[accent];
 
   return (
-    <div className="flex min-h-screen bg-surface-muted">
-      {/* Sidebar (desktop) */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface lg:flex">
-        <div className="flex h-16 items-center border-b border-border px-5">
-          <Link href="/" className="flex items-center gap-2">
-            <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", accentChip)}>
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <span className="font-semibold tracking-tight">{BRAND.name}</span>
+    <div className="flex min-h-screen bg-[var(--color-background)]">
+      {/* Sidebar (desktop) — warm brown chrome, cream text */}
+      <aside
+        className={cn(
+          "relative hidden w-72 shrink-0 flex-col bg-[var(--color-brown)] text-[var(--color-cream)] lg:flex",
+          "before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:rounded-r-full",
+          s.sidebarTint
+        )}
+      >
+        <div className="flex h-20 items-center px-7">
+          <Link href="/" className="flex items-center gap-3">
+            <Logomark className="h-8 w-8 text-[var(--color-cream)]" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-display text-lg font-medium tracking-tight">
+                {BRAND.name}
+              </span>
+              {personaLabel && (
+                <span className="text-[10px] uppercase tracking-[0.22em] text-[var(--color-brown-300)]">
+                  {personaLabel}
+                </span>
+              )}
+            </div>
           </Link>
         </div>
-        <nav className="flex-1 space-y-1 p-3">
+
+        <nav className="flex-1 space-y-1 px-4 pt-4">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+              className={cn(
+                "group flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-[var(--color-cream)]/75",
+                "transition-colors hover:bg-white/5 hover:text-[var(--color-cream)]"
+              )}
             >
-              <item.icon className="h-5 w-5" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-[var(--color-cream)]/80 transition-colors group-hover:bg-white/10">
+                <item.icon className="h-4 w-4" />
+              </span>
               {item.label}
             </Link>
           ))}
         </nav>
-        <div className="border-t border-border p-3">
-          <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-            <span className={cn("flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold", accentChip)}>
+
+        <div className="border-t border-white/8 p-4">
+          <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
+            <span
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold",
+                s.chip
+              )}
+            >
               {user.initials}
             </span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium">{user.name}</div>
-              <div className="truncate text-xs text-muted">{user.sub}</div>
+              <div className="truncate text-sm font-medium text-[var(--color-cream)]">
+                {user.name}
+              </div>
+              <div className="truncate text-[11px] text-[var(--color-cream)]/60">
+                {user.sub}
+              </div>
             </div>
             <ThemeToggle />
             <form action={logout}>
-              <button type="submit" title="Log out" className="text-subtle hover:text-foreground transition-colors">
+              <button
+                type="submit"
+                title="Log out"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-cream)]/60 transition-colors hover:bg-white/10 hover:text-[var(--color-cream)]"
+              >
                 <LogOut className="h-4 w-4" />
               </button>
             </form>
@@ -66,29 +146,34 @@ export function PortalShell({ nav, accent, user, children }: PortalShellProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar (mobile nav) */}
-        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-4 lg:hidden">
+        {/* Top bar (mobile) */}
+        <header className="flex h-16 items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-surface)] px-4 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <span className={cn("flex h-8 w-8 items-center justify-center rounded-lg", accentChip)}>
-              <Sparkles className="h-4 w-4" />
+            <Logomark className="h-7 w-7 text-[var(--color-ink)]" />
+            <span className="font-display text-lg font-medium tracking-tight text-[var(--color-ink)]">
+              {BRAND.name}
             </span>
-            <span className="font-semibold">{BRAND.name}</span>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <span className={cn("flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold", accentChip)}>
+            <span
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold",
+                s.chip
+              )}
+            >
               {user.initials}
             </span>
           </div>
         </header>
 
         {/* Mobile nav scroller */}
-        <nav className="flex gap-1 overflow-x-auto border-b border-border bg-surface px-3 py-2 lg:hidden">
+        <nav className="flex gap-1 overflow-x-auto border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 lg:hidden">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-muted hover:bg-surface-muted"
+              className="flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-warm)] hover:text-[var(--color-ink)]"
             >
               <item.icon className="h-4 w-4" />
               {item.label}
@@ -96,7 +181,9 @@ export function PortalShell({ nav, accent, user, children }: PortalShellProps) {
           ))}
         </nav>
 
-        <main className="flex-1 p-5 lg:p-8">{children}</main>
+        <main className="sv-page flex-1 px-6 py-8 lg:px-10 lg:py-12">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
       </div>
     </div>
   );

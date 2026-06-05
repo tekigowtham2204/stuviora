@@ -1,23 +1,24 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { BRAND } from "@/lib/constants";
+import { Logomark } from "@/components/brand/logomark";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="border-b border-border">
-        <Container className="flex h-16 items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
-              <Sparkles className="h-5 w-5" />
+    <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
+      <header className="border-b border-[var(--color-line)] bg-[var(--color-surface)]">
+        <Container className="flex h-18 items-center py-3">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Logomark className="h-8 w-8 text-[var(--color-ink)]" accent="var(--color-sage)" />
+            <span className="font-display text-xl font-medium tracking-tight">
+              {BRAND.name}
             </span>
-            <span className="text-lg font-semibold tracking-tight">{BRAND.name}</span>
           </Link>
         </Container>
       </header>
-      <main className="flex flex-1 items-center justify-center bg-surface-muted px-4 py-12">
-        <div className="w-full max-w-md">{children}</div>
+      <main className="bg-hero-canvas relative flex flex-1 items-center justify-center px-4 py-16">
+        <div className="aurora opacity-40" />
+        <div className="relative w-full max-w-md">{children}</div>
       </main>
     </div>
   );

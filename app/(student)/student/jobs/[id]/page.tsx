@@ -1,13 +1,17 @@
 import { notFound } from "next/navigation";
-import { Clock, Users, Sparkles } from "lucide-react";
+import { Clock, Users, Sparkles, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getJob, getClientById } from "@/lib/data/queries";
+import { Input, Textarea, Label } from "@/components/ui/input";
+import { Money } from "@/components/ui/money";
+import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
+import { getJob, getClientById, listPortfolio } from "@/lib/data/queries";
 import { submitProposal } from "@/app/actions/jobs";
 import { currentStudent } from "@/lib/auth/session";
-import { formatINR } from "@/lib/utils";
+import { suggestPricing } from "@/lib/pricing/engine";
+import { writeProposalDraft } from "@/lib/proposals/writer";
 
 export const metadata = { title: "Job detail" };
 
@@ -22,39 +26,55 @@ export default async function StudentJobDetail({
 
   const client = await getClientById(job.clientId);
   const me = currentStudent();
-  const suggestedBid = Math.round((job.budgetMin + job.budgetMax) / 2);
+  const pricing = suggestPricing(job, me.trustTier);
+  const portfolio = await listPortfolio(me.id);
+  const draft = await writeProposalDraft({
+    job,
+    student: me,
+    portfolio,
+    bidAmount: pricing.suggested,
+  });
 
   return (
     <>
-      <PageHeader title={job.title} subtitle={`Posted ${job.createdAgo} by ${client?.companyName ?? "a client"}`} />
+      <PageHeader
+        eyebrow={`Posted ${job.createdAgo}`}
+        title={job.title}
+        subtitle={`by ${client?.companyName ?? "a client"}.`}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
           <Card>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-              <span className="font-medium">
-                {formatINR(job.budgetMin)} to {formatINR(job.budgetMax)}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+              <span className="font-medium text-[var(--color-ink)]">
+                <Money value={job.budgetMin} to={job.budgetMax} />
               </span>
-              <span className="inline-flex items-center gap-1 text-muted">
+              <span className="inline-flex items-center gap-1 text-[var(--color-ink-muted)]">
                 <Clock className="h-4 w-4" /> {job.deadlineDays}-day deadline
               </span>
-              <span className="inline-flex items-center gap-1 text-muted">
+              <span className="inline-flex items-center gap-1 text-[var(--color-ink-muted)]">
                 <Users className="h-4 w-4" /> {job.proposalsCount} proposals so far
               </span>
             </div>
-            <div className="mt-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            <div className="mt-6">
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--color-ink-muted)]">
                 Brief
               </h2>
-              <p className="mt-2 text-base leading-relaxed text-foreground">{job.description}</p>
+              <p className="mt-3 text-base leading-relaxed text-[var(--color-ink)]">
+                {job.description}
+              </p>
             </div>
-            <div className="mt-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">
+            <div className="mt-6">
+              <h2 className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--color-ink-muted)]">
                 Skills wanted
               </h2>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {job.skills.map((s) => (
-                  <span key={s} className="rounded-md bg-surface-muted px-2 py-0.5 text-xs text-muted">
+                  <span
+                    key={s}
+                    className="rounded-full bg-[var(--color-surface-warm)] px-2.5 py-1 text-xs text-[var(--color-ink)]"
+                  >
                     {s}
                   </span>
                 ))}
@@ -64,58 +84,70 @@ export default async function StudentJobDetail({
 
           {/* Bid form */}
           <Card>
-            <CardTitle>Submit your proposal</CardTitle>
-            <form action={submitProposal} className="mt-4 space-y-4">
-              <input type="hidden" name="jobId" value={job.id} />
-              <div className="rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm text-brand-700">
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <Sparkles className="h-4 w-4" /> AI pricing hint
-                </span>
-                <p className="mt-1 text-brand-700/90">
-                  Based on brief complexity and your {me.trustTier} tier, a bid around{" "}
-                  <strong>{formatINR(suggestedBid)}</strong> wins this kind of work most often.
-                </p>
-              </div>
+            <div className="flex items-center justify-between">
+              <CardTitle>Submit your proposal</CardTitle>
+              <TrustTierBadge tier={me.trustTier} size="sm" />
+            </div>
 
-              <div>
-                <label htmlFor="coverLetter" className="text-sm font-medium">
-                  Your pitch
-                </label>
-                <textarea
+            {/* Pricing suggestion */}
+            <div className="mt-5 rounded-2xl border border-[var(--color-sage-200)] bg-[var(--color-sage-50)] p-4 text-sm">
+              <div className="flex items-center gap-2 font-semibold text-[var(--color-sage-900)]">
+                <Sparkles className="h-4 w-4" /> AI pricing suggestion
+              </div>
+              <div className="mt-2 flex items-baseline gap-3">
+                <span className="font-display text-2xl font-medium tabular-nums text-[var(--color-ink)]">
+                  <Money value={pricing.suggested} />
+                </span>
+                <span className="text-xs text-[var(--color-ink-muted)]">
+                  Range <Money value={pricing.low} compact /> to{" "}
+                  <Money value={pricing.high} compact />
+                </span>
+              </div>
+              <ul className="mt-2 space-y-0.5 text-xs text-[var(--color-sage-900)]/90">
+                {pricing.reasoning.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </div>
+
+            <form action={submitProposal} className="mt-6 space-y-4">
+              <input type="hidden" name="jobId" value={job.id} />
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="coverLetter">Your pitch</Label>
+                  <Badge tone="orange">
+                    <Sparkles className="h-3 w-3" /> AI-drafted
+                  </Badge>
+                </div>
+                <Textarea
                   id="coverLetter"
                   name="coverLetter"
-                  rows={5}
-                  defaultValue={`Hi! I'm a ${me.stream} student at ${me.college}. I can take this on and deliver within the deadline. Happy to share a small sample first.`}
-                  className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400"
+                  rows={8}
+                  defaultValue={draft.full}
                 />
-                <p className="mt-1 text-xs text-subtle">
-                  Tip: the AI proposal writer will tailor this to the brief in one click (coming soon).
+                <p className="text-xs text-[var(--color-ink-muted)]">
+                  The pitch stays yours. Edit before sending: clients respond to specifics.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="bidAmount" className="text-sm font-medium">
-                    Your bid (INR)
-                  </label>
-                  <input
+                <div className="space-y-1.5">
+                  <Label htmlFor="bidAmount">Your bid (INR)</Label>
+                  <Input
                     id="bidAmount"
                     name="bidAmount"
                     type="number"
-                    defaultValue={suggestedBid}
-                    className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400"
+                    defaultValue={pricing.suggested}
                   />
                 </div>
-                <div>
-                  <label htmlFor="deliveryDays" className="text-sm font-medium">
-                    Delivery (days)
-                  </label>
-                  <input
+                <div className="space-y-1.5">
+                  <Label htmlFor="deliveryDays">Delivery (days)</Label>
+                  <Input
                     id="deliveryDays"
                     name="deliveryDays"
                     type="number"
                     defaultValue={Math.max(1, Math.round(job.deadlineDays * 0.8))}
-                    className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400"
                   />
                 </div>
               </div>
@@ -130,25 +162,33 @@ export default async function StudentJobDetail({
         <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
           <Card>
             <CardTitle>About the client</CardTitle>
-            <div className="mt-3 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-trust-100 font-semibold text-trust-700">
+            <div className="mt-4 flex items-center gap-3">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-orange)] text-base font-semibold text-[var(--color-brown-900)]">
                 {client?.avatarInitials ?? "C"}
               </span>
               <div>
-                <div className="font-medium">{client?.companyName ?? "Client"}</div>
-                <div className="text-xs text-muted">{client?.city}</div>
+                <div className="font-medium text-[var(--color-ink)]">
+                  {client?.companyName ?? "Client"}
+                </div>
+                <div className="text-xs text-[var(--color-ink-muted)]">{client?.city}</div>
               </div>
             </div>
-            <div className="mt-3 text-xs text-muted">
+            <div className="mt-4 text-xs text-[var(--color-ink-muted)]">
               {client?.jobsPosted ?? 0} jobs posted on Stuviora
             </div>
           </Card>
-          <Card>
-            <CardTitle>How payment works</CardTitle>
-            <p className="mt-2 text-sm text-muted">
-              When the client hires you, they fund Razorpay escrow upfront. You get paid 85% on approval, with 72-hour auto-release if they don&apos;t respond.
+          <Card tint="warm">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-[var(--color-sage-deep)]" />
+              <CardTitle>How payment works</CardTitle>
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+              When the client hires you they fund Razorpay escrow upfront. You get paid
+              85% on approval, with 72-hour auto-release if they do not respond.
             </p>
-            <Badge tone="trust" className="mt-3">Escrow-protected</Badge>
+            <Badge tone="sage" className="mt-4">
+              Escrow-protected
+            </Badge>
           </Card>
         </aside>
       </div>
