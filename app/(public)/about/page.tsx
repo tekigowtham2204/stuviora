@@ -49,7 +49,7 @@ export default function AboutPage() {
                 <p className="mt-4 text-base leading-relaxed text-[var(--color-ink)]">
                   An AI quality gate on every delivery. Before any work reaches a
                   client, our AI reviews it for completeness, coherence, and
-                  originality. Clients stop gambling on student talent. The platform's
+                  originality. Clients stop gambling on student talent. The platform&apos;s
                   only job is to keep that trust honest.
                 </p>
               </Card>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ShieldCheck,
   Bot,
@@ -7,9 +6,7 @@ import {
   GraduationCap,
   Building2,
   Sparkles,
-  Star,
   CheckCircle2,
-  TrendingUp,
   Quote,
   type LucideIcon,
 } from "lucide-react";
@@ -60,7 +57,7 @@ function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-sage)] opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-sage-deep)]" />
                 </span>
-                India's first AI-verified student marketplace
+                India&apos;s first AI-verified student marketplace
               </div>
 
               <h1 className="mt-7 font-display text-balance text-5xl font-medium leading-[1.02] tracking-tight text-[var(--color-ink)] sm:text-6xl lg:text-[80px]">
@@ -687,7 +684,7 @@ function ClosingCta() {
                     variant="ghost"
                     className="text-[var(--color-cream)] hover:bg-white/10"
                   >
-                    I'm hiring instead
+                    I&apos;m hiring instead
                   </Button>
                 </div>
               </div>

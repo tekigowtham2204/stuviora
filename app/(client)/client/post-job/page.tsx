@@ -138,7 +138,7 @@ export default function PostJobPage() {
             </div>
             <ul className="mt-4 space-y-2.5 text-sm text-[var(--color-ink-muted)]">
               <li>
-                Be specific about deliverables. "4 blog posts of 1200 to 1500 words" beats "some content".
+                Be specific about deliverables. {`"4 blog posts of 1200 to 1500 words"`} beats {`"some content"`}.
               </li>
               <li>
                 Share one reference. A link to something close to what you want pulls
