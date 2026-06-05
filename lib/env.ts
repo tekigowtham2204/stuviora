@@ -28,6 +28,13 @@ export const env = {
   resendApiKey: read("RESEND_API_KEY"),
   inngestEventKey: read("INNGEST_EVENT_KEY"),
 
+  upstashUrl: read("UPSTASH_REDIS_REST_URL"),
+  upstashToken: read("UPSTASH_REDIS_REST_TOKEN"),
+  meilisearchHost: read("MEILISEARCH_HOST"),
+  meilisearchKey: read("MEILISEARCH_KEY"),
+  sentryDsn: read("SENTRY_DSN"),
+  posthogKey: read("NEXT_PUBLIC_POSTHOG_KEY"),
+
   sessionSecret: read("SESSION_SECRET") ?? "stuviora-dev-secret-change-me",
 } as const;
 
@@ -37,6 +44,10 @@ export const services = {
   anthropic: Boolean(env.anthropicApiKey),
   resend: Boolean(env.resendApiKey),
   inngest: Boolean(env.inngestEventKey),
+  upstash: Boolean(env.upstashUrl && env.upstashToken),
+  meilisearch: Boolean(env.meilisearchHost && env.meilisearchKey),
+  sentry: Boolean(env.sentryDsn),
+  posthog: Boolean(env.posthogKey),
 } as const;
 
 /**

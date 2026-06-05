@@ -1,11 +1,33 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** `flat` = no shadow, `raised` = card shadow (default), `glow` = extra-soft warm glow. */
+  surface?: "flat" | "raised" | "glow";
+  /** `cream` = warm surface, `white` = pure surface (default). */
+  tint?: "white" | "cream" | "sage" | "warm";
+}
+
+const tintClass = {
+  white: "bg-[var(--color-surface)]",
+  cream: "bg-[var(--color-surface-muted)]",
+  sage: "bg-[var(--color-sage-50)]",
+  warm: "bg-[var(--color-surface-warm)]",
+} as const;
+
+const surfaceClass = {
+  flat: "",
+  raised: "shadow-[var(--shadow-card)]",
+  glow: "shadow-[var(--shadow-card-lg)]",
+} as const;
+
+export function Card({ className, surface = "raised", tint = "white", ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
+        "rounded-[var(--radius-card)] border border-[var(--color-line)] p-6",
+        tintClass[tint],
+        surfaceClass[surface],
         className
       )}
       {...props}
@@ -14,12 +36,22 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 }
 
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-base font-semibold text-foreground", className)} {...props} />;
+  return (
+    <h3
+      className={cn("text-base font-semibold tracking-tight text-[var(--color-ink)]", className)}
+      {...props}
+    />
+  );
 }
 
 export function CardDescription({
   className,
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("mt-1 text-sm leading-relaxed text-muted", className)} {...props} />;
+  return (
+    <p
+      className={cn("mt-1 text-sm leading-relaxed text-[var(--color-ink-muted)]", className)}
+      {...props}
+    />
+  );
 }

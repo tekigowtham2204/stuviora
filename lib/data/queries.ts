@@ -2,6 +2,11 @@ import "server-only";
 import * as demo from "@/lib/demo/data";
 import type { Dispute, Job, Order, Proposal, StudentProfile } from "@/lib/types";
 import { computeTrustScore, type TrustSignals } from "@/lib/trust/score";
+import {
+  rankJobsForStudent,
+  rankStudentsForJob,
+  type MatchBreakdown,
+} from "@/lib/matching/engine";
 
 /**
  * Data access layer. Returns seeded demo data today; each function is the
@@ -178,5 +183,69 @@ export async function listAdminActions() {
 
 export async function listTrustHistory() {
   return demo.trustHistory;
+}
+
+// ---------------------------------------------------------------------------
+// M5 — matching
+// ---------------------------------------------------------------------------
+
+/**
+ * Top jobs ranked for a student, excluding ones they already proposed for.
+ * Live: writes/reads `matching_scores` table for caching; demo computes on the fly.
+ */
+export async function getMatchesForStudent(
+  studentId: string,
+  opts: { limit?: number; category?: string } = {}
+): Promise<Array<{ job: Job; breakdown: MatchBreakdown }>> {
+  const student = demo.students.find((s) => s.id === studentId);
+  if (!student) return [];
+  const myProposals = new Set(
+    demo.proposals.filter((p) => p.studentId === studentId).map((p) => p.jobId)
+  );
+  let jobs = demo.jobs.filter((j) => j.status === "open" && !myProposals.has(j.id));
+  if (opts.category) jobs = jobs.filter((j) => j.categorySlug === opts.category);
+  return rankJobsForStudent(student, jobs, { limit: opts.limit ?? 20 });
+}
+
+/**
+ * Top students ranked for a job, excluding ones who already proposed.
+ * Used by the client proposals page's "Top matched students" panel.
+ */
+export async function getMatchesForJob(
+  jobId: string,
+  opts: { limit?: number } = {}
+): Promise<Array<{ student: StudentProfile; breakdown: MatchBreakdown }>> {
+  const job = demo.jobs.find((j) => j.id === jobId);
+  if (!job) return [];
+  const proposed = new Set(
+    demo.proposals.filter((p) => p.jobId === jobId).map((p) => p.studentId)
+  );
+  const pool = demo.students.filter((s) => !proposed.has(s.id));
+  return rankStudentsForJob(job, pool, { limit: opts.limit ?? 20 });
+}
+
+/**
+ * Daily cap-counter for match emails.
+ * Demo: always 0 (no cap hit). Live: select count from `notification_log`
+ * where `student_id = ?` and `kind = 'match_email'` and `created_at >= today`.
+ */
+export async function getTodaysMatchEmailCount(_studentId: string): Promise<number> {
+  return 0;
+}
+
+// ---------------------------------------------------------------------------
+// M5 — notification preferences
+// ---------------------------------------------------------------------------
+
+export async function getNotificationPreferences(userId: string) {
+  return (
+    demo.notificationPreferences.find((p) => p.userId === userId) ?? {
+      userId,
+      emailJobMatches: true,
+      emailOrderUpdates: true,
+      emailWeeklyDigest: true,
+      emailMarketing: false,
+    }
+  );
 }
 

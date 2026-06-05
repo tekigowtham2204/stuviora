@@ -4,6 +4,7 @@ import {
   Briefcase,
   ShoppingBag,
   MessagesSquare,
+  Sparkles,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import { currentClient } from "@/lib/auth/session";
@@ -12,6 +13,7 @@ const NAV: NavItem[] = [
   { href: "/client/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/client/post-job", label: "Post a job", icon: PlusCircle },
   { href: "/client/jobs", label: "My jobs", icon: Briefcase },
+  { href: "/client/matches", label: "Suggested talent", icon: Sparkles },
   { href: "/client/orders", label: "Orders", icon: ShoppingBag },
   { href: "/messages", label: "Messages", icon: MessagesSquare },
 ];
@@ -21,7 +23,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <PortalShell
       nav={NAV}
-      accent="trust"
+      accent="orange"
+      personaLabel="Client"
       user={{ name: me.fullName, initials: me.avatarInitials, sub: me.companyName }}
     >
       {children}

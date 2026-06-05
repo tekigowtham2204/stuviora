@@ -42,6 +42,21 @@ export interface StudentProfile {
   jobsCompleted: number;
   verified: boolean;
   hourlyFrom: number;
+  /** Whether the student is currently accepting new work. */
+  isAvailable: boolean;
+  /** Number of orders currently in-flight (not completed/cancelled/refunded). */
+  activeOrderCount: number;
+  /** Median response time in hours (for trust + matching). */
+  medianResponseHours?: number;
+}
+
+/** Notification preferences row (M5.5). */
+export interface NotificationPreferences {
+  userId: string;
+  emailJobMatches: boolean;
+  emailOrderUpdates: boolean;
+  emailWeeklyDigest: boolean;
+  emailMarketing: boolean;
 }
 
 export interface ClientProfile {

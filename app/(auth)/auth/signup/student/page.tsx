@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input, Label, FieldHint, Select } from "@/components/ui/input";
 import { startStudentSignup } from "@/app/actions/auth";
 
 export const metadata = { title: "Student sign up" };
@@ -17,11 +18,14 @@ const STREAMS = [
 
 export default function StudentSignupPage() {
   return (
-    <Card className="p-7">
-      <h1 className="text-xl font-semibold">Create your student account</h1>
-      <p className="mt-1 text-sm text-muted">
-        Use your <span className="font-medium text-foreground">college email</span> — we verify it to
-        build trust with clients.
+    <Card className="p-8" surface="glow">
+      <h1 className="font-display text-2xl font-medium tracking-tight text-[var(--color-ink)]">
+        Create your student account.
+      </h1>
+      <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
+        Use your{" "}
+        <span className="font-medium text-[var(--color-ink)]">college email</span>. We
+        verify it to build trust with clients.
       </p>
 
       <form action={startStudentSignup} className="mt-6 space-y-4">
@@ -31,29 +35,28 @@ export default function StudentSignupPage() {
           name="email"
           type="email"
           placeholder="you@iitb.ac.in"
-          hint="Must be a recognised .ac.in / .edu.in domain."
+          hint="Must be a recognised .ac.in or .edu.in domain."
         />
-        <div>
-          <label htmlFor="stream" className="text-sm font-medium">Stream</label>
-          <select
-            id="stream"
-            name="stream"
-            className="mt-1 w-full rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400"
-          >
+        <div className="space-y-1.5">
+          <Label htmlFor="stream">Stream</Label>
+          <Select id="stream" name="stream">
             {STREAMS.map((s) => (
               <option key={s}>{s}</option>
             ))}
-          </select>
+          </Select>
         </div>
-        <Field label="Password" name="password" type="password" placeholder="••••••••" />
-        <Button type="submit" variant="primary" className="w-full">
+        <Field label="Password" name="password" type="password" placeholder="********" />
+        <Button type="submit" variant="sage" className="w-full">
           Send verification code
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted">
+      <p className="mt-7 text-center text-sm text-[var(--color-ink-muted)]">
         Hiring instead?{" "}
-        <Link href="/auth/signup/client" className="font-medium text-brand-600 hover:underline">
+        <Link
+          href="/auth/signup/client"
+          className="font-medium text-[var(--color-ink)] underline-offset-4 hover:underline"
+        >
           Sign up as a client
         </Link>
       </p>
@@ -75,16 +78,10 @@ function Field({
   hint?: string;
 }) {
   return (
-    <div>
-      <label htmlFor={name} className="text-sm font-medium">{label}</label>
-      <input
-        id={name}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-400"
-      />
-      {hint && <p className="mt-1 text-xs text-subtle">{hint}</p>}
+    <div className="space-y-1.5">
+      <Label htmlFor={name}>{label}</Label>
+      <Input id={name} name={name} type={type} placeholder={placeholder} />
+      {hint && <FieldHint>{hint}</FieldHint>}
     </div>
   );
 }

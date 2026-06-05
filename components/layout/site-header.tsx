@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { BRAND } from "@/lib/constants";
+import { Logomark } from "@/components/brand/logomark";
 
 const NAV = [
   { href: "/explore", label: "Browse talent" },
@@ -14,30 +14,30 @@ const NAV = [
 export function SiteHeader() {
   return (
     <header
-      className="sticky top-0 z-40 border-b border-[var(--color-border)] backdrop-blur-xl"
-      style={{ backgroundColor: "color-mix(in oklab, var(--color-background) 78%, transparent)" }}
+      className="sticky top-0 z-40 border-b border-[var(--color-line)] backdrop-blur-xl"
+      style={{ backgroundColor: "color-mix(in oklab, var(--color-background) 86%, transparent)" }}
     >
-      <Container className="flex h-16 items-center justify-between">
+      <Container className="flex h-18 items-center justify-between py-3">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-100 text-brand-600 ring-1 ring-brand-200/60 dark:bg-brand-900/30 dark:text-brand-300 dark:ring-brand-700/40">
-            <Sparkles className="h-5 w-5" />
+          <Logomark className="h-8 w-8 text-[var(--color-ink)]" accent="var(--color-sage)" />
+          <span className="font-display text-xl font-medium tracking-tight text-[var(--color-ink)]">
+            {BRAND.name}
           </span>
-          <span className="text-base font-semibold tracking-tight">{BRAND.name}</span>
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-muted transition-colors hover:text-foreground"
+              className="text-sm font-medium text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-ink)]"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button href="/auth/login" variant="ghost" size="sm">
             Log in

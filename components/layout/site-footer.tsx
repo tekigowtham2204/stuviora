@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { BRAND } from "@/lib/constants";
+import { Logomark } from "@/components/brand/logomark";
 
 const COLUMNS = [
   {
@@ -32,25 +32,32 @@ const COLUMNS = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-border bg-surface-subtle">
-      <Container className="grid gap-8 py-12 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="mt-auto border-t border-[var(--color-line)] bg-[var(--color-surface-warm)]">
+      <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
-              <Sparkles className="h-4 w-4" />
-            </span>
-            <span className="font-semibold">{BRAND.name}</span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <Logomark className="h-8 w-8 text-[var(--color-ink)]" accent="var(--color-sage)" />
+            <span className="font-display text-lg font-medium tracking-tight">{BRAND.name}</span>
           </Link>
-          <p className="mt-3 max-w-xs text-sm text-muted">{BRAND.tagline}</p>
-          <p className="mt-2 text-xs text-subtle">{BRAND.handle} · India-first</p>
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--color-ink-muted)]">
+            {BRAND.tagline}
+          </p>
+          <p className="mt-3 text-xs text-[var(--color-ink-faint)]">
+            {BRAND.handle} · Built in India
+          </p>
         </div>
         {COLUMNS.map((col) => (
           <div key={col.title}>
-            <h4 className="text-sm font-semibold text-foreground">{col.title}</h4>
-            <ul className="mt-3 space-y-2">
+            <h4 className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-ink)]">
+              {col.title}
+            </h4>
+            <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-muted hover:text-foreground">
+                  <Link
+                    href={l.href}
+                    className="text-sm text-[var(--color-ink-muted)] transition-colors hover:text-[var(--color-ink)]"
+                  >
                     {l.label}
                   </Link>
                 </li>
@@ -59,8 +66,8 @@ export function SiteFooter() {
           </div>
         ))}
       </Container>
-      <Container className="border-t border-border py-6">
-        <p className="text-xs text-subtle">
+      <Container className="border-t border-[var(--color-line)] py-6">
+        <p className="text-xs text-[var(--color-ink-faint)]">
           © {new Date().getFullYear()} {BRAND.name}. {BRAND.meaning}.
         </p>
       </Container>
