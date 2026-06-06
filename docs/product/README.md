@@ -20,6 +20,7 @@
 | 08 | [risks.md](./risks.md) | Top risks and how we are pre-mitigating each. | 5 min |
 | 09 | [roadmap.md](./roadmap.md) | Twelve-month horizons. What changes, what stays. | 4 min |
 | 10 | [build-status-and-honest-review.md](./build-status-and-honest-review.md) | CTO + PM audit. What is real vs demo, % to user-ready, honest probability review on every metric. | 12 min |
+| 11 | [build-checklist.md](./build-checklist.md) | Concrete checklist: what is built, what is partial, what is not started, and what to build next organized by complexity tier. | 10 min |
 
 ## How to use these docs
 
