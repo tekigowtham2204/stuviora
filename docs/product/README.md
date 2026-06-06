@@ -19,6 +19,7 @@
 | 07 | [gtm.md](./gtm.md) | Beachhead strategy, content loop, founder-led sales. | 6 min |
 | 08 | [risks.md](./risks.md) | Top risks and how we are pre-mitigating each. | 5 min |
 | 09 | [roadmap.md](./roadmap.md) | Twelve-month horizons. What changes, what stays. | 4 min |
+| 10 | [build-status-and-honest-review.md](./build-status-and-honest-review.md) | CTO + PM audit. What is real vs demo, % to user-ready, honest probability review on every metric. | 12 min |
 
 ## How to use these docs
 
