@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Typecheck, lint, build
+    name: Typecheck, lint, test, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -32,9 +32,12 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         run: npm run build
 
-      # NOTE: unit tests (vitest) and Playwright smoke land in Phase P0 once
-      # the test scripts are wired into package.json. CI will pick them up
-      # automatically once the steps are added back here.
+      # NOTE: Playwright smoke is gated on a separate job that will land
+      # when P0 finishes wiring `e2e/`. Tracked in
+      # docs/product/build-checklist.md (T2 vitest+playwright item).
