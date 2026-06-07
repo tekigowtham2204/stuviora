@@ -30,6 +30,7 @@ export const env = {
   openrouterAppName: read("OPENROUTER_APP_NAME") ?? "Stuviora",
   openrouterAppUrl: read("OPENROUTER_APP_URL") ?? "https://stuviora.com",
   resendApiKey: read("RESEND_API_KEY"),
+  resendFrom: read("RESEND_FROM") ?? "Stuviora <noreply@stuviora.com>",
   inngestEventKey: read("INNGEST_EVENT_KEY"),
   inngestSigningKey: read("INNGEST_SIGNING_KEY"),
 

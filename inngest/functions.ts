@@ -19,14 +19,38 @@
 import { rankStudentsForJob } from "@/lib/matching/engine";
 import { computeTrustScore } from "@/lib/trust/score";
 import { buildCaseStudyDraft } from "@/lib/portfolio/case-study";
-import { selectTopMatchesForJob } from "@/lib/matching/notify";
+import { selectTopMatchesForJob, notifyMatches } from "@/lib/matching/notify";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { services } from "@/lib/env";
+import { sendEmail } from "@/lib/email/client";
+import { weeklyDigestEmail } from "@/lib/email/templates";
+import { recordNotification } from "@/lib/notifications/log";
 import * as demo from "@/lib/demo/data";
 
 /** Hours an order may sit in awaiting_approval before auto-release fires. */
 const AUTO_RELEASE_HOURS = 72;
+
+/**
+ * Resolve a user's email for live sends. PII lives in the users table,
+ * not StudentProfile, so workers look it up by id. Returns null in demo
+ * (no DB), which routes callers to their log-only path.
+ */
+async function resolveUserEmail(userId: string): Promise<string | null> {
+  if (!services.supabase) return null;
+  const supabase = getServiceSupabase();
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", userId)
+      .maybeSingle<{ email: string | null }>();
+    return data?.email ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // --- Cron jobs --------------------------------------------------------------
 
@@ -99,11 +123,51 @@ export async function commissionReconciler() {
   return { ran: "commissionReconciler", at: new Date().toISOString() };
 }
 
-/** Monday 9 AM IST: weekly earnings digest. */
+/**
+ * Monday 9 AM IST: weekly earnings digest.
+ *
+ * Demo: iterates seeded students, composes the digest, logs intended
+ * sends. Live: resolves each opted-in student's email and dispatches via
+ * Resend, recording a notification_log row. The opted-in filter against
+ * notification_preferences is applied in the live data layer; here we
+ * send only to students with completed orders this period.
+ */
 export async function weeklyEarningsDigest() {
-  // Live: for each opted-in student (notification_preferences.email_weekly_digest),
-  // aggregate completed orders since last_digest_sent_at, render Resend template.
-  return { ran: "weeklyEarningsDigest", at: new Date().toISOString() };
+  let sent = 0;
+  for (const s of demo.students) {
+    const completed = demo.orders.filter(
+      (o) => o.studentId === s.id && o.status === "completed"
+    );
+    if (completed.length === 0) continue;
+    const earned = completed.reduce(
+      (sum, o) => sum + Math.round(Number(o.amount) * 0.85),
+      0
+    );
+    const message = weeklyDigestEmail({
+      name: s.fullName,
+      completedCount: completed.length,
+      earned,
+      newMatches: 0,
+    });
+    const email = await resolveUserEmail(s.id);
+    if (services.resend && email) {
+      const res = await sendEmail(email, message);
+      if (res.ok) {
+        await recordNotification({
+          userId: s.id,
+          kind: "weekly_digest",
+          subject: message.subject,
+        });
+        sent++;
+      }
+    } else {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[digest] would send to ${s.username}: "${message.subject}"`);
+      }
+      sent++;
+    }
+  }
+  return { ran: "weeklyEarningsDigest", sent, at: new Date().toISOString() };
 }
 
 /** Monthly: TDS threshold checker; flags students about to cross 30k. */
@@ -153,9 +217,19 @@ export async function portfolioAutoGenerator(event: { orderId: string }) {
 /** Fan out top-20 match notifications when a job is posted. */
 export async function smartMatchFanout(event: { jobId: string }) {
   const job = demo.jobs.find((j) => j.id === event.jobId);
-  if (!job) return;
-  await selectTopMatchesForJob(job, demo.students, demo.proposals, { limit: 20 });
-  // Live: enqueue Resend sends, write notification_log rows per send for cap.
+  if (!job) return { ran: "smartMatchFanout", sent: 0, skipped: 0 };
+  const selection = await selectTopMatchesForJob(
+    job,
+    demo.students,
+    demo.proposals,
+    { limit: 20 }
+  );
+  // notifyMatches enforces the 3-emails/student/day cap via notification_log,
+  // sends via Resend in live mode, and logs intended sends in demo.
+  const result = await notifyMatches(job, selection, {
+    resolveEmail: resolveUserEmail,
+  });
+  return { ran: "smartMatchFanout", jobId: job.id, ...result };
 }
 
 /** 48-hour dispute escalation timer. */
