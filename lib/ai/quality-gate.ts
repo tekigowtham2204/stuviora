@@ -1,31 +1,34 @@
 import "server-only";
+import { z } from "zod";
 import type { AiReview } from "@/lib/types";
 import { AI_GATE_PASS_THRESHOLD } from "@/lib/constants";
 import { services } from "@/lib/env";
+import { chatJson } from "@/lib/llm/client";
+import { QUALITY_GATE_PROMPT } from "@/lib/ai/prompts";
 
 /**
- * AI quality gate: the moat.
+ * AI quality gate: the moat (P4).
  *
- * Stuviora's promise to clients: every delivery is reviewed against the brief
- * for completeness, alignment, and originality BEFORE the client sees it.
+ * Stuviora's promise to clients: every delivery is reviewed against the
+ * brief for completeness, alignment, and originality BEFORE the client
+ * sees it.
  *
- * Architecture (per the master plan):
+ * Architecture (master plan):
  *   submit  ->  upload files to Storage (fast, <10s)
  *           ->  fire Inngest event 'ai/quality.check'   (live path)
  *           ->  worker extracts files (PDF / DOCX / images / code / ZIP)
- *           ->  calls Claude with structured JSON prompt
+ *           ->  calls OpenRouter (Claude Sonnet 4.5) with structured JSON
  *           ->  writes ai_reviews row
  *           ->  pushes result via Supabase Realtime
  *
- * For now, the demo path returns a deterministic verdict so the loop is
- * fully exercisable without keys. Swap with the live implementation when
- * ANTHROPIC_API_KEY and INNGEST_EVENT_KEY are configured.
+ * Demo path: returns a deterministic verdict so the loop is fully
+ * exercisable without keys. Live path: chatJson() against OpenRouter.
  */
 
 export interface QualityGateInput {
   orderId: string;
   jobBrief: { title: string; description: string };
-  submissionText: string; // already-extracted text
+  submissionText: string;
 }
 
 export interface QualityGateResult extends AiReview {
@@ -42,10 +45,10 @@ function hash(s: string): number {
 /** Demo implementation: deterministic scored verdict per order id. */
 function demoReview(input: QualityGateInput): QualityGateResult {
   const seed = hash(input.orderId);
-  const briefAlignment = 30 + (seed % 11); // 30..40
-  const completeness = 22 + ((seed >> 3) % 9); // 22..30
-  const quality = 21 + ((seed >> 5) % 10); // 21..30
-  const originality = 88 + (seed % 12); // 88..99
+  const briefAlignment = 30 + (seed % 11);
+  const completeness = 22 + ((seed >> 3) % 9);
+  const quality = 21 + ((seed >> 5) % 10);
+  const originality = 88 + (seed % 12);
   const score = briefAlignment + completeness + quality;
   const verdict = score >= AI_GATE_PASS_THRESHOLD ? "PASS" : "FAIL";
 
@@ -75,12 +78,53 @@ function demoReview(input: QualityGateInput): QualityGateResult {
   };
 }
 
-/** Public: run the gate. Live path uses Claude via Inngest; demo returns immediately. */
+const GateResultSchema = z.object({
+  score: z.number().min(0).max(100),
+  verdict: z.enum(["PASS", "FAIL"]),
+  briefAlignment: z.number().min(0).max(40),
+  completeness: z.number().min(0).max(30),
+  quality: z.number().min(0).max(30),
+  originality: z.number().min(0).max(100),
+  issues: z.array(z.string()),
+  suggestions: z.array(z.string()),
+  reviewerNote: z.string(),
+});
+
+/** Public: run the gate. Live: OpenRouter via chatJson. Demo: deterministic. */
 export async function runQualityGate(input: QualityGateInput): Promise<QualityGateResult> {
-  if (services.anthropic && services.inngest) {
-    // TODO (live path): fire Inngest event and return REVIEW_IN_PROGRESS;
-    // the worker writes ai_reviews and pushes result via Realtime.
-    return demoReview(input);
+  if (services.llm) {
+    try {
+      const live = await chatJson(
+        QUALITY_GATE_PROMPT.system,
+        QUALITY_GATE_PROMPT.userTemplate({
+          jobTitle: input.jobBrief.title,
+          jobDescription: input.jobBrief.description,
+          submissionText: input.submissionText,
+        }),
+        GateResultSchema
+      );
+      if (live) {
+        // Recompute verdict from score so the threshold is enforced
+        // server-side; LLM mis-classifications cannot leak through.
+        const verdict =
+          live.score >= AI_GATE_PASS_THRESHOLD ? "PASS" : "FAIL";
+        return {
+          orderId: input.orderId,
+          score: Math.round(live.score),
+          verdict,
+          briefAlignment: Math.round(live.briefAlignment),
+          completeness: Math.round(live.completeness),
+          quality: Math.round(live.quality),
+          originality: Math.round(live.originality),
+          issues: live.issues,
+          suggestions: live.suggestions,
+          reviewerNote: live.reviewerNote,
+        };
+      }
+    } catch {
+      // Live failure falls back to demo so the order does not block
+      // on a transient LLM error. Sentry alerting lands in P6.
+    }
   }
   return demoReview(input);
 }

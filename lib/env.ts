@@ -25,8 +25,13 @@ export const env = {
   razorpayWebhookSecret: read("RAZORPAY_WEBHOOK_SECRET"),
 
   anthropicApiKey: read("ANTHROPIC_API_KEY"),
+  openrouterApiKey: read("OPENROUTER_API_KEY"),
+  openrouterModel: read("OPENROUTER_MODEL") ?? "anthropic/claude-sonnet-4.5",
+  openrouterAppName: read("OPENROUTER_APP_NAME") ?? "Stuviora",
+  openrouterAppUrl: read("OPENROUTER_APP_URL") ?? "https://stuviora.com",
   resendApiKey: read("RESEND_API_KEY"),
   inngestEventKey: read("INNGEST_EVENT_KEY"),
+  inngestSigningKey: read("INNGEST_SIGNING_KEY"),
 
   upstashUrl: read("UPSTASH_REDIS_REST_URL"),
   upstashToken: read("UPSTASH_REDIS_REST_TOKEN"),
@@ -42,6 +47,10 @@ export const services = {
   supabase: Boolean(env.supabaseUrl && env.supabaseAnonKey),
   razorpay: Boolean(env.razorpayKeyId && env.razorpayKeySecret),
   anthropic: Boolean(env.anthropicApiKey),
+  /** OpenRouter is the primary LLM provider (per user decision). */
+  openrouter: Boolean(env.openrouterApiKey),
+  /** Any LLM is live: openrouter takes priority, anthropic as fallback. */
+  llm: Boolean(env.openrouterApiKey ?? env.anthropicApiKey),
   resend: Boolean(env.resendApiKey),
   inngest: Boolean(env.inngestEventKey),
   upstash: Boolean(env.upstashUrl && env.upstashToken),
