@@ -76,7 +76,7 @@ export default async function ClientMatchesPage({
 }
 
 async function JobMatches({ jobId }: { jobId: string }) {
-  const matches = await getMatchesForJob(jobId, { limit: 20 });
+  const { matches } = await getMatchesForJob(jobId, { limit: 20 });
   if (matches.length === 0) {
     return (
       <EmptyState

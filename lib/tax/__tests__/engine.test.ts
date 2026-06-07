@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   computeOrderTax,
   financialYear,
+  fiscalQuarter,
+  summariseByQuarter,
   maskPan,
   buildForm16A,
   GST_RATE,
@@ -75,6 +77,44 @@ describe("maskPan", () => {
 
   it("returns a placeholder for invalid length", () => {
     expect(maskPan("ABC")).toBe("xxxxxxxxxx");
+  });
+});
+
+describe("fiscalQuarter", () => {
+  it.each([
+    [new Date("2026-04-01"), "Q1"],
+    [new Date("2026-06-30"), "Q1"],
+    [new Date("2026-07-01"), "Q2"],
+    [new Date("2026-09-30"), "Q2"],
+    [new Date("2026-10-01"), "Q3"],
+    [new Date("2026-12-31"), "Q3"],
+    [new Date("2027-01-01"), "Q4"],
+    [new Date("2027-03-31"), "Q4"],
+  ])("classifies %s as %s", (d, q) => {
+    expect(fiscalQuarter(d)).toBe(q);
+  });
+});
+
+describe("summariseByQuarter", () => {
+  it("buckets events by quarter and totals", () => {
+    const r = summariseByQuarter([
+      { date: "2026-05-15", studentGross: 4250, tdsWithheld: 212.5 },
+      { date: "2026-04-22", studentGross: 6800, tdsWithheld: 340 },
+      { date: "2026-08-10", studentGross: 3000, tdsWithheld: 0 },
+    ]);
+    expect(r.Q1.ordersCount).toBe(2);
+    expect(r.Q1.studentGross).toBe(11050);
+    expect(r.Q1.tdsWithheld).toBe(552.5);
+    expect(r.Q2.ordersCount).toBe(1);
+    expect(r.Q2.studentGross).toBe(3000);
+    expect(r.Q3.ordersCount).toBe(0);
+    expect(r.Q4.ordersCount).toBe(0);
+  });
+
+  it("handles empty input", () => {
+    const r = summariseByQuarter([]);
+    expect(r.Q1.ordersCount).toBe(0);
+    expect(r.Q4.studentGross).toBe(0);
   });
 });
 

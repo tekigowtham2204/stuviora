@@ -245,3 +245,9 @@ When a feature moves up or gets cut, log the date + the reason here.
 | 2026-06-06 | Native mobile | Promoted from v2 to v1 (M7.3) | User explicit decision in plan-mode session. |
 | 2026-06-06 | OpenRouter via Claude Sonnet 4.5 | Adopted for all LLM calls | User-provided integration; replaces direct Anthropic SDK. |
 | 2026-06-06 | Video calls in messages | Deferred to v1.2 | Not load-bearing for the core loop. |
+| 2026-06-07 | Matches pagination (audit #41) | Shipped | Engine + queries now return `{ matches, total }`; pagination primitive added. |
+| 2026-06-07 | Orders default sort by deadline (audit #46) | Shipped | Active list sorts ascending so most-urgent surfaces first. |
+| 2026-06-07 | Quarterly tax summary + CSV export (audit #50) | Shipped | `fiscalQuarter` + `summariseByQuarter` added to tax engine; `/api/student/tax/export` returns text/csv. |
+| 2026-06-07 | GSTIN field on settings (audit #51) | Shipped | Validates 15-character format; persisted on student or client profile. |
+| 2026-06-07 | Payouts page with UPI + bank capture (audit #53) | Shipped | New `/student/payouts`; format-validates UPI, IFSC, account number. |
+| 2026-06-07 | Mobile bottom nav (audit #57) | Shipped | Five-slot `<MobileNav>` with centre primary CTA; portal shell hides legacy scroller when present. |

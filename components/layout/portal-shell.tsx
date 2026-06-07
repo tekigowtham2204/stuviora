@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Logomark } from "@/components/brand/logomark";
+import { MobileNav, type MobileNavItem } from "@/components/layout/mobile-nav";
 
 export interface NavItem {
   href: string;
@@ -17,6 +18,9 @@ type Accent = "sage" | "orange" | "yellow" | "brand" | "trust";
 
 interface PortalShellProps {
   nav: NavItem[];
+  /** Five-item fixed mobile bottom nav (P57 audit). Optional; portal
+   *  shell falls back to the legacy horizontal scroller when absent. */
+  mobileNav?: MobileNavItem[];
   accent: Accent;
   user: { name: string; initials: string; sub: string };
   /** Persona label shown in the sidebar header. */
@@ -62,6 +66,7 @@ const accentStyles: Record<
 
 export function PortalShell({
   nav,
+  mobileNav,
   accent,
   user,
   personaLabel,
@@ -167,23 +172,40 @@ export function PortalShell({
           </div>
         </header>
 
-        {/* Mobile nav scroller */}
-        <nav className="flex gap-1 overflow-x-auto border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 lg:hidden">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-warm)] hover:text-[var(--color-ink)]"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Mobile top scroller (legacy nav). Hidden when mobileNav is
+            provided, since the bottom bar covers it. */}
+        {!mobileNav && (
+          <nav className="flex gap-1 overflow-x-auto border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 py-2 lg:hidden">
+            {nav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-[var(--color-ink-muted)] hover:bg-[var(--color-surface-warm)] hover:text-[var(--color-ink)]"
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
-        <main className="sv-page flex-1 px-6 py-8 lg:px-10 lg:py-12">
+        <main
+          className={cn(
+            "sv-page flex-1 px-6 py-8 lg:px-10 lg:py-12",
+            mobileNav && "pb-28 lg:pb-12"
+          )}
+        >
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
+
+        {mobileNav && (
+          <MobileNav
+            items={mobileNav}
+            accent={
+              accent === "trust" || accent === "brand" ? "sage" : accent
+            }
+          />
+        )}
       </div>
     </div>
   );

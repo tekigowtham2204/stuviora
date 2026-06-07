@@ -1,21 +1,23 @@
-import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck, Receipt, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input, Label, FieldHint } from "@/components/ui/input";
 import { getSession } from "@/lib/auth/session";
 import { currentStudent, currentClient } from "@/lib/auth/session";
 import { getNotificationPreferences } from "@/lib/data/queries";
 import { saveNotificationPreferences } from "@/app/actions/notifications";
+import { saveBilling } from "@/app/actions/billing";
 
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
-  const { saved } = await searchParams;
+  const { saved, error } = await searchParams;
   const session = await getSession();
   const isClient = session?.role === "client";
   const me = isClient ? currentClient() : currentStudent();
@@ -32,7 +34,16 @@ export default async function SettingsPage({
       {saved && (
         <Card surface="flat" tint="sage" className="mb-6 flex items-center gap-2 text-sm">
           <CheckCircle2 className="h-4 w-4 text-[var(--color-sage-deep)]" />
-          <span className="text-[var(--color-sage-900)]">Preferences saved.</span>
+          <span className="text-[var(--color-sage-900)]">Saved.</span>
+        </Card>
+      )}
+
+      {error === "invalid_gstin" && (
+        <Card surface="flat" tint="warm" className="mb-6 flex items-start gap-2 border-[var(--color-orange-200)] text-sm">
+          <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--color-orange-900)]" />
+          <span className="text-[var(--color-orange-900)]">
+            That GSTIN does not match the 15-character format. Example: 27ABCDE1234F1Z5.
+          </span>
         </Card>
       )}
 
@@ -97,11 +108,40 @@ export default async function SettingsPage({
               <Row label="UPI" value="aarav@okhdfcbank" />
               <Row label="Bank account" value="HDFC ****4421" />
             </div>
-            <Button variant="outline" className="mt-5">
+            <Button href="/student/payouts" variant="outline" className="mt-5">
               Update payout details
             </Button>
           </Card>
         )}
+
+        <Card>
+          <div className="flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-[var(--color-ink-muted)]" />
+            <CardTitle>Billing</CardTitle>
+          </div>
+          <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
+            Optional. Adding a GSTIN puts your registration number on every
+            order&apos;s invoice so you can reclaim input credit.
+          </p>
+          <form action={saveBilling} className="mt-5 space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="gstin">GSTIN</Label>
+              <Input
+                id="gstin"
+                name="gstin"
+                placeholder="27ABCDE1234F1Z5"
+                maxLength={15}
+                className="font-mono uppercase"
+              />
+              <FieldHint>
+                15 characters. Format: state code + 10 character PAN + 1 + Z + 1.
+              </FieldHint>
+            </div>
+            <Button type="submit" variant="primary" size="sm">
+              Save GSTIN
+            </Button>
+          </form>
+        </Card>
 
         <Card>
           <div className="flex items-center gap-2">

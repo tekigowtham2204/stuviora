@@ -1,5 +1,14 @@
 # 12 Student walkthrough audit
 
+> **Status update (2026-06-07):**
+> - Sprint 1 + 2 + 3 closed in commit `aabcc40` (PR #8).
+> - Sprint 4 closed in this PR (claude/audit-sprint-4):
+>   #41 pagination, #46 deadline sort, #50 quarterly tax + CSV, #51 GSTIN field,
+>   #53 payouts page, #57 mobile bottom nav.
+> - Remaining: Sprint 5 (polish + safety + power-user items needing
+>   new schema). Tracked in build-checklist.md.
+
+
 > Two students sit down with Stuviora today. Diya has never freelanced
 > before and is nervous. Aarav has 80 Upwork jobs under his belt and
 > arrives expecting tooling. Both surface different gaps. This doc

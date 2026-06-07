@@ -20,7 +20,7 @@ export default async function StudentJobsPage({
   const { category } = await searchParams;
   const me = currentStudent();
   // Ranked by the same engine as /student/matches so the two stay in sync.
-  const ranked = await getMatchesForStudent(me.id, { limit: 50, category });
+  const { matches: ranked } = await getMatchesForStudent(me.id, { limit: 50, category });
 
   return (
     <>

@@ -14,9 +14,11 @@ export default async function StudentOrdersPage() {
   const me = currentStudent();
   const orders = await listStudentOrders(me.id);
 
-  const active = orders.filter(
-    (o) => !["completed", "cancelled", "refunded"].includes(o.status)
-  );
+  // Active orders default to deadline ascending so the most urgent
+  // sits at the top (student-audit #46). Past orders stay newest-first.
+  const active = orders
+    .filter((o) => !["completed", "cancelled", "refunded"].includes(o.status))
+    .sort((a, b) => a.deadlineDays - b.deadlineDays);
   const past = orders.filter((o) =>
     ["completed", "cancelled", "refunded"].includes(o.status)
   );

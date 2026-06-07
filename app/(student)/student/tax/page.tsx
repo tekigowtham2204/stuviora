@@ -18,6 +18,7 @@ import {
   buildForm16A,
   financialYear,
   maskPan,
+  summariseByQuarter,
   TDS_RATE,
   TDS_THRESHOLD,
   GST_RATE,
@@ -26,9 +27,9 @@ import {
 export const metadata = { title: "Tax & TDS" };
 
 const FY_EVENTS = [
-  { order: "SV-1021", studentGross: 4250, tdsWithheld: 212.5 },
-  { order: "SV-0998", studentGross: 6800, tdsWithheld: 340 },
-  { order: "SV-0942", studentGross: 3200, tdsWithheld: 160 },
+  { order: "SV-1021", studentGross: 4250, tdsWithheld: 212.5, date: "2026-05-15" },
+  { order: "SV-0998", studentGross: 6800, tdsWithheld: 340,    date: "2026-04-22" },
+  { order: "SV-0942", studentGross: 3200, tdsWithheld: 160,    date: "2026-03-30" },
 ];
 
 export default async function TaxPage({
@@ -126,6 +127,44 @@ export default async function TaxPage({
               </p>
             </div>
           </Card>
+
+          <div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="font-display text-xl font-medium text-[var(--color-ink)]">
+                Quarterly summary (FY {fy})
+              </h2>
+              <Button
+                href="/api/student/tax/export"
+                variant="outline"
+                size="sm"
+              >
+                <Download className="h-3.5 w-3.5" /> Export CSV
+              </Button>
+            </div>
+            <Card className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
+              {(["Q1", "Q2", "Q3", "Q4"] as const).map((q) => {
+                const quarterly = summariseByQuarter(FY_EVENTS);
+                const data = quarterly[q];
+                return (
+                  <div
+                    key={q}
+                    className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface-warm)] p-4"
+                  >
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+                      {q}
+                    </div>
+                    <div className="mt-1 font-display text-lg font-medium tabular-nums text-[var(--color-ink)]">
+                      <Money value={data.studentGross} compact />
+                    </div>
+                    <div className="mt-1 text-xs text-[var(--color-ink-faint)]">
+                      {data.ordersCount} order{data.ordersCount === 1 ? "" : "s"} ·
+                      TDS <Money value={data.tdsWithheld} compact />
+                    </div>
+                  </div>
+                );
+              })}
+            </Card>
+          </div>
 
           <div>
             <h2 className="mb-3 font-display text-xl font-medium text-[var(--color-ink)]">

@@ -70,6 +70,60 @@ export function financialYear(date = new Date()): string {
   return `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`;
 }
 
+/**
+ * Indian-tax quarter for a date.
+ *   Q1 Apr 1 - Jun 30
+ *   Q2 Jul 1 - Sep 30
+ *   Q3 Oct 1 - Dec 31
+ *   Q4 Jan 1 - Mar 31
+ */
+export function fiscalQuarter(date = new Date()): "Q1" | "Q2" | "Q3" | "Q4" {
+  const m = date.getMonth(); // 0..11
+  if (m >= 3 && m <= 5) return "Q1";
+  if (m >= 6 && m <= 8) return "Q2";
+  if (m >= 9 && m <= 11) return "Q3";
+  return "Q4";
+}
+
+export interface QuarterSummary {
+  quarter: "Q1" | "Q2" | "Q3" | "Q4";
+  studentGross: number;
+  tdsWithheld: number;
+  ordersCount: number;
+  gstOnCommission: number;
+}
+
+/**
+ * Roll up per-order events into Q1..Q4 buckets for the current FY.
+ * Each event must carry a `date` so we can place it in the right
+ * quarter. Live: orders.completed_at + tax_events table; demo:
+ * synthesised dates in the page.
+ */
+export function summariseByQuarter(
+  events: Array<{
+    date: Date | string;
+    studentGross: number;
+    tdsWithheld: number;
+    gstOnCommission?: number;
+  }>
+): Record<"Q1" | "Q2" | "Q3" | "Q4", QuarterSummary> {
+  const out: Record<"Q1" | "Q2" | "Q3" | "Q4", QuarterSummary> = {
+    Q1: { quarter: "Q1", studentGross: 0, tdsWithheld: 0, ordersCount: 0, gstOnCommission: 0 },
+    Q2: { quarter: "Q2", studentGross: 0, tdsWithheld: 0, ordersCount: 0, gstOnCommission: 0 },
+    Q3: { quarter: "Q3", studentGross: 0, tdsWithheld: 0, ordersCount: 0, gstOnCommission: 0 },
+    Q4: { quarter: "Q4", studentGross: 0, tdsWithheld: 0, ordersCount: 0, gstOnCommission: 0 },
+  };
+  for (const e of events) {
+    const date = e.date instanceof Date ? e.date : new Date(e.date);
+    const q = fiscalQuarter(date);
+    out[q].studentGross = round2(out[q].studentGross + e.studentGross);
+    out[q].tdsWithheld = round2(out[q].tdsWithheld + e.tdsWithheld);
+    out[q].gstOnCommission = round2(out[q].gstOnCommission + (e.gstOnCommission ?? 0));
+    out[q].ordersCount += 1;
+  }
+  return out;
+}
+
 export interface Form16AData {
   studentName: string;
   panMasked: string;
