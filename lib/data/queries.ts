@@ -22,6 +22,14 @@ import {
   jobFromRow,
   proposalFromRow,
   orderFromRow,
+  reviewFromRow,
+  portfolioFromRow,
+  conversationFromRow,
+  messageFromRow,
+  serviceFromRow,
+  adminActionFromRow,
+  trustHistoryFromRow,
+  initialsOf,
 } from "@/lib/data/mappers";
 
 /**
@@ -458,36 +466,313 @@ export async function getOrder(id: string): Promise<Order | null> {
 }
 
 // ---------------------------------------------------------------------------
-// Read-only (demo for now; queued for later phases)
+// Reviews + portfolio + conversations + services (P1 round 2)
 // ---------------------------------------------------------------------------
 
-export async function listReviewsForStudent() {
+export async function listReviewsForStudent(studentId?: string) {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    let q = supabase!
+      .from("reviews")
+      .select(
+        `
+        id,
+        order_id,
+        rating,
+        comment,
+        created_at,
+        reviewer:reviewer_id (
+          full_name,
+          client_profiles ( company_name )
+        )
+      `
+      )
+      .order("created_at", { ascending: false });
+    if (studentId) q = q.eq("reviewee_id", studentId);
+    const { data, error } = await q.returns<
+      Array<{
+        id: string;
+        order_id: string;
+        rating: number;
+        comment: string | null;
+        created_at: string;
+        reviewer: {
+          full_name: string | null;
+          client_profiles: { company_name: string | null } | null;
+        } | null;
+      }>
+    >();
+    if (!error && data) {
+      return data.map((r) =>
+        reviewFromRow({
+          id: r.id,
+          order_id: r.order_id,
+          rating: r.rating,
+          comment: r.comment,
+          created_at: r.created_at,
+          reviewer_name:
+            r.reviewer?.client_profiles?.company_name ??
+            r.reviewer?.full_name ??
+            "Anonymous",
+        })
+      );
+    }
+  }
   return demo.reviews;
 }
 
 export async function listPortfolio(studentId: string) {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data, error } = await supabase!
+      .from("portfolio_items")
+      .select("id, student_id, title, problem, approach, outcome, skills")
+      .eq("student_id", studentId)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .returns<
+        Array<{
+          id: string;
+          student_id: string;
+          title: string | null;
+          problem: string | null;
+          approach: string | null;
+          outcome: string | null;
+          skills: string[] | null;
+        }>
+      >();
+    if (!error && data) return data.map((r) => portfolioFromRow(r));
+  }
   return demo.portfolio.filter((p) => p.studentId === studentId);
 }
 
-export async function listConversations() {
+export async function listConversations(userId?: string) {
+  if (await liveOn() && userId) {
+    const supabase = await getServerSupabase();
+    // Surface conversations where the user is either side.
+    const { data, error } = await supabase!
+      .from("conversations")
+      .select(
+        `
+        id,
+        order_id,
+        last_message_at,
+        client_id,
+        student_id,
+        client:client_id ( full_name, client_profiles ( company_name ) ),
+        student:student_id ( full_name )
+      `
+      )
+      .or(`client_id.eq.${userId},student_id.eq.${userId}`)
+      .order("last_message_at", { ascending: false, nullsFirst: false })
+      .returns<
+        Array<{
+          id: string;
+          order_id: string | null;
+          last_message_at: string | null;
+          client_id: string;
+          student_id: string;
+          client: {
+            full_name: string | null;
+            client_profiles: { company_name: string | null } | null;
+          } | null;
+          student: { full_name: string | null } | null;
+        }>
+      >();
+    if (!error && data) {
+      return data.map((c) => {
+        const meClient = c.client_id === userId;
+        const otherName = meClient
+          ? c.student?.full_name ?? "Student"
+          : c.client?.client_profiles?.company_name ??
+            c.client?.full_name ??
+            "Client";
+        return conversationFromRow({
+          id: c.id,
+          order_id: c.order_id,
+          last_message_at: c.last_message_at,
+          with_name: otherName,
+          with_initials: initialsOf(otherName),
+          last_message: null, // P5 wires the messages join
+          unread_count: 0, // P5 wires the read_at scan
+        });
+      });
+    }
+  }
   return demo.conversations;
 }
 
-export async function getConversation(id: string) {
+export async function getConversation(id: string, userId?: string) {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data: convoData, error: convoErr } = await supabase!
+      .from("conversations")
+      .select(
+        `
+        id, order_id, last_message_at, client_id, student_id,
+        client:client_id ( full_name, client_profiles ( company_name ) ),
+        student:student_id ( full_name )
+      `
+      )
+      .eq("id", id)
+      .single<{
+        id: string;
+        order_id: string | null;
+        last_message_at: string | null;
+        client_id: string;
+        student_id: string;
+        client: {
+          full_name: string | null;
+          client_profiles: { company_name: string | null } | null;
+        } | null;
+        student: { full_name: string | null } | null;
+      }>();
+    if (!convoErr && convoData) {
+      const meClient = userId === convoData.client_id;
+      const otherName = meClient
+        ? convoData.student?.full_name ?? "Student"
+        : convoData.client?.client_profiles?.company_name ??
+          convoData.client?.full_name ??
+          "Client";
+      const convo = conversationFromRow({
+        id: convoData.id,
+        order_id: convoData.order_id,
+        last_message_at: convoData.last_message_at,
+        with_name: otherName,
+        with_initials: initialsOf(otherName),
+        last_message: null,
+        unread_count: 0,
+      });
+
+      const { data: msgsData, error: msgsErr } = await supabase!
+        .from("messages")
+        .select("id, conversation_id, sender_id, body, created_at")
+        .eq("conversation_id", id)
+        .order("created_at", { ascending: true })
+        .returns<
+          Array<{
+            id: string;
+            conversation_id: string;
+            sender_id: string;
+            body: string | null;
+            created_at: string;
+          }>
+        >();
+      const msgs =
+        !msgsErr && msgsData
+          ? msgsData.map((m) => messageFromRow(m, userId ?? ""))
+          : [];
+      return { convo, msgs };
+    }
+  }
   const convo = demo.conversations.find((c) => c.id === id) ?? null;
   const msgs = demo.messages.filter((m) => m.conversationId === id);
   return convo ? { convo, msgs } : null;
 }
 
 export async function listServicesByStudent(studentId: string) {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data, error } = await supabase!
+      .from("service_listings")
+      .select(
+        `
+        id,
+        student_id,
+        title,
+        description,
+        is_active,
+        job_categories ( slug ),
+        service_packages ( tier, price, delivery_days, description )
+      `
+      )
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false })
+      .returns<
+        Array<{
+          id: string;
+          student_id: string;
+          title: string;
+          description: string | null;
+          is_active: boolean;
+          job_categories: { slug: string } | null;
+          service_packages: Array<{
+            tier: "basic" | "standard" | "premium";
+            price: number | string;
+            delivery_days: number;
+            description: string | null;
+          }>;
+        }>
+      >();
+    if (!error && data) {
+      return data.map((s) =>
+        serviceFromRow({
+          id: s.id,
+          student_id: s.student_id,
+          title: s.title,
+          description: s.description,
+          is_active: s.is_active,
+          category_slug: s.job_categories?.slug ?? "tech-development",
+          packages: (s.service_packages ?? []).sort((a, b) => {
+            const order = { basic: 0, standard: 1, premium: 2 } as const;
+            return order[a.tier] - order[b.tier];
+          }),
+        })
+      );
+    }
+  }
   return demo.services.filter((s) => s.studentId === studentId);
 }
 
 export async function getService(id: string) {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data, error } = await supabase!
+      .from("service_listings")
+      .select(
+        `
+        id,
+        student_id,
+        title,
+        description,
+        is_active,
+        job_categories ( slug ),
+        service_packages ( tier, price, delivery_days, description )
+      `
+      )
+      .eq("id", id)
+      .single<{
+        id: string;
+        student_id: string;
+        title: string;
+        description: string | null;
+        is_active: boolean;
+        job_categories: { slug: string } | null;
+        service_packages: Array<{
+          tier: "basic" | "standard" | "premium";
+          price: number | string;
+          delivery_days: number;
+          description: string | null;
+        }>;
+      }>();
+    if (!error && data) {
+      return serviceFromRow({
+        id: data.id,
+        student_id: data.student_id,
+        title: data.title,
+        description: data.description,
+        is_active: data.is_active,
+        category_slug: data.job_categories?.slug ?? "tech-development",
+        packages: data.service_packages ?? [],
+      });
+    }
+  }
   return demo.services.find((s) => s.id === id) ?? null;
 }
 
-export async function getStudentWallet() {
+export async function getStudentWallet(studentId?: string) {
+  // Wallet aggregation lands in P3 (commission_event ledger). Demo for now.
+  void studentId;
   return demo.wallet;
 }
 
@@ -558,10 +843,71 @@ export async function listAdminUsers() {
 }
 
 export async function listAdminActions() {
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data, error } = await supabase!
+      .from("admin_actions")
+      .select(
+        `
+        id,
+        action,
+        target_type,
+        target_id,
+        reason,
+        created_at,
+        admin:admin_id ( full_name )
+      `
+      )
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .returns<
+        Array<{
+          id: string;
+          action: string;
+          target_type: string | null;
+          target_id: string | null;
+          reason: string;
+          created_at: string;
+          admin: { full_name: string | null } | null;
+        }>
+      >();
+    if (!error && data) {
+      return data.map((a) =>
+        adminActionFromRow({
+          id: a.id,
+          action: a.action,
+          target_type: a.target_type,
+          target_id: a.target_id,
+          reason: a.reason,
+          created_at: a.created_at,
+          admin_name: a.admin?.full_name ?? "Founder",
+        })
+      );
+    }
+  }
   return demo.adminActions;
 }
 
-export async function listTrustHistory() {
+export async function listTrustHistory(studentId?: string) {
+  if (await liveOn() && studentId) {
+    const supabase = await getServerSupabase();
+    const { data, error } = await supabase!
+      .from("trust_score_history")
+      .select("id, score, delta, reason, created_at")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .returns<
+        Array<{
+          id: string;
+          score: number | string;
+          delta: number | string;
+          reason: string | null;
+          created_at: string;
+        }>
+      >();
+    if (!error && data) return data.map((r) => trustHistoryFromRow(r));
+  }
   return demo.trustHistory;
 }
 

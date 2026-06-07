@@ -38,6 +38,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      // `server-only` is a Next.js sentinel that throws when imported in
+      // client code. Vitest needs a no-op shim to load server modules in
+      // unit tests.
+      "server-only": path.resolve(__dirname, "lib/__tests__/server-only-shim.ts"),
     },
   },
 });

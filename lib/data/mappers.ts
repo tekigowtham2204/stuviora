@@ -20,12 +20,19 @@
 
 import type {
   ClientProfile,
+  Conversation,
   Job,
+  Message,
   Order,
+  PortfolioItem,
   Proposal,
+  Review,
   StudentProfile,
   TrustTier,
+  AdminAction,
 } from "@/lib/types";
+import type { ServiceListing, ServicePackage } from "@/lib/demo/data";
+import type { TrustHistoryEntry } from "@/lib/demo/data";
 
 // ---------------------------------------------------------------------------
 // Row shapes (minimum needed; queries may pass joined extras)
@@ -194,6 +201,168 @@ export function orderFromRow(row: OrderJoinedRow): Order {
     deadlineDays: row.deadline_days,
     createdAgo: agoOf(row.created_at),
     approvedAgo: row.approved_at ? agoOf(row.approved_at) : undefined,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// More row shapes + mappers (reviews, portfolio, conversations, messages,
+// services, admin actions, trust history)
+// ---------------------------------------------------------------------------
+
+export interface ReviewJoinedRow {
+  id: string;
+  order_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  /** From joined client_profile.company_name + users.full_name. */
+  reviewer_name: string;
+}
+
+export function reviewFromRow(row: ReviewJoinedRow): Review {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    reviewerName: row.reviewer_name,
+    rating: row.rating,
+    comment: row.comment ?? "",
+    ago: agoOf(row.created_at),
+  };
+}
+
+export interface PortfolioRow {
+  id: string;
+  student_id: string;
+  title: string | null;
+  problem: string | null;
+  approach: string | null;
+  outcome: string | null;
+  skills: string[] | null;
+}
+
+export function portfolioFromRow(row: PortfolioRow): PortfolioItem {
+  return {
+    id: row.id,
+    studentId: row.student_id,
+    title: row.title ?? "Untitled",
+    problem: row.problem ?? "",
+    approach: row.approach ?? "",
+    outcome: row.outcome ?? "",
+    skills: row.skills ?? [],
+  };
+}
+
+export interface ConversationJoinedRow {
+  id: string;
+  order_id: string | null;
+  last_message_at: string | null;
+  /** Joined "the other party" name + initials. Resolved at query time. */
+  with_name: string;
+  with_initials: string;
+  last_message: string | null;
+  unread_count: number;
+}
+
+export function conversationFromRow(row: ConversationJoinedRow): Conversation {
+  return {
+    id: row.id,
+    orderId: row.order_id ?? "",
+    withName: row.with_name,
+    withInitials: row.with_initials,
+    lastMessage: row.last_message ?? "",
+    lastAgo: row.last_message_at ? agoOf(row.last_message_at) : "",
+    unread: row.unread_count,
+  };
+}
+
+export interface MessageRow {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  body: string | null;
+  created_at: string;
+}
+
+export function messageFromRow(row: MessageRow, selfUserId: string): Message {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    fromSelf: row.sender_id === selfUserId,
+    body: row.body ?? "",
+    ago: agoOf(row.created_at),
+  };
+}
+
+export interface ServiceJoinedRow {
+  id: string;
+  student_id: string;
+  title: string;
+  description: string | null;
+  is_active: boolean;
+  category_slug: string;
+  /** Joined service_packages, ordered basic -> standard -> premium. */
+  packages: Array<{
+    tier: "basic" | "standard" | "premium";
+    price: number | string;
+    delivery_days: number;
+    description: string | null;
+  }>;
+}
+
+export function serviceFromRow(row: ServiceJoinedRow): ServiceListing {
+  const packages: ServicePackage[] = row.packages.map((p) => ({
+    tier: p.tier,
+    price: asNumber(p.price),
+    deliveryDays: p.delivery_days,
+    description: p.description ?? "",
+  }));
+  return {
+    id: row.id,
+    studentId: row.student_id,
+    categorySlug: row.category_slug,
+    title: row.title,
+    description: row.description ?? "",
+    isActive: row.is_active,
+    packages,
+  };
+}
+
+export interface AdminActionRow {
+  id: string;
+  action: string;
+  target_type: string | null;
+  target_id: string | null;
+  reason: string;
+  created_at: string;
+  admin_name: string;
+}
+
+export function adminActionFromRow(row: AdminActionRow): AdminAction {
+  return {
+    id: row.id,
+    adminName: row.admin_name,
+    action: row.action,
+    target: row.target_id ?? row.target_type ?? "",
+    reason: row.reason,
+    ago: agoOf(row.created_at),
+  };
+}
+
+export interface TrustHistoryRow {
+  id: string;
+  score: number | string;
+  delta: number | string;
+  reason: string | null;
+  created_at: string;
+}
+
+export function trustHistoryFromRow(row: TrustHistoryRow): TrustHistoryEntry {
+  return {
+    id: row.id,
+    delta: asNumber(row.delta),
+    score: asNumber(row.score),
+    reason: row.reason ?? "",
+    ago: agoOf(row.created_at),
   };
 }
 
