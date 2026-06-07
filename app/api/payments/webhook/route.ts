@@ -1,18 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { guardWebhookIdempotency, releaseEscrow } from "@/lib/razorpay/escrow";
-import { env } from "@/lib/env";
+import {
+  guardWebhookIdempotency,
+  releaseEscrow,
+} from "@/lib/razorpay/escrow";
+import { env, services } from "@/lib/env";
+import { getServiceSupabase } from "@/lib/supabase/server";
 
 /**
- * Razorpay webhook handler.
+ * Razorpay webhook handler (P3).
  *
- * Live security checklist (per master plan §3.1):
- *  1. Verify x-razorpay-signature using HMAC-SHA256(webhookSecret, body).
- *  2. Guard idempotency via webhook_events table (prevent double-credit on retries).
- *  3. Dispatch by event type: payment.captured | transfer.created | transfer.settled |
- *     payment.failed | refund.created.
- *  4. On transfer.settled, fire Inngest: portfolio/generate + trust/recalculate.
+ * Live security checklist (master plan section 3.1):
+ *  1. HMAC-SHA256 verify with the webhook secret.
+ *  2. Idempotency guard via webhook_events table.
+ *  3. Dispatch by event type and persist ledger rows + dispatch
+ *     downstream events (Inngest portfolio + trust recalc).
+ *  4. Always return 200 once the event is recorded, so Razorpay does
+ *     not retry. Failures are surfaced via Sentry (P6) once that lands.
  *
- * Demo mode: accept, log, and ack so end-to-end tests pass.
+ * Demo path: accept any signature when no secret is configured, no
+ * DB writes, log + ack. The dispatch switch still runs so flows
+ * exercise the right branches.
  */
 
 export const dynamic = "force-dynamic";
@@ -35,6 +42,24 @@ async function verifySignature(rawBody: string, signature: string | null) {
   return expected === signature;
 }
 
+interface RazorpayWebhookEvent {
+  event?: string;
+  id?: string;
+  payload?: {
+    payment?: { entity?: { order_id?: string; id?: string; amount?: number; notes?: Record<string, string> } };
+    transfer?: { entity?: { id?: string; source?: string; amount?: number; notes?: Record<string, string> } };
+    refund?: { entity?: { id?: string; payment_id?: string; amount?: number } };
+  };
+}
+
+function studierOrderIdFromEvent(event: RazorpayWebhookEvent): string | null {
+  return (
+    event.payload?.payment?.entity?.notes?.order_id ??
+    event.payload?.transfer?.entity?.notes?.order_id ??
+    null
+  );
+}
+
 export async function POST(req: NextRequest) {
   const rawBody = await req.text();
   const signature = req.headers.get("x-razorpay-signature");
@@ -44,7 +69,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
 
-  let event: { event?: string; id?: string; payload?: Record<string, unknown> };
+  let event: RazorpayWebhookEvent;
   try {
     event = JSON.parse(rawBody);
   } catch {
@@ -57,21 +82,82 @@ export async function POST(req: NextRequest) {
     if (!fresh) return NextResponse.json({ ok: true, duplicate: true });
   }
 
+  const orderId = studierOrderIdFromEvent(event);
+  const supabase = services.supabase ? getServiceSupabase() : null;
+
   switch (event.event) {
-    case "payment.captured":
-      // Lock escrow + notify both parties (live).
+    case "payment.captured": {
+      // Lock escrow on the order. Update the orders row from
+      // pending_payment -> active so the student dashboard surfaces it.
+      if (supabase && orderId) {
+        await supabase
+          .from("orders")
+          .update({ status: "active" })
+          .eq("id", orderId);
+        await supabase
+          .from("payments")
+          .upsert(
+            {
+              order_id: orderId,
+              razorpay_payment_id: event.payload?.payment?.entity?.id ?? null,
+              status: "escrowed",
+              amount:
+                (event.payload?.payment?.entity?.amount ?? 0) / 100,
+              captured_at: new Date().toISOString(),
+            },
+            { onConflict: "order_id" }
+          );
+      }
       break;
-    case "transfer.settled":
-      // Finalize commission_events; trigger portfolio + trust jobs (live).
+    }
+
+    case "transfer.settled": {
+      // The Route transfer settled to the student linked account.
+      // Mark the commission_event as settled + tag the order completed
+      // if everything for this order has landed.
+      const transferId = event.payload?.transfer?.entity?.id;
+      if (supabase && orderId) {
+        await supabase
+          .from("transfer_log")
+          .update({ status: "settled", settled_at: new Date().toISOString() })
+          .eq("razorpay_transfer_id", transferId);
+        await supabase
+          .from("commission_events")
+          .update({ status: "settled" })
+          .eq("order_id", orderId);
+        // Fire downstream Inngest events (P5 + P6 wire the workers).
+      }
       break;
-    case "refund.created":
-      // Reverse commission_events.
+    }
+
+    case "refund.created": {
+      // Reverse the commission_event; mark the order refunded.
+      if (supabase && orderId) {
+        await supabase
+          .from("commission_events")
+          .update({ status: "reversed" })
+          .eq("order_id", orderId);
+        await supabase
+          .from("orders")
+          .update({ status: "refunded" })
+          .eq("id", orderId);
+      }
       break;
-    case "payment.failed":
-      // Cancel escrow, notify both parties.
+    }
+
+    case "payment.failed": {
+      if (supabase && orderId) {
+        await supabase
+          .from("orders")
+          .update({ status: "cancelled" })
+          .eq("id", orderId);
+      }
       break;
+    }
+
     default:
-      // Unknown events are acked but recorded.
+      // Unknown events are acked but recorded (the webhook_events
+      // insert above already happened).
       break;
   }
 

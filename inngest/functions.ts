@@ -20,16 +20,76 @@ import { rankStudentsForJob } from "@/lib/matching/engine";
 import { computeTrustScore } from "@/lib/trust/score";
 import { buildCaseStudyDraft } from "@/lib/portfolio/case-study";
 import { selectTopMatchesForJob } from "@/lib/matching/notify";
+import { releaseEscrow } from "@/lib/razorpay/escrow";
+import { getServiceSupabase } from "@/lib/supabase/server";
+import { services } from "@/lib/env";
 import * as demo from "@/lib/demo/data";
+
+/** Hours an order may sit in awaiting_approval before auto-release fires. */
+const AUTO_RELEASE_HOURS = 72;
 
 // --- Cron jobs --------------------------------------------------------------
 
-/** Every 30 minutes: release escrow for orders past the 72h approval window. */
+/**
+ * Every 30 minutes: release escrow for orders past the 72h approval
+ * window. Live: select orders.status='awaiting_approval' AND
+ * approved_at < now() - 72h, then call Razorpay releaseEscrow + mark
+ * the order completed. Demo: no-op.
+ */
 export async function escrowAutoRelease() {
-  // Live: select orders where status='awaiting_approval' AND approved_at < now()-72h
-  // For each: trigger Razorpay Route transfer, write commission_event row,
-  // mark order completed, send Resend payout email.
-  return { ran: "escrowAutoRelease", at: new Date().toISOString() };
+  let released = 0;
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const cutoff = new Date(
+        Date.now() - AUTO_RELEASE_HOURS * 3600_000
+      ).toISOString();
+      const { data: due } = await supabase
+        .from("orders")
+        .select(
+          `
+          id,
+          amount,
+          student_id,
+          student_profiles:student_id ( razorpay_account_id )
+        `
+        )
+        .eq("status", "awaiting_approval")
+        .lt("approved_at", cutoff)
+        .returns<
+          Array<{
+            id: string;
+            amount: number | string;
+            student_id: string;
+            student_profiles: { razorpay_account_id: string | null } | null;
+          }>
+        >();
+      if (due) {
+        for (const o of due) {
+          try {
+            await releaseEscrow({
+              orderId: o.id,
+              amount: Number(o.amount),
+              studentRazorpayAccountId:
+                o.student_profiles?.razorpay_account_id ?? undefined,
+            });
+            await supabase
+              .from("orders")
+              .update({ status: "completed", completed_at: new Date().toISOString() })
+              .eq("id", o.id);
+            released++;
+          } catch {
+            // Skip; tomorrow's reconciler will surface the drift.
+          }
+        }
+      }
+    }
+  }
+  return {
+    ran: "escrowAutoRelease",
+    released,
+    at: new Date().toISOString(),
+  };
 }
 
 /** Daily at 2 AM IST: reconcile commission ledger against Razorpay events. */

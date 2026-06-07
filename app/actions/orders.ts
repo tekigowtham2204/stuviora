@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { getOrder } from "@/lib/data/queries";
+import { services } from "@/lib/env";
+import { getServiceSupabase } from "@/lib/supabase/server";
 
 /**
  * Order lifecycle Server Actions. Demo paths just revalidate + redirect;
@@ -35,8 +37,35 @@ export async function approveOrder(formData: FormData) {
   const order = await getOrder(orderId);
   if (!order) redirect("/client/orders");
 
-  await releaseEscrow({ orderId, amount: order.amount });
-  // Live: update orders.status, commission_events.status='settled', fire trust+portfolio jobs.
+  // Look up the student's linked Route account (set when student first
+  // configures payouts). releaseEscrow handles the demo + live branches
+  // and the commission ledger write.
+  let studentAccount: string | undefined;
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const { data } = await supabase
+        .from("student_profiles")
+        .select("razorpay_account_id")
+        .eq("user_id", order!.studentId)
+        .maybeSingle<{ razorpay_account_id: string | null }>();
+      studentAccount = data?.razorpay_account_id ?? undefined;
+
+      await supabase
+        .from("orders")
+        .update({
+          status: "completed",
+          approved_at: new Date().toISOString(),
+        })
+        .eq("id", orderId);
+    }
+  }
+
+  await releaseEscrow({
+    orderId,
+    amount: order!.amount,
+    studentRazorpayAccountId: studentAccount,
+  });
 
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
