@@ -26,6 +26,13 @@ import { services } from "@/lib/env";
 import { sendEmail } from "@/lib/email/client";
 import { weeklyDigestEmail } from "@/lib/email/templates";
 import { recordNotification } from "@/lib/notifications/log";
+import {
+  indexDocuments,
+  studentToSearchDoc,
+  jobToSearchDoc,
+  STUDENT_INDEX,
+  JOB_INDEX,
+} from "@/lib/search/client";
 import * as demo from "@/lib/demo/data";
 
 /** Hours an order may sit in awaiting_approval before auto-release fires. */
@@ -256,4 +263,23 @@ export async function recomputeMatches(event: { jobId: string }) {
   const job = demo.jobs.find((j) => j.id === event.jobId);
   if (!job) return;
   rankStudentsForJob(job, demo.students, { limit: 20 });
+}
+
+/**
+ * Rebuild the Meilisearch indexes (P6). Demo: indexDocuments no-ops.
+ * Live: pushes every published student + open job document to Meili.
+ */
+export async function searchReindex() {
+  const studentDocs = demo.students.map(studentToSearchDoc);
+  const jobDocs = demo.jobs
+    .filter((j) => j.status === "open")
+    .map(jobToSearchDoc);
+  const s = await indexDocuments(STUDENT_INDEX, studentDocs);
+  const j = await indexDocuments(JOB_INDEX, jobDocs);
+  return {
+    ran: "searchReindex",
+    students: s.count,
+    jobs: j.count,
+    at: new Date().toISOString(),
+  };
 }

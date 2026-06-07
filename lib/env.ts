@@ -40,6 +40,7 @@ export const env = {
   meilisearchKey: read("MEILISEARCH_KEY"),
   sentryDsn: read("SENTRY_DSN"),
   posthogKey: read("NEXT_PUBLIC_POSTHOG_KEY"),
+  posthogHost: read("NEXT_PUBLIC_POSTHOG_HOST") ?? "https://us.i.posthog.com",
 
   sessionSecret: read("SESSION_SECRET") ?? "stuviora-dev-secret-change-me",
 } as const;

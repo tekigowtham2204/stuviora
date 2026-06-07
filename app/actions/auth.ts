@@ -9,6 +9,8 @@ import {
   currentAdmin,
 } from "@/lib/auth/session";
 import { services } from "@/lib/env";
+import { rateLimit } from "@/lib/ratelimit";
+import { trackEvent } from "@/lib/observability";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   requireVerifiedCollege,
@@ -144,6 +146,20 @@ export async function verifyOtp(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   const otp = ((formData.get("otp") as string) || "").trim();
 
+  // Throttle code-checking to blunt brute-force on the 6-digit OTP.
+  const limit = await rateLimit({
+    key: `verifyOtp:${email || "anon"}`,
+    max: 6,
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) {
+    redirect(
+      `/auth/verify-email?role=${role}&email=${encodeURIComponent(
+        email
+      )}&error=rate_limited`
+    );
+  }
+
   if (services.supabase && email && otp) {
     const supabase = await getServerSupabase();
     if (supabase) {
@@ -169,12 +185,14 @@ export async function verifyOtp(formData: FormData) {
         name,
         initials: initialsFrom(name),
       });
+      trackEvent("email_verified", { role }, data!.user.id);
       if (role === "client") redirect("/client/onboarding");
       redirect("/student/onboarding");
     }
   }
 
   // Demo path: accept any code (the verify-email page advertises this).
+  trackEvent("email_verified", { role, demo: true });
   if (role === "client") {
     const c = currentClient();
     await setSession({
