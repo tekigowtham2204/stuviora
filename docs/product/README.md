@@ -22,6 +22,8 @@
 | 10 | [build-status-and-honest-review.md](./build-status-and-honest-review.md) | CTO + PM audit. What is real vs demo, % to user-ready, honest probability review on every metric. | 12 min |
 | 11 | [build-checklist.md](./build-checklist.md) | Concrete checklist: what is built, what is partial, what is not started, and what to build next organized by complexity tier. | 10 min |
 | 12 | [student-audit.md](./student-audit.md) | Two-student walkthrough audit: Diya (first-timer) and Aarav (experienced freelancer). 74 numbered gaps with file paths, prioritised fix list. | 15 min |
+| 13 | [gap-fix-plan.md](./gap-fix-plan.md) | 5-sprint plan for the audit fixes. | 4 min |
+| 14 | [continue-prompt.md](./continue-prompt.md) | Self-contained handoff for the next session. Includes the verbatim prompt to paste. | 6 min |
 
 ## How to use these docs
 
