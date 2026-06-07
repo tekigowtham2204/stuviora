@@ -7,6 +7,9 @@ import {
   Wallet,
   Star,
   CheckCircle2,
+  GraduationCap,
+  FileText,
+  Package,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stat } from "@/components/ui/stat";
@@ -35,6 +38,16 @@ export default async function StudentDashboard() {
     .filter((o) => o.status === "completed")
     .reduce((sum, o) => sum + Math.round(o.amount * 0.85), 0);
   const nextTier = TRUST_TIERS.find((t) => t.min > me.trustScore);
+
+  // The student is "new" when they have never run the loop. We pick a
+  // different layout that walks them to their first paid order rather
+  // than rendering a graveyard of zero stats.
+  const isNewStudent =
+    me.jobsCompleted === 0 && orders.length === 0 && active.length === 0;
+
+  if (isNewStudent) {
+    return <NewStudentDashboard name={me.fullName} skills={me.skills} matchesAvailable={matches.length} />;
+  }
 
   return (
     <>
@@ -213,6 +226,110 @@ export default async function StudentDashboard() {
           </Card>
         </div>
       </div>
+    </>
+  );
+}
+
+/**
+ * Zero-state dashboard for a student who has never run the loop.
+ * Closes student-audit.md gaps #17 (new-user dashboard) and
+ * #18 (next-action recommender). Renders a single welcome hero
+ * with a 3-step "to first paid job" guide.
+ */
+function NewStudentDashboard({
+  name,
+  skills,
+  matchesAvailable,
+}: {
+  name: string;
+  skills: string[];
+  matchesAvailable: number;
+}) {
+  const hasSkills = skills.length > 0;
+  const steps = [
+    {
+      n: 1,
+      icon: GraduationCap,
+      title: "Finish your profile",
+      body: hasSkills
+        ? "Skills picked. Add a short headline + bio so clients know who you are."
+        : "Pick the skills you want to sell. Three to six is plenty.",
+      cta: hasSkills ? "Add headline + bio" : "Pick skills",
+      href: "/student/onboarding",
+      done: false,
+    },
+    {
+      n: 2,
+      icon: Package,
+      title: "List your first service",
+      body: "Three tiers, your prices. Doubles the chance a client hires you in week 1.",
+      cta: "List a service",
+      href: "/student/services/new",
+      done: false,
+    },
+    {
+      n: 3,
+      icon: FileText,
+      title: "Bid on a matched job",
+      body:
+        matchesAvailable > 0
+          ? `${matchesAvailable} matched job${matchesAvailable === 1 ? "" : "s"} ready. AI drafts the proposal for you.`
+          : "Browse open jobs and send your first proposal.",
+      cta: matchesAvailable > 0 ? "Open my matches" : "Browse jobs",
+      href: matchesAvailable > 0 ? "/student/matches" : "/student/jobs",
+      done: false,
+    },
+  ];
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="Welcome to Stuviora"
+        title={`Hi ${name.split(" ")[0]}, let's land your first paid job.`}
+        subtitle="Three steps. Most students complete a first job within 7 days of signing up. Your payout lands by UPI in under 5 minutes."
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        {steps.map((step) => (
+          <Card key={step.n} className="flex h-full flex-col p-6">
+            <div className="flex items-center justify-between">
+              <span className="font-display text-2xl text-[var(--color-ink-faint)]">
+                0{step.n}
+              </span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--color-sage)] text-[var(--color-brown-900)]">
+                <step.icon className="h-5 w-5" />
+              </span>
+            </div>
+            <h3 className="mt-4 font-display text-lg font-medium text-[var(--color-ink)]">
+              {step.title}
+            </h3>
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+              {step.body}
+            </p>
+            <Button href={step.href} variant="sage" size="sm" className="mt-5 w-full">
+              {step.cta} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Card>
+        ))}
+      </div>
+
+      <Card tint="warm" surface="flat" className="mt-8">
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-orange)] text-[var(--color-brown-900)]">
+            <CheckCircle2 className="h-5 w-5" />
+          </span>
+          <div>
+            <CardTitle>What happens after your first hire</CardTitle>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+              Client funds Razorpay escrow up front, so the money is locked the
+              moment you start. You deliver. Claude AI reviews the work
+              against the brief, and only passing work reaches the client.
+              When the client approves, 85% (Rs.8,500 on a Rs.10,000 job)
+              lands in your wallet in under 5 minutes via UPI.
+            </p>
+          </div>
+        </div>
+      </Card>
     </>
   );
 }

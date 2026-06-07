@@ -34,7 +34,12 @@ export default async function TrustPage() {
         <aside className="space-y-6">
           <Card surface="glow" className="text-center">
             <div className="relative mx-auto h-44 w-44">
-              <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+              <svg
+                viewBox="0 0 100 100"
+                className="h-full w-full -rotate-90"
+                role="img"
+                aria-label={`Trust score: ${breakdown.score} of 100, ${breakdown.tier} tier`}
+              >
                 <circle
                   cx="50"
                   cy="50"
