@@ -17,6 +17,7 @@ import "server-only";
  */
 
 import * as unzipit from "unzipit";
+import { isSafeZipEntryPath } from "@/lib/uploads/validate";
 
 export const MAX_EXTRACT_CHARS = 60_000;
 
@@ -105,6 +106,16 @@ export async function extractZip(
       blob: () => Promise<Blob>;
     };
     if (entry.isDirectory) continue;
+    // Path-traversal guard: never extract an entry that escapes the root
+    // (e.g. "../../etc/passwd" or an absolute path).
+    if (!isSafeZipEntryPath(name)) {
+      out.push({
+        filename: `${filename}/${name}`,
+        mime: "application/octet-stream",
+        text: `[skipped: unsafe path "${name}"]`,
+      });
+      continue;
+    }
     // ZIP-bomb guard: skip anything over 25 MB inflated.
     if (entry.size > 25 * 1024 * 1024) {
       out.push({
