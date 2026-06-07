@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireSession } from "@/lib/auth/dal";
+import { authErrorResponse } from "@/lib/auth/route-guard";
 import {
   getStudentById,
   getClientById,
@@ -26,7 +27,14 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   void req;
-  const session = await requireSession();
+  let session;
+  try {
+    session = await requireSession();
+  } catch (e) {
+    const res = authErrorResponse(e);
+    if (res) return res;
+    throw e;
+  }
   const { id, role, name } = session.user;
 
   const input: DataExportInput = { userId: id, role, name };
