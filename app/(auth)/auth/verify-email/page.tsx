@@ -1,8 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { verifyOtp } from "@/app/actions/auth";
 import { DEMO_MODE } from "@/lib/env";
+import { AuthStepper } from "@/components/auth/auth-stepper";
+import { VerifyActions } from "@/components/auth/verify-actions";
 
 export const metadata = { title: "Verify email" };
 
@@ -15,7 +16,7 @@ export default async function VerifyEmailPage({
 
   return (
     <Card className="p-8 text-center" surface="glow">
-      <Badge tone="sage">Step 2 of 2</Badge>
+      <AuthStepper current={0} />
       <h1 className="mt-4 font-display text-2xl font-medium tracking-tight text-[var(--color-ink)]">
         Verify your email.
       </h1>
@@ -52,12 +53,7 @@ export default async function VerifyEmailPage({
         </p>
       )}
 
-      <p className="mt-6 text-sm text-[var(--color-ink-muted)]">
-        Did not get it?{" "}
-        <button className="font-medium text-[var(--color-ink)] underline-offset-4 hover:underline">
-          Resend code
-        </button>
-      </p>
+      <VerifyActions email={email} />
     </Card>
   );
 }

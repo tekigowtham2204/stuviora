@@ -62,6 +62,8 @@ export default async function TaxPage({
 
       {pan === "saved" && (
         <Card
+          role="status"
+          aria-live="polite"
           surface="flat"
           tint="sage"
           className="mb-6 flex items-center gap-2 text-sm text-[var(--color-sage-900)]"

@@ -3,16 +3,15 @@ import { Clock, Users, Sparkles, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input, Textarea, Label } from "@/components/ui/input";
 import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { getJob, getClientById, listPortfolio } from "@/lib/data/queries";
-import { submitProposal } from "@/app/actions/jobs";
 import { currentStudent } from "@/lib/auth/session";
 import { suggestPricing } from "@/lib/pricing/engine";
 import { writeProposalDraft } from "@/lib/proposals/writer";
+import { buildProposalVariants } from "@/lib/proposals/variants";
 import { TIER_BUDGET_CEILING, canAcceptBudget } from "@/lib/trust/score";
+import { ProposalForm } from "@/components/feature/proposal-form";
 
 export const metadata = { title: "Job detail" };
 
@@ -35,6 +34,9 @@ export default async function StudentJobDetail({
     portfolio,
     bidAmount: pricing.suggested,
   });
+  const variants = buildProposalVariants(draft);
+  const ceiling = TIER_BUDGET_CEILING[me.trustTier];
+  const bidCeiling = ceiling === Infinity ? null : ceiling;
 
   return (
     <>
@@ -111,71 +113,20 @@ export default async function StudentJobDetail({
               </ul>
             </div>
 
-            <form action={submitProposal} className="mt-6 space-y-4">
-              <input type="hidden" name="jobId" value={job.id} />
-
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="coverLetter">Your pitch</Label>
-                  <Badge tone="orange">
-                    <Sparkles className="h-3 w-3" /> AI-drafted
-                  </Badge>
-                </div>
-                <Textarea
-                  id="coverLetter"
-                  name="coverLetter"
-                  rows={8}
-                  defaultValue={draft.full}
-                />
-                <p className="text-xs text-[var(--color-ink-muted)]">
-                  The pitch stays yours. Edit before sending: clients respond to specifics.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="bidAmount">Your bid (INR)</Label>
-                  <Input
-                    id="bidAmount"
-                    name="bidAmount"
-                    type="number"
-                    min={1}
-                    max={
-                      TIER_BUDGET_CEILING[me.trustTier] === Infinity
-                        ? undefined
-                        : TIER_BUDGET_CEILING[me.trustTier]
-                    }
-                    defaultValue={pricing.suggested}
-                  />
-                  {TIER_BUDGET_CEILING[me.trustTier] !== Infinity && (
-                    <p className="text-xs text-[var(--color-ink-faint)]">
-                      Your {me.trustTier} tier caps single-job bids at{" "}
-                      Rs.{TIER_BUDGET_CEILING[me.trustTier].toLocaleString("en-IN")}.{" "}
-                      {!canAcceptBudget(me.trustTier, job.budgetMax) && (
-                        <span className="text-[var(--color-danger-deep)]">
-                          This job&apos;s max budget is above your cap.
-                        </span>
-                      )}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="deliveryDays">Delivery (days)</Label>
-                  <Input
-                    id="deliveryDays"
-                    name="deliveryDays"
-                    type="number"
-                    min={1}
-                    max={job.deadlineDays}
-                    defaultValue={Math.max(1, Math.round(job.deadlineDays * 0.8))}
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" variant="primary" className="w-full">
-                Submit proposal
-              </Button>
-            </form>
+            <ProposalForm
+              jobId={job.id}
+              variants={variants}
+              pricing={{
+                low: pricing.low,
+                suggested: pricing.suggested,
+                high: pricing.high,
+              }}
+              bidCeiling={bidCeiling}
+              tier={me.trustTier}
+              deadlineDays={job.deadlineDays}
+              defaultDeliveryDays={Math.max(1, Math.round(job.deadlineDays * 0.8))}
+              budgetMaxAboveCap={!canAcceptBudget(me.trustTier, job.budgetMax)}
+            />
           </Card>
         </div>
 
@@ -205,6 +156,10 @@ export default async function StudentJobDetail({
             <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
               When the client hires you they fund Razorpay escrow upfront. You get paid
               85% on approval, with 72-hour auto-release if they do not respond.
+            </p>
+            <p className="mt-2 text-xs text-[var(--color-ink-faint)]">
+              You can withdraw to your bank or UPI once the balance clears. The
+              minimum payout is Rs.100.
             </p>
             <Badge tone="sage" className="mt-4">
               Escrow-protected

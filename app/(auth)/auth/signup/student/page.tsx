@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldHint, Select } from "@/components/ui/input";
 import { startStudentSignup } from "@/app/actions/auth";
+import { AuthStepper } from "@/components/auth/auth-stepper";
+import { PasswordField } from "@/components/auth/password-field";
 
 export const metadata = { title: "Student sign up" };
 
@@ -19,6 +21,7 @@ const STREAMS = [
 export default function StudentSignupPage() {
   return (
     <Card className="p-8" surface="glow">
+      <AuthStepper current={0} />
       <h1 className="font-display text-2xl font-medium tracking-tight text-[var(--color-ink)]">
         Create your student account.
       </h1>
@@ -45,7 +48,7 @@ export default function StudentSignupPage() {
             ))}
           </Select>
         </div>
-        <Field label="Password" name="password" type="password" placeholder="********" />
+        <PasswordField />
         <Button type="submit" variant="sage" className="w-full">
           Send verification code
         </Button>
