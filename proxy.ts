@@ -1,12 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { DEMO_MODE } from "@/lib/env";
+import { createServerClient } from "@supabase/ssr";
+import { DEMO_MODE, env, services } from "@/lib/env";
 
 /**
- * Proxy (Next.js 16's renamed Middleware). Optimistic auth + role-routing only —
- * the secure checks live in the Data Access Layer (lib/auth/dal.ts).
+ * Proxy (Next.js 16's renamed Middleware).
  *
- * In DEMO_MODE there's no real session yet, so we allow all routes through to
- * keep the full product browsable; live mode enforces the session cookie.
+ * Two jobs:
+ *   1. Role-route protection: redirect unauthenticated requests to
+ *      protected route prefixes to /auth/login.
+ *   2. Supabase session refresh: when live keys are present, refresh
+ *      the user's session cookie on the edge so SSR pages downstream
+ *      get a current `auth.getUser()` without a round-trip.
+ *
+ * The actual authorization decisions live in the DAL (lib/auth/dal.ts)
+ * because middleware runs on the edge with limited DB access. This
+ * proxy only does the optimistic "you have a session cookie" gate.
  */
 
 const ROLE_PREFIXES: Record<string, string> = {
@@ -25,12 +33,32 @@ function getProtectedRole(path: string): string | null {
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Step 1: live session refresh. This runs for every request whether
+  // protected or not, so the Supabase cookie does not go stale.
+  const response = NextResponse.next({ request: req });
+  if (services.supabase) {
+    const supabase = createServerClient(env.supabaseUrl!, env.supabaseAnonKey!, {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set({ name, value, ...options });
+          });
+        },
+      },
+    });
+    // Touch getUser() so Supabase rotates the cookie if needed.
+    await supabase.auth.getUser();
+  }
+
+  // Step 2: role-route protection.
   const protectedRole = getProtectedRole(pathname);
+  if (!protectedRole) return response;
+  if (DEMO_MODE) return response;
 
-  if (!protectedRole) return NextResponse.next();
-  if (DEMO_MODE) return NextResponse.next();
-
-  // Live mode: optimistic cookie check (role-specific session set at login).
   const session = req.cookies.get("sv_session")?.value;
   if (!session) {
     const loginUrl = new URL("/auth/login", req.nextUrl);
@@ -38,9 +66,11 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|svg|ico)$).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|svg|ico)$).*)",
+  ],
 };

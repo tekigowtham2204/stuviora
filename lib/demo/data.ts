@@ -58,6 +58,8 @@ export interface Wallet {
 export const DEMO_STUDENT_ID = "stu-you";
 export const DEMO_CLIENT_ID = "cli-you";
 export const DEMO_ADMIN_ID = "adm-you";
+/** Zero-data student used to test the new-user empty-state UI. */
+export const DEMO_NEW_STUDENT_ID = "stu-new";
 
 export const admin = {
   id: DEMO_ADMIN_ID,
@@ -186,6 +188,31 @@ export const students: StudentProfile[] = [
     isAvailable: false,
     activeOrderCount: 0,
     medianResponseHours: 9,
+  },
+  // Zero-data persona for new-user empty-state QA. Never matched.
+  {
+    id: DEMO_NEW_STUDENT_ID,
+    fullName: "New Student",
+    username: "newstudent",
+    avatarInitials: "NS",
+    college: "Christ University",
+    stream: "Commerce",
+    city: "Bengaluru",
+    yearOfStudy: 1,
+    headline: "",
+    bio: "",
+    skills: [],
+    categorySlug: "tech-development",
+    trustScore: 0,
+    trustTier: "bronze",
+    rating: 0,
+    reviewsCount: 0,
+    jobsCompleted: 0,
+    verified: false,
+    hourlyFrom: 200,
+    isAvailable: true,
+    activeOrderCount: 0,
+    medianResponseHours: 0,
   },
 ];
 

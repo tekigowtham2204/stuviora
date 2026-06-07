@@ -1,4 +1,11 @@
-import { ArrowDownRight, ArrowUpRight, Wallet, ShieldCheck, TrendingUp } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Wallet,
+  ShieldCheck,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,12 +15,23 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Money } from "@/components/ui/money";
 import { getStudentWallet } from "@/lib/data/queries";
 import { withdraw } from "@/app/actions/services";
+import { TDS_THRESHOLD, TDS_RATE } from "@/lib/tax/engine";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Earnings" };
 
 export default async function EarningsPage() {
   const w = await getStudentWallet();
+
+  // TDS proximity: warn the student BEFORE the first ₹30k cross, so the
+  // first withholding does not surprise them. Closes student-audit #36.
+  // Lifetime is a stand-in for FY gross until live commission_events
+  // rolls up by FY (P3 wiring).
+  const fyGrossEstimate = w.lifetime;
+  const remainingBeforeTds = TDS_THRESHOLD - fyGrossEstimate;
+  const tdsApplies = remainingBeforeTds <= 0;
+  const tdsClose = remainingBeforeTds > 0 && remainingBeforeTds <= 5000;
+  const tdsPct = Math.min(100, Math.round((fyGrossEstimate / TDS_THRESHOLD) * 100));
 
   return (
     <>
@@ -22,6 +40,57 @@ export default async function EarningsPage() {
         title="Earnings."
         subtitle="Your wallet, what is in escrow, and the lifetime view."
       />
+
+      {(tdsApplies || tdsClose) && (
+        <Card
+          surface="flat"
+          tint="warm"
+          className="mb-6 border-[var(--color-orange-200)]"
+        >
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-orange-100)] text-[var(--color-orange-900)]">
+              <AlertTriangle className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <CardTitle>
+                {tdsApplies
+                  ? `TDS now applies on your earnings this FY`
+                  : `${remainingBeforeTds.toLocaleString(
+                      "en-IN"
+                    )} rupees away from TDS withholding`}
+              </CardTitle>
+              <p className="mt-1.5 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+                Section 194H withholds {Math.round(TDS_RATE * 100)}% on freelance
+                commission once your financial-year gross crosses{" "}
+                <Money value={TDS_THRESHOLD} />.{" "}
+                {tdsApplies
+                  ? "Each payout this FY now arrives net of TDS; the withheld amount appears as a credit on your Form 16A."
+                  : "Your next payout could be the one that crosses. Make sure your PAN is on file so we can compliantly withhold and report."}
+              </p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--color-surface)]">
+                <div
+                  className={cn(
+                    "h-full rounded-full",
+                    tdsApplies
+                      ? "bg-[var(--color-orange-deep)]"
+                      : "bg-[var(--color-yellow-deep)]"
+                  )}
+                  style={{ width: `${tdsPct}%` }}
+                />
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-muted)]">
+                <span>
+                  <Money value={fyGrossEstimate} /> /{" "}
+                  <Money value={TDS_THRESHOLD} /> FY
+                </span>
+                <Button href="/student/tax" variant="ghost" size="sm">
+                  See tax + PAN
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Stat

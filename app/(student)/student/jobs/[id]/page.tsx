@@ -12,6 +12,7 @@ import { submitProposal } from "@/app/actions/jobs";
 import { currentStudent } from "@/lib/auth/session";
 import { suggestPricing } from "@/lib/pricing/engine";
 import { writeProposalDraft } from "@/lib/proposals/writer";
+import { TIER_BUDGET_CEILING, canAcceptBudget } from "@/lib/trust/score";
 
 export const metadata = { title: "Job detail" };
 
@@ -138,8 +139,25 @@ export default async function StudentJobDetail({
                     id="bidAmount"
                     name="bidAmount"
                     type="number"
+                    min={1}
+                    max={
+                      TIER_BUDGET_CEILING[me.trustTier] === Infinity
+                        ? undefined
+                        : TIER_BUDGET_CEILING[me.trustTier]
+                    }
                     defaultValue={pricing.suggested}
                   />
+                  {TIER_BUDGET_CEILING[me.trustTier] !== Infinity && (
+                    <p className="text-xs text-[var(--color-ink-faint)]">
+                      Your {me.trustTier} tier caps single-job bids at{" "}
+                      Rs.{TIER_BUDGET_CEILING[me.trustTier].toLocaleString("en-IN")}.{" "}
+                      {!canAcceptBudget(me.trustTier, job.budgetMax) && (
+                        <span className="text-[var(--color-danger-deep)]">
+                          This job&apos;s max budget is above your cap.
+                        </span>
+                      )}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="deliveryDays">Delivery (days)</Label>
@@ -147,6 +165,8 @@ export default async function StudentJobDetail({
                     id="deliveryDays"
                     name="deliveryDays"
                     type="number"
+                    min={1}
+                    max={job.deadlineDays}
                     defaultValue={Math.max(1, Math.round(job.deadlineDays * 0.8))}
                   />
                 </div>

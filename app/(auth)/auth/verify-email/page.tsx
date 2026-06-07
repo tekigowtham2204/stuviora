@@ -41,9 +41,14 @@ export default async function VerifyEmailPage({
         </Button>
       </form>
 
-      {DEMO_MODE && (
+      {DEMO_MODE ? (
         <p className="mt-5 rounded-2xl border border-[var(--color-yellow-200)] bg-[var(--color-yellow-50)] p-3 text-xs text-[var(--color-yellow-900)]">
           Demo mode: enter any code (or none) and continue.
+        </p>
+      ) : (
+        <p className="mt-5 text-xs text-[var(--color-ink-muted)]">
+          Check your inbox (and the spam folder). The code is valid for 10
+          minutes.
         </p>
       )}
 
