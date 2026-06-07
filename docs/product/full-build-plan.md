@@ -7,9 +7,11 @@
 >
 > **Authored:** 2026-06-07. Grounded in `STUVIORA_MASTER_PLAN.md` (S4),
 > `build-checklist.md` (Part D complexity tiers + Part E), and
-> `build-status-and-honest-review.md` (hour model). The external-fact
-> section is **not freshly verified** (the verification pass was cut
-> off by a rate limit); treat it as "verify before relying."
+> `build-status-and-honest-review.md` (hour model). Section 7 is a
+> **five-source web verification (2026-06-07)** of the external facts
+> the plan depends on, with primary-source citations and confidence
+> flags; high-confidence items can be relied on, medium/low need a
+> professional (CA / counsel / Razorpay) sign-off before launch.
 
 ---
 
@@ -278,38 +280,143 @@ poles (S2) start, not before.**
 
 ---
 
-## 7. External assumptions to VERIFY (not freshly confirmed this session)
+## 7. External facts (VERIFIED 2026-06-07) and the plan changes they force
 
-The web-verification pass was rate-limited, so these inherited
-assumptions need a fresh check before you rely on them. Several look
-**materially wrong or stale** in the current docs:
+Five-source web verification (high-confidence items cited to primary
+sources; medium/low and disputed items flagged). These **change the
+plan**, not just confirm it.
 
-1. **TDS section is probably wrong.** Master plan S3.1 and S4 assume
-   "TDS 5% under Sec 194H past Rs.30k/year." For a platform paying
-   sellers, the governing provision is most likely **Section 194-O
-   (e-commerce operator -> e-commerce participant)**, whose rate was
-   **reduced to 0.1%** and which carries a **Rs.5,00,000** annual
-   threshold for individuals/HUF - not Rs.30,000. 194H (5%) applies to
-   commission/brokerage, a different flow. **This changes the tax engine
-   thresholds and the wallet TDS-proximity warning (audit #36).**
-   Action: confirm with a CA; likely re-pin `lib/tax/engine.ts`.
-2. **GST + TCS:** confirm 18% GST on the platform commission and whether
-   **GST TCS under Section 52** (e-commerce operator collection) applies
-   and at what current rate.
-3. **Razorpay Route:** confirm the current onboarding/approval timeline,
-   required KYC for Linked Accounts, and exactly what works in **test
-   mode** vs needs live activation. Plan assumes weeks of lead time.
-4. **DPDP Act 2023 + Rules:** confirm whether the implementing **Rules
-   are finalized/notified** and the **compliance deadline/grace period**,
-   plus children's-data (verifiable parental consent) and breach-notice
-   timelines. This scopes Phase P7.
-5. **AI-gate economics:** confirm current Claude/OpenRouter pricing.
-   "< Rs.5 per review" is realistic on a small/fast model but tight on a
-   mid-tier model for long documents; pre-screen with a cheap model.
+### 7.1 India tax: the master plan's TDS model is WRONG (fix it)
 
-I can re-run the five-source verification (Razorpay Route, DPDP, India
-tax, LLM-judge economics, marketplace sequencing) once the rate limit
-resets and fold cited results back into S7.
+The master plan (S3.1, S4) says "TDS 5% under Sec 194H past Rs.30k/yr."
+Verified-incorrect for a marketplace paying sellers:
+
+- **Section 194-O governs the seller payout, at 0.1% on gross** (reduced
+  from 1%, effective 1 Oct 2024), and **overrides** 194C/194H/194J for
+  that transaction. [high]
+  https://cleartax.in/s/section-194o
+- **Threshold: Rs.5,00,000** gross/FY for an individual/HUF participant
+  who furnishes PAN/Aadhaar (no TDS below it) - **not Rs.30,000**. No
+  PAN -> 5% under s.206AA. [high] https://cleartax.in/s/section-194o
+- TDS base is **gross** (platform commission included); once 194-O is
+  deducted you do **not** also layer 194H 5% on the commission. [high]
+  https://taxguru.in/income-tax/section-194h-applicability-commission-e-commerce-operators.html
+- **GST 18%** on the platform commission. **GST TCS u/s 52 is now 0.5%**
+  (0.25% CGST + 0.25% SGST), reduced from 1% on 10 Jul 2024. [high]
+  https://taxguru.in/goods-and-service-tax/cgst-e-commerce-operator-tcs-collection-rate-reduced-0-25-percent.html
+- **Form 16A: quarterly**, due 15 Aug / 15 Nov / 15 Feb / 15 Jun. [high]
+  https://incometaxindia.gov.in/Documents/Tax-Calendar/Issue-of-TDS-Certificate-in-Form-16A.htm
+- **GSTIN:** services-only freelancers selling through an ECO are
+  **exempt from compulsory GST registration below Rs.20L** (Notif.
+  65/2017-CT), so most student sellers stay unregistered; collect +
+  validate GSTIN at onboarding, stamp it on the invoice when present.
+  [med-high] https://www.vjmglobal.com/blog/exempt-suppliers-services-through-an-e-commerce-platform-obtaining-compulsory-registration
+
+> **Plan change:** re-pin `lib/tax/engine.ts` to 194-O (0.1% on gross,
+> Rs.5L individual threshold) and TCS 0.5%; fix the wallet TDS-proximity
+> warning (audit #36) from Rs.30k -> Rs.5L. Confirm with a CA whether any
+> category is a notified s.9(5) service (then the platform pays GST).
+
+### 7.2 Razorpay Route: test-mode-first is valid
+
+- Route splits one payment into Transfers to Linked Accounts;
+  **on-hold transfers (`on_hold` + `on_hold_until`)** are the escrow-like
+  hold mechanism (not a regulated escrow account). [high]
+  https://razorpay.com/docs/payments/route/
+- **Linked Accounts can be created/tested in Test mode**; real fund
+  movement needs Live activation + completed KYC. [high/med]
+  https://razorpay.com/docs/payments/route/faqs/
+- Base KYC: Express Activation ~1 business hr, standard review ~4-5
+  business days; **Route is separately enabled and typically gets manual
+  marketplace review - exact duration not published** (treat as
+  days-to-weeks; confirm with Razorpay). [med/low]
+  https://razorpay.com/blog/introducing-express-activation/
+- Webhooks: `transfer.processed`, `settlement.processed`; **at-least-once
+  delivery, dedupe on `x-razorpay-event-id`**, retries w/ backoff up to
+  24h, respond 2xx within 5s. [high]
+  https://razorpay.com/docs/webhooks/best-practices/
+
+> **Plan change:** Phase V can proceed in **test mode** before live Route
+> approval. Confirm the existing `webhook_events` guard keys on
+> `x-razorpay-event-id`.
+
+### 7.3 DPDP: Rules notified; 2026 is the build/test year
+
+- **DPDP Rules 2025 notified 13 Nov 2025.** Phased: Board provisions
+  immediate; consent-manager by **13 Nov 2026**; substantive obligations
+  (notice, rights, breach, children) from **13 May 2027** (~18-mo grace).
+  [high]
+  https://www.ey.com/en_in/insights/cybersecurity/transforming-data-privacy-digital-personal-data-protection-rules-2025
+- Obligations: standalone itemized consent notice; rights (access,
+  correction, **erasure**, grievance, nominate); withdrawal as easy as
+  consent; **grievance SLA max 90 days**. [high]
+  https://www.dpdpa.com/dpdparules/rule14.html
+- **Under-18 = child: verifiable parental consent required; profiling +
+  targeted ads to children prohibited.** Directly relevant - some college
+  students are under 18. [high]
+- **Breach reporting: to users without delay; to the Data Protection
+  Board, initial intimation without delay + detailed report within 72h;
+  no materiality threshold (any breach reportable).** [high]
+- **No PAN/Aadhaar-specific category** under DPDP (all "personal data"
+  treated uniformly; Aadhaar separately governed). Still treat PAN +
+  payment data as high-risk under "reasonable security safeguards." [med]
+- **Penalties up to Rs.250 crore** (security-safeguard failure). [high]
+  https://ksandk.com/data-protection-and-data-privacy/penalties-adjudication-under-indias-dpdp-act-2023/
+
+> **Plan change:** P7 features (consent manager hook, itemized notice,
+> cookie banner, download-my-data, delete/erasure, consent+processing
+> log, published grievance officer, 72h breach workflow, **age-gate +
+> parental consent for under-18**) have a real deadline runway: build/test
+> through 2026, compliant before May 2027. Confirm penalty tiers against
+> the bare Act text before legal sign-off.
+
+### 7.4 AI quality gate: economics confirmed, build refined
+
+- Pricing per 1M tokens: **Haiku 4.5 $1/$5, Sonnet 4.6 $3/$15, Opus 4.8
+  $5/$25**. OpenRouter passes provider rates through with **no inference
+  markup** (but ~5.5% card top-up fee out-of-band). [high]
+  https://openrouter.ai/pricing
+- Per-review (12k in + 400 out): **~Rs.1.2 on Haiku, ~Rs.3.6 on Sonnet**;
+  sub-Rs.5 holds on both up to ~12-15k input (Haiku across 5-20k). Prompt
+  caching the rubric/brief prefix cuts repeat-call cost. [high, arithmetic]
+- Reliability: verbosity + position + self-enhancement bias are real
+  (MT-Bench, arXiv 2306.05685). Mitigate with **structured JSON output,
+  a 1/3/5-anchored rubric, <=5 scoring dimensions, a 100-500 example
+  human-labeled calibration set** (recalibrate when agreement <~75%), and
+  a **Haiku pre-screen reserving Sonnet for borderline/audit** cases. [high]
+- Long-input grading takes **tens of seconds** vs ~29-30s serverless
+  caps -> **async background job is mandatory** (already P4's design).
+  Prefer **one multi-criteria call** over N single-criterion calls
+  (input dominates cost). [high]
+
+> **Plan change:** default the gate to **Haiku 4.5 pre-screen + Sonnet
+> 4.6 on borderline**; one structured multi-criteria JSON call; stand up
+> a calibration set early (master plan's "2-3 tuning rounds" maps to this).
+
+### 7.5 Marketplace sequencing: validates the liquidity-first order
+
+- **Liquidity, not features, is the primary risk**; network effects only
+  start after critical mass per side. [high]
+  https://a16z.com/13-metrics-for-marketplace-companies/
+- **Trust must be in the MVP** ("marketplaces live and die on trust") -
+  Stuviora's AI gate + verification + ratings is the right early bet. [high]
+  https://roobykon.com/blog/posts/how-to-build-an-online-marketplace-mvp-in-2026
+- **Defer** advanced search / recommendations / mobile until liquidity
+  exists ("an AI rec engine means nothing if basic search is clunky").
+  [med] - supports deferring P6 search depth and **P10 mobile**.
+- **Beachhead first** (constrain by geography/vertical); track
+  time-to-first-match + fill rate. [high]
+  https://www.lennysnewsletter.com/p/how-to-kickstart-and-scale-a-marketplace
+- HBR 250-platform study: 4 failure causes - mispricing a side, weak
+  trust, dismissing competition, entering too late. [high]
+  https://hbr.org/2019/05/a-study-of-more-than-250-platforms-reveals-why-most-fail
+- *Flagged unverified:* specific 20-40%/40-60% liquidity benchmarks and
+  the 30-80% leakage range (secondary/self-reported sources only).
+
+> **Plan change:** keep mobile (P10) and deep search (P6) **after** the
+> beachhead reaches liquidity; do not let them precede the live core loop
+> + founder-led demand. This matches the master plan's "ship M3, then
+> harden/expand."
 
 ---
 
