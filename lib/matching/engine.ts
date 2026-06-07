@@ -187,11 +187,15 @@ export function computeMatch(signals: MatchSignals): MatchBreakdown {
   return { score, components };
 }
 
-/** Rank jobs for a student. Returns sorted desc. */
+/**
+ * Rank jobs for a student. Returns sorted desc.
+ * `offset` + `limit` give simple windowed pagination; pass `total: true`
+ * via the wrapper if you need the full count for prev/next math.
+ */
 export function rankJobsForStudent(
   student: StudentProfile,
   jobs: Job[],
-  opts: { limit?: number } = {}
+  opts: { limit?: number; offset?: number } = {}
 ): Array<{ job: Job; breakdown: MatchBreakdown }> {
   const ranked = jobs.map((job) => ({
     job,
@@ -209,14 +213,15 @@ export function rankJobsForStudent(
     }),
   }));
   ranked.sort((a, b) => b.breakdown.score - a.breakdown.score);
-  return opts.limit ? ranked.slice(0, opts.limit) : ranked;
+  const start = Math.max(0, opts.offset ?? 0);
+  return opts.limit ? ranked.slice(start, start + opts.limit) : ranked.slice(start);
 }
 
-/** Rank students for a job. Returns sorted desc. */
+/** Rank students for a job. Returns sorted desc, with optional offset. */
 export function rankStudentsForJob(
   job: Job,
   students: StudentProfile[],
-  opts: { limit?: number } = {}
+  opts: { limit?: number; offset?: number } = {}
 ): Array<{ student: StudentProfile; breakdown: MatchBreakdown }> {
   const ranked = students.map((student) => ({
     student,
@@ -234,5 +239,6 @@ export function rankStudentsForJob(
     }),
   }));
   ranked.sort((a, b) => b.breakdown.score - a.breakdown.score);
-  return opts.limit ? ranked.slice(0, opts.limit) : ranked;
+  const start = Math.max(0, opts.offset ?? 0);
+  return opts.limit ? ranked.slice(start, start + opts.limit) : ranked.slice(start);
 }

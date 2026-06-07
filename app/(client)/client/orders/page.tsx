@@ -21,9 +21,9 @@ export default async function ClientOrdersPage() {
     }))
   );
 
-  const active = rows.filter(
-    ({ o }) => !["completed", "cancelled", "refunded"].includes(o.status)
-  );
+  const active = rows
+    .filter(({ o }) => !["completed", "cancelled", "refunded"].includes(o.status))
+    .sort((a, b) => a.o.deadlineDays - b.o.deadlineDays);
   const past = rows.filter(({ o }) =>
     ["completed", "cancelled", "refunded"].includes(o.status)
   );

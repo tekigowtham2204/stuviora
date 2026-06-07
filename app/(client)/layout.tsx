@@ -7,6 +7,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
+import type { MobileNavItem } from "@/components/layout/mobile-nav";
 import { currentClient } from "@/lib/auth/session";
 
 const NAV: NavItem[] = [
@@ -18,11 +19,20 @@ const NAV: NavItem[] = [
   { href: "/messages", label: "Messages", icon: MessagesSquare },
 ];
 
+const MOBILE_NAV: MobileNavItem[] = [
+  { href: "/client/dashboard", label: "Home", icon: LayoutDashboard },
+  { href: "/client/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/client/post-job", label: "Post", icon: PlusCircle, primary: true },
+  { href: "/client/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/messages", label: "Chat", icon: MessagesSquare },
+];
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const me = currentClient();
   return (
     <PortalShell
       nav={NAV}
+      mobileNav={MOBILE_NAV}
       accent="orange"
       personaLabel="Client"
       user={{ name: me.fullName, initials: me.avatarInitials, sub: me.companyName }}

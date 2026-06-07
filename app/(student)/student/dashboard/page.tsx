@@ -29,7 +29,7 @@ export const metadata = { title: "Dashboard" };
 export default async function StudentDashboard() {
   const me = currentStudent();
   const orders = await listStudentOrders(me.id);
-  const matches = await getMatchesForStudent(me.id, { limit: 4 });
+  const { matches } = await getMatchesForStudent(me.id, { limit: 4 });
 
   const active = orders.filter(
     (o) => !["completed", "cancelled", "refunded"].includes(o.status)

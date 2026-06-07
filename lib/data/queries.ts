@@ -917,14 +917,15 @@ export async function listTrustHistory(studentId?: string) {
 
 export async function getMatchesForStudent(
   studentId: string,
-  opts: { limit?: number; category?: string } = {}
-): Promise<Array<{ job: Job; breakdown: MatchBreakdown }>> {
-  // Run against whatever data the queries currently surface; if live is
-  // on, listStudents/listOpenJobs already hit Supabase.
+  opts: { limit?: number; offset?: number; category?: string } = {}
+): Promise<{
+  matches: Array<{ job: Job; breakdown: MatchBreakdown }>;
+  total: number;
+}> {
   const student =
     (await getStudentById(studentId)) ??
     demo.students.find((s) => s.id === studentId);
-  if (!student) return [];
+  if (!student) return { matches: [], total: 0 };
 
   const myProposals = new Set(
     (await listStudentProposals(studentId)).map((p) => p.jobId)
@@ -933,21 +934,35 @@ export async function getMatchesForStudent(
     (j) => !myProposals.has(j.id)
   );
   if (opts.category) jobs = jobs.filter((j) => j.categorySlug === opts.category);
-  return rankJobsForStudent(student, jobs, { limit: opts.limit ?? 20 });
+
+  const ranked = rankJobsForStudent(student, jobs);
+  const start = Math.max(0, opts.offset ?? 0);
+  const matches = opts.limit
+    ? ranked.slice(start, start + opts.limit)
+    : ranked.slice(start);
+  return { matches, total: ranked.length };
 }
 
 export async function getMatchesForJob(
   jobId: string,
-  opts: { limit?: number } = {}
-): Promise<Array<{ student: StudentProfile; breakdown: MatchBreakdown }>> {
+  opts: { limit?: number; offset?: number } = {}
+): Promise<{
+  matches: Array<{ student: StudentProfile; breakdown: MatchBreakdown }>;
+  total: number;
+}> {
   const job = await getJob(jobId);
-  if (!job) return [];
+  if (!job) return { matches: [], total: 0 };
 
   const proposed = new Set(
     (await listJobProposals(jobId)).map((p) => p.studentId)
   );
   const pool = (await listStudents()).filter((s) => !proposed.has(s.id));
-  return rankStudentsForJob(job, pool, { limit: opts.limit ?? 20 });
+  const ranked = rankStudentsForJob(job, pool);
+  const start = Math.max(0, opts.offset ?? 0);
+  const matches = opts.limit
+    ? ranked.slice(start, start + opts.limit)
+    : ranked.slice(start);
+  return { matches, total: ranked.length };
 }
 
 /**

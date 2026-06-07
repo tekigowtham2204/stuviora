@@ -45,9 +45,8 @@ export default async function ClientProposalsPage({
     .sort((a, b) => (b.breakdown?.score ?? 0) - (a.breakdown?.score ?? 0));
 
   // Top matched students who haven't proposed yet.
-  const topSuggested = (await getMatchesForJob(job.id, { limit: 5 })).filter(
-    (m) => m.breakdown.score >= 50
-  );
+  const { matches: topSuggestedAll } = await getMatchesForJob(job.id, { limit: 5 });
+  const topSuggested = topSuggestedAll.filter((m) => m.breakdown.score >= 50);
 
   return (
     <>
