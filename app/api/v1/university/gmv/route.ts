@@ -1,12 +1,17 @@
 /**
- * Monthly GMV time series per college (M7.1).
- * Demo path returns a synthetic series from the platformMetrics.
+ * Monthly GMV time series per college (M7.1 / P9.4).
+ * HMAC-authenticated (X-Api-Key + signature). Demo path returns a
+ * synthetic series from platformMetrics.
  */
 
 import { NextResponse } from "next/server";
+import { requirePartner } from "@/lib/partners/guard";
 import * as demo from "@/lib/demo/data";
 
 export async function GET(req: Request) {
+  const auth = await requirePartner(req);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
   const college = searchParams.get("college");
 
