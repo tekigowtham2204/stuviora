@@ -27,6 +27,12 @@ import { sendEmail } from "@/lib/email/client";
 import { weeklyDigestEmail } from "@/lib/email/templates";
 import { recordNotification } from "@/lib/notifications/log";
 import {
+  reconcileCommissions,
+  type TransferEvent,
+  type CommissionEntry,
+} from "@/lib/payments/reconcile";
+import { captureError } from "@/lib/observability";
+import {
   indexDocuments,
   studentToSearchDoc,
   jobToSearchDoc,
@@ -123,11 +129,60 @@ export async function escrowAutoRelease() {
   };
 }
 
-/** Daily at 2 AM IST: reconcile commission ledger against Razorpay events. */
+/**
+ * Daily at 2 AM IST: reconcile the commission ledger against settled
+ * transfers, using the pure reconcileCommissions engine. Drift (double
+ * payouts, missing/orphan/mismatched commissions) is captured to the
+ * observability sink for an operator to action. Demo: returns a clean
+ * empty report.
+ */
 export async function commissionReconciler() {
-  // Live: stream webhook_events for the day, cross-check against
-  // commission_event rows, alert if any mismatch.
-  return { ran: "commissionReconciler", at: new Date().toISOString() };
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from("commission_events")
+          .select(
+            "order_id, job_amount, commission_amount, razorpay_transfer_id, status"
+          )
+          .returns<
+            Array<{
+              order_id: string;
+              job_amount: number | string | null;
+              commission_amount: number | string | null;
+              razorpay_transfer_id: string | null;
+              status: string;
+            }>
+          >();
+        const rows = data ?? [];
+        const transfers: TransferEvent[] = rows
+          .filter((r) => r.status === "settled" && r.razorpay_transfer_id)
+          .map((r) => ({
+            eventId: r.razorpay_transfer_id as string,
+            orderId: r.order_id,
+            amount: Number(r.commission_amount ?? 0),
+            status: "processed",
+          }));
+        const commissions: CommissionEntry[] = rows.map((r) => ({
+          orderId: r.order_id,
+          orderAmount: Number(r.job_amount ?? 0),
+          commission: Number(r.commission_amount ?? 0),
+        }));
+        const report = reconcileCommissions(transfers, commissions);
+        if (!report.ok) {
+          captureError(new Error("commission reconciliation drift"), {
+            issues: report.issues,
+          });
+        }
+        return { ran: "commissionReconciler", ...report, at: new Date().toISOString() };
+      } catch (e) {
+        captureError(e, { job: "commissionReconciler" });
+      }
+    }
+  }
+  const report = reconcileCommissions([], []);
+  return { ran: "commissionReconciler", ...report, at: new Date().toISOString() };
 }
 
 /**

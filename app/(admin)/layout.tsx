@@ -4,6 +4,7 @@ import {
   Users,
   ScrollText,
   University,
+  Activity,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import { currentAdmin } from "@/lib/auth/session";
@@ -14,6 +15,7 @@ const NAV: NavItem[] = [
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/university", label: "University B2B", icon: University },
   { href: "/admin/audit", label: "Audit trail", icon: ScrollText },
+  { href: "/admin/ops", label: "Ops", icon: Activity },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
