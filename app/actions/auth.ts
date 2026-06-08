@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   setSession,
   clearSession,
@@ -147,12 +148,15 @@ export async function verifyOtp(formData: FormData) {
   const otp = ((formData.get("otp") as string) || "").trim();
 
   // Throttle code-checking to blunt brute-force on the 6-digit OTP.
-  const limit = await rateLimit({
-    key: `verifyOtp:${email || "anon"}`,
-    max: 6,
-    windowMs: 60_000,
-  });
-  if (!limit.allowed) {
+  // Per-email caps a targeted attack; per-IP caps email-spray from one host.
+  const ip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const [emailLimit, ipLimit] = await Promise.all([
+    rateLimit({ key: `verifyOtp:${email || "anon"}`, max: 6, windowMs: 60_000 }),
+    rateLimit({ key: `verifyOtp-ip:${ip}`, max: 30, windowMs: 60_000 }),
+  ]);
+  if (!emailLimit.allowed || !ipLimit.allowed) {
     redirect(
       `/auth/verify-email?role=${role}&email=${encodeURIComponent(
         email
