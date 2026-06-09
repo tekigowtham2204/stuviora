@@ -504,3 +504,151 @@ dies, so rehearse these until they are reflex.
 - On risk to the college: "You endorse nothing until you have seen real
   students earning on your own dashboard."
 - On us: "We only make money when your students do."
+
+---
+
+## 10. Target college shortlist (first 10)
+
+Tiered by the beachhead logic: start where supply is dense and reachable;
+use IIT/NIT prestige for credibility and tech supply, not as the first
+cold knock.
+
+| # | College | Location | Why target | Skills fit | Best entry point |
+|---|---|---|---|---|---|
+| 1 | Lady Shri Ram (LSR) | Delhi (DU) | Diya persona's college; humanities/commerce, active societies | Content, social, design, research | Dept societies + Placement Cell + Enactus |
+| 2 | SRCC | Delhi (DU) | Large commerce/entrepreneurial base | Copywriting, finance, marketing, decks | E-Cell / Placement Cell / societies |
+| 3 | Christ University | Bangalore | Multi-disciplinary, club-heavy, near SMB demand | Media, design, commerce, dev | Placement office + active clubs |
+| 4 | IIT Bombay | Mumbai | Aarav persona; strongest E-Cell, deep dev/design supply + credibility | Dev, data, design, product | E-Cell IITB or SARC (not T&P first) |
+| 5 | IIT Madras | Chennai | Massive, strong maker/industry culture | Dev, data/AI, design | CFI (Centre for Innovation) / E-Cell |
+| 6 | IIT Delhi | Delhi | Dev/data/design density + investor-grade logo | Dev, data, design | eDC IIT Delhi |
+| 7 | NIT Trichy | Tiruchirappalli | Top NIT, large batches, active e-cell | Dev, data, design, content | Entrepreneurship Cell / societies |
+| 8 | NIT Surathkal | Mangalore | Strong NIT near the Bangalore market | Dev, data, design | E-Cell / placement coordinator |
+| 9 | NID Ahmedabad | Ahmedabad | Design freelancing goldmine; small, high-value | Branding, UI/UX, illustration, motion | Student council + faculty coordinator |
+| 10 | Symbiosis (SIU) | Pune | Media + management + design, freelance-friendly | Media, marketing, design | Student clubs + placement office |
+
+**Bench (expansion):** VIT Vellore, BITS Pilani, Manipal (MAHE), Pearl
+Academy, Srishti, Ashoka.
+
+**Sequencing:** start with **LSR + SRCC + Christ** (reachable, freelance
+dense, the easiest first wins; the Delhi pair is one trip). Add **IIT
+Bombay** in parallel as the prestige anchor, but enter through **E-Cell,
+not the placement office.**
+
+**IIT/NIT caveat:** their students often already freelance and T&P
+offices are slow. The wedge there is not "earn money" (they do); it is
+"earn **safely**, with escrow, AI-checked quality, and a portfolio." The
+door is the entrepreneurship cell or a coding/design society.
+
+> Note: this list is institutions + entry channel. Verified individual
+> contacts are sourced via LinkedIn ("E-Cell [college]", "Placement
+> Coordinator [college]"), warm intros, or the society's public socials.
+
+## 11. Per-college tailored openers
+
+Five archetypes cover all ten. Match each college to its archetype.
+
+### Archetype A: IIT / NIT via E-Cell (IITB, IITM, IITD, NIT-T, NIT-K)
+Angle: they already freelance; sell safety, fairness, and a resume-grade
+portfolio, not "make money."
+
+> **Subject:** A safer way for [E-Cell] members to freelance
+>
+> Hi [Name], I lead Stuviora. A lot of your members already do freelance
+> dev, design, and data work, and a lot of them get underpaid, ghosted,
+> or stuck chasing payment. We fix that: escrow holds the client's money
+> upfront so they are never cheated, an AI quality check makes their work
+> client-ready, and every project becomes a verified, rated portfolio
+> item. It is free, and students keep 85%. Could I run a free pilot with
+> your members and give E-Cell a dashboard of their activity? 15 minutes
+> this week?
+
+### Archetype B: DU humanities / women's college society (LSR)
+Angle: first paid work for students who have never freelanced; income +
+confidence + portfolio.
+
+> **Subject:** Free paid freelance work for [College] students
+>
+> Hi [Name], I run Stuviora, where students earn from real freelance
+> projects in writing, content, social, and design. The difference for a
+> first-timer: before any client sees their work, our AI checks it
+> against the brief so they look professional from day one, and payment
+> is escrow-protected so they are never cheated. Students keep 85%, and
+> it is free for the college. I would love to run a small free pilot with
+> one society or batch and give your placement cell a simple dashboard.
+> 15 minutes this week?
+
+### Archetype C: Commerce / B-school (SRCC, Symbiosis)
+Angle: real marketing, finance, content, and deck work; entrepreneurial
+framing; a placement-stat win.
+
+> **Subject:** Real paid projects for [College] students, free for you
+>
+> Hi [Name], Stuviora connects students to paid freelance projects in
+> marketing, content, finance research, and presentation design for small
+> businesses. Every delivery is AI-checked for quality before the client
+> sees it, and payment is escrow-protected. Free for the college, 85% to
+> the student. For your office it doubles as documented experiential
+> learning for NAAC and NEP, on a dashboard you can show management. Can
+> I run a free pilot with one batch and show you the numbers in four
+> weeks?
+
+### Archetype D: Design institute (NID)
+Angle: monetize craft on real briefs, fair pricing, a paid portfolio
+before graduation.
+
+> **Subject:** Paid design briefs for [College] students
+>
+> Hi [Name], Stuviora gets student designers paid for real briefs:
+> branding, UI/UX, illustration, motion. We protect them with escrow so
+> they are paid on approval, give AI-assisted pricing so they do not
+> undercharge, and turn every project into a rated portfolio piece.
+> Free, 85% to the student. Could I run a free pilot with a small group
+> and report back what they earned? 15 minutes this week?
+
+### Archetype E: Multi-disciplinary, club-led (Christ, Symbiosis, Manipal)
+Angle: an all-year, all-department earning channel with a dashboard.
+
+> **Subject:** A free, all-year earning channel for [College] students
+>
+> Hi [Name], Stuviora is where students across media, design, commerce,
+> and tech earn from real freelance projects, safely: AI-checked quality,
+> escrow-protected pay, verified student profiles. Free for the college,
+> 85% to students, and a cohort dashboard for your office. I would like
+> to pilot it free with one club or department and show you the results.
+> Can we find 15 minutes this week?
+
+## 12. Outreach tracker (run it like a pipeline)
+
+Track every college through the stages; review weekly and fix the
+worst-converting step first.
+
+**Stages:** `identified` -> `contact_found` -> `contacted` ->
+`replied` -> `call_booked` -> `meeting_held` -> `pilot_agreed` ->
+`pilot_live` -> `results_reviewed` -> `endorsed` -> `expanding` (or
+`stalled` / `passed`).
+
+**Fields per row:** College · Archetype (A to E) · Channel (E-Cell /
+society / T&P / faculty / warm intro) · Contact name · Role · Contact
+handle (email/LinkedIn) · Stage · Last touch date · Next action · Next
+action date · Notes.
+
+Paste-ready header for a spreadsheet:
+
+```
+College,Archetype,Channel,Contact,Role,Handle,Stage,LastTouch,NextAction,NextActionDate,Notes
+LSR,B,Society,,,,,identified,,Find society lead on Instagram,,
+SRCC,C,E-Cell,,,,,identified,,Search LinkedIn for E-Cell head,,
+Christ University,E,Placement,,,,,identified,,Email placement office,,
+IIT Bombay,A,E-Cell IITB,,,,,identified,,DM E-Cell on LinkedIn,,
+IIT Madras,A,CFI,,,,,identified,,Find CFI coordinator,,
+IIT Delhi,A,eDC,,,,,identified,,Email eDC,,
+NIT Trichy,A,E-Cell,,,,,identified,,Find e-cell contact,,
+NIT Surathkal,A,E-Cell,,,,,identified,,Find e-cell contact,,
+NID Ahmedabad,D,Student council,,,,,identified,,Find council/faculty,,
+Symbiosis,C,Clubs,,,,,identified,,Find club lead,,
+```
+
+**Cadence:** first touch, then follow up at day 3 and day 7 (each
+shorter). After 3 touches with no reply, switch channel (society instead
+of T&P, or a warm intro) before marking `stalled`. Aim to always have at
+least 5 colleges past `contacted` so the pipeline never stalls on one no.
