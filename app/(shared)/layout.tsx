@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import { getSession } from "@/lib/auth/session";
+import { listConversations } from "@/lib/data/queries";
 import { currentStudent, currentClient } from "@/lib/auth/session";
 
 export default async function SharedLayout({ children }: { children: React.ReactNode }) {
@@ -42,8 +43,11 @@ export default async function SharedLayout({ children }: { children: React.React
             : "",
       };
 
+  const unread = (await listConversations()).reduce((n, c) => n + c.unread, 0);
+
   return (
     <PortalShell
+      unreadCount={unread}
       nav={NAV}
       accent={isClient ? "orange" : "sage"}
       personaLabel={isClient ? "Client" : "Student"}

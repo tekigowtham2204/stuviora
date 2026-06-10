@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut, type LucideIcon } from "lucide-react";
+import { LogOut, Bell, type LucideIcon } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { BRAND } from "@/lib/constants";
@@ -25,6 +25,8 @@ interface PortalShellProps {
   user: { name: string; initials: string; sub: string };
   /** Persona label shown in the sidebar header. */
   personaLabel?: string;
+  /** Unread message count for the notification bell (#19). */
+  unreadCount?: number;
   children: React.ReactNode;
 }
 
@@ -76,6 +78,7 @@ export function PortalShell({
   accent,
   user,
   personaLabel,
+  unreadCount = 0,
   children,
 }: PortalShellProps) {
   const s = accentStyles[accent];
@@ -125,6 +128,21 @@ export function PortalShell({
         </nav>
 
         <div className="border-t border-white/8 p-4">
+          <Link
+            href="/messages"
+            aria-label={unreadCount > 0 ? `Messages, ${unreadCount} unread` : "Messages"}
+            className="mb-2 flex items-center gap-3 rounded-2xl px-3.5 py-2 text-sm font-medium text-[var(--color-cream)]/75 transition-colors hover:bg-white/5 hover:text-[var(--color-cream)]"
+          >
+            <span className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-white/5">
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-orange)] px-1 text-[10px] font-semibold text-[var(--color-brown-900)]">
+                  {unreadCount}
+                </span>
+              )}
+            </span>
+            Notifications
+          </Link>
           <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
             <span
               className={cn(
@@ -166,6 +184,18 @@ export function PortalShell({
             </span>
           </Link>
           <div className="flex items-center gap-2">
+            <Link
+              href="/messages"
+              aria-label={unreadCount > 0 ? `Messages, ${unreadCount} unread` : "Messages"}
+              className="relative rounded-full p-2 text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-surface-warm)]"
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--color-orange)] px-1 text-[10px] font-semibold text-[var(--color-brown-900)]">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
             <ThemeToggle />
             <span
               className={cn(

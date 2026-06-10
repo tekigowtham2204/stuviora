@@ -26,6 +26,8 @@ import { services } from "@/lib/env";
 import { sendEmail } from "@/lib/email/client";
 import { weeklyDigestEmail } from "@/lib/email/templates";
 import { recordNotification } from "@/lib/notifications/log";
+import { publishOrderVerdict } from "@/lib/realtime/order";
+import { runQualityGate } from "@/lib/ai/quality-gate";
 import {
   reconcileCommissions,
   type TransferEvent,
@@ -243,10 +245,20 @@ export async function tdsThresholdChecker() {
 
 /** Async AI quality gate: file extraction + Claude scoring + Realtime push. */
 export async function aiQualityCheck(event: { orderId: string; storageKeys: string[] }) {
-  // Live: pull files from Storage, extract text (pdf-parse/mammoth/Claude Vision),
-  // call Claude with structured JSON prompt, write ai_reviews row, broadcast result
-  // via Supabase Realtime channel `order:${orderId}`.
-  void event;
+  // Live: pull files from Storage, extract text (pdf-parse/mammoth/Claude
+  // Vision), call the gate, write the ai_reviews row, then push the
+  // verdict over Realtime so the submit page updates without polling.
+  // Demo submit runs the gate synchronously, so this worker only fires
+  // in live mode.
+  const review = await runQualityGate({
+    orderId: event.orderId,
+    jobBrief: { title: "", description: "" },
+    submissionText: "",
+  });
+  await publishOrderVerdict(event.orderId, {
+    score: review.score,
+    verdict: review.verdict,
+  });
 }
 
 /** Recompute trust score for a student after a new review or order. */

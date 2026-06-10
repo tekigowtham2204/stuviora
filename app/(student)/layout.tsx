@@ -14,6 +14,7 @@ import {
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import type { MobileNavItem } from "@/components/layout/mobile-nav";
 import { currentStudent } from "@/lib/auth/session";
+import { listConversations } from "@/lib/data/queries";
 
 const NAV: NavItem[] = [
   { href: "/student/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -38,10 +39,13 @@ const MOBILE_NAV: MobileNavItem[] = [
   { href: "/messages", label: "Chat", icon: MessagesSquare },
 ];
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
+export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const me = currentStudent();
+  const unread = (await listConversations()).reduce((n, c) => n + c.unread, 0);
+
   return (
     <PortalShell
+      unreadCount={unread}
       nav={NAV}
       mobileNav={MOBILE_NAV}
       accent="sage"

@@ -26,3 +26,17 @@ export const blockedClientIds = new Set<string>();
 
 /** disputeIds appealed within the 7-day window (#55). */
 export const appealedDisputeIds = new Set<string>();
+
+/** Category slugs where the demo student passed the skill test (#11). */
+export const passedSkillBadges = new Set<string>();
+
+/** User reports filed in demo mode (#61). */
+export interface UserReport {
+  id: string;
+  reporterId: string;
+  targetName: string;
+  context: string;
+  reason: string;
+  createdAt: number;
+}
+export const userReports: UserReport[] = [];

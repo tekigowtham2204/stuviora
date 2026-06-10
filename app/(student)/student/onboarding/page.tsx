@@ -118,13 +118,15 @@ export default function StudentOnboardingPage() {
               <Sparkles className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
-              <CardTitle>Skill check coming soon</CardTitle>
+              <CardTitle>Take the skill test</CardTitle>
               <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-                We are calibrating an AI-graded 15-minute test per category
-                that earns you a verified skill badge on your profile. Not
-                live yet. For now your trust tier moves as you complete real
-                jobs.
+                A 5-question check per category. Pass it and clients see a
+                verified skill badge on your profile from day one. Takes
+                about three minutes.
               </p>
+              <Button href="/student/skill-test" variant="sage" size="sm" className="mt-3">
+                Start the test
+              </Button>
             </div>
           </div>
         </Card>

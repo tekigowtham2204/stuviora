@@ -1,3 +1,4 @@
+import { IncomeCalculator } from "@/components/feature/income-calculator";
 import {
   ShieldCheck,
   Bot,
@@ -30,6 +31,11 @@ export default function HomePage() {
     <>
       <Hero />
       <ProofStrip />
+      <Section spacing="tight">
+        <Container>
+          <IncomeCalculator />
+        </Container>
+      </Section>
       <Moat />
       <Loop />
       <RealWins />
