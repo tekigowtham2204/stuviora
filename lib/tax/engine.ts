@@ -6,9 +6,13 @@
  *  1. GST @ 18% on Stuviora's commission (we are the supplier of the
  *     marketplace service). Charged on the 15% fee, not the job value.
  *
- *  2. TDS @ 5% under Section 194H (commission/brokerage), withheld from the
- *     student's payout, but ONLY once their cumulative gross for the financial
- *     year crosses the Rs.30,000 threshold. Below that, no TDS is withheld.
+ *  2. TDS under Section 194-O (e-commerce operator paying e-commerce
+ *     participants) @ 0.1% of the GROSS order amount, but only once the
+ *     student's cumulative gross for the financial year crosses the
+ *     Rs.5,00,000 threshold (individuals/HUF with PAN on file). Below
+ *     that, no TDS. Without PAN, Section 206AA forces 5%, so PAN is
+ *     required upstream before payout. 194-O overrides 194C/194H/194J
+ *     for marketplace payouts (verified in full-build-plan S7.1).
  *
  * Outputs feed `tax_events`, the GST invoice on each order, and the Form 16A
  * (TDS certificate) a student downloads at year end. PAN is required before
@@ -16,8 +20,10 @@
  */
 
 export const GST_RATE = 0.18; // on commission
-export const TDS_RATE = 0.05; // Section 194H
-export const TDS_THRESHOLD = 30_000; // per financial year, per student
+export const TDS_RATE = 0.001; // Section 194-O, on gross order value
+export const TDS_THRESHOLD = 500_000; // gross per financial year, per student
+/** Section 206AA: rate when the participant has no PAN on file. */
+export const NO_PAN_TDS_RATE = 0.05;
 export const COMMISSION_RATE = 0.15;
 
 export interface OrderTax {
@@ -27,17 +33,18 @@ export interface OrderTax {
   /** Commission inclusive of GST — what the ledger books as revenue in. */
   commissionWithGst: number;
   studentGross: number; // 85% before TDS
-  tdsWithheld: number; // 5% once over threshold, else 0
+  tdsWithheld: number; // 0.1% of gross once over threshold, else 0
   studentNet: number; // what actually lands in the wallet
   tdsApplied: boolean;
 }
 
 /**
  * Compute taxes for one order.
- * `priorFyGross` is the student's cumulative gross earnings this financial
- * year *before* this order, used to decide whether the Rs.30k TDS threshold
- * is crossed. `hasPan` gates TDS: without a PAN on file we cannot withhold
- * compliantly, so the order is blocked upstream rather than mis-withheld.
+ * `priorFyGross` is the student's cumulative gross this financial year
+ * *before* this order, used to decide whether the Rs.5,00,000 194-O
+ * threshold is crossed. TDS is computed on the GROSS order amount per
+ * 194-O (commission included in the base). PAN is required upstream;
+ * without it 206AA forces 5% so the payout is blocked instead.
  */
 export function computeOrderTax(
   jobAmount: number,
@@ -48,8 +55,9 @@ export function computeOrderTax(
   const gstOnCommission = round2(commission * GST_RATE);
   const studentGross = round2(jobAmount - commission);
 
-  const crossesThreshold = priorFyGross + studentGross > TDS_THRESHOLD;
-  const tdsWithheld = crossesThreshold ? round2(studentGross * TDS_RATE) : 0;
+  // 194-O: threshold and base are both on GROSS order value.
+  const crossesThreshold = priorFyGross + jobAmount > TDS_THRESHOLD;
+  const tdsWithheld = crossesThreshold ? round2(jobAmount * TDS_RATE) : 0;
 
   return {
     jobAmount,

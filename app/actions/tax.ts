@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
  *
  * Live path: validate PAN format, encrypt with Supabase Vault, store in
  * student_profiles.pan_encrypted. PAN is required before any TDS can be
- * withheld compliantly (Sec. 194H).
+ * withheld compliantly (Sec. 194-O; 206AA forces 5% without PAN).
  */
 
 const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/;

@@ -27,3 +27,7 @@ create table skill_badges (
 );
 alter table skill_badges enable row level security;
 create policy skill_badges_read on skill_badges for select using (true);
+
+-- Outbound milestone webhooks: where to deliver signed partner events.
+alter table university_partners
+  add column if not exists webhook_url text;

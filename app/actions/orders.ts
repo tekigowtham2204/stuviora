@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
+import { dispatchPartnerWebhook } from "@/lib/partners/webhooks";
+import { getStudentById } from "@/lib/data/queries";
 import { getOrder } from "@/lib/data/queries";
 import { services } from "@/lib/env";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -70,6 +72,15 @@ export async function approveOrder(formData: FormData) {
 
   // Data moat: the client's approval labels the gate's decision.
   await recordHumanOutcome(orderId, "approved");
+
+  // Partner milestone: a student's first completed job notifies their
+  // college's placement cell (signed webhook; demo logs).
+  const student = await getStudentById(order!.studentId);
+  if (student && student.jobsCompleted === 0) {
+    await dispatchPartnerWebhook("student.completed_first_job", student.college, {
+      username: student.username,
+    });
+  }
 
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);

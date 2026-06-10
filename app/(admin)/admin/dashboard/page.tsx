@@ -59,7 +59,7 @@ export default async function AdminDashboard() {
           icon={<Receipt className="h-3.5 w-3.5" />}
           label="TDS withheld"
           value={`Rs.${(m.tdsWithheld / 1000).toFixed(1)}k`}
-          sub="Section 194H"
+          sub="Section 194-O"
           accent="orange"
         />
       </div>

@@ -150,7 +150,7 @@ Legend: `S` ship in v1 · `+` v1.1 · `++` v1.2 · `R` rejected.
 | Feature | Notes | Status |
 |---|---|---|
 | GST 18% on commission | Auto-applied. | S |
-| TDS 5% Sec 194H once over Rs.30k FY | Withheld with PAN on file. | S |
+| TDS 0.1% Sec 194-O once over Rs.5L FY gross | Withheld with PAN on file; 206AA 5% without PAN. | S |
 | Form 16A download | Annual. | S |
 | GSTIN client invoice | Per completed order. | S |
 | Encrypted PAN / Aadhaar / phone | Supabase Vault. | S |
