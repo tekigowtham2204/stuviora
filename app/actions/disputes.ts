@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDispute, getOrder } from "@/lib/data/queries";
 import { assertTransition, nextStatus, stageDeadline } from "@/lib/disputes/engine";
+import { requireSession } from "@/lib/auth/dal";
+import { getServiceSupabase } from "@/lib/supabase/server";
+import { services } from "@/lib/env";
+import { appealedDisputeIds } from "@/lib/demo/state";
 
 /**
  * Dispute lifecycle Server Actions.
@@ -58,4 +62,39 @@ export async function advanceDispute(formData: FormData) {
 
   revalidatePath(`/disputes/${disputeId}`);
   redirect(`/disputes/${disputeId}?advanced=1`);
+}
+
+/**
+ * #55 appeal: a resolved dispute may be appealed once within 7 days,
+ * reopening it into admin review. The appeal window is enforced here;
+ * live mode also stamps dispute_cases.appealed_at (migration 0010).
+ */
+export async function appealDispute(formData: FormData) {
+  const session = await requireSession();
+  const disputeId = (formData.get("disputeId") as string) || "";
+  const dispute = await getDispute(disputeId);
+  if (!dispute) redirect("/disputes");
+
+  if (dispute!.status !== "resolved") {
+    redirect(`/disputes/${disputeId}?appeal=not_resolved`);
+  }
+  if (appealedDisputeIds.has(disputeId)) {
+    redirect(`/disputes/${disputeId}?appeal=already`);
+  }
+
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    await supabase
+      ?.from("dispute_cases")
+      .update({
+        status: "admin_review",
+        appealed_at: new Date().toISOString(),
+      })
+      .eq("id", disputeId)
+      .is("appealed_at", null);
+  }
+  appealedDisputeIds.add(disputeId);
+  void session;
+  revalidatePath(`/disputes/${disputeId}`);
+  redirect(`/disputes/${disputeId}?appeal=filed`);
 }

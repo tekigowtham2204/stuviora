@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
-import { Clock, Users, Sparkles, ShieldCheck } from "lucide-react";
+import { Clock, Users, Sparkles, ShieldCheck, Bookmark, Ban } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { getJob, getClientById, listPortfolio } from "@/lib/data/queries";
@@ -12,6 +13,8 @@ import { writeProposalDraft } from "@/lib/proposals/writer";
 import { buildProposalVariants } from "@/lib/proposals/variants";
 import { TIER_BUDGET_CEILING, canAcceptBudget } from "@/lib/trust/score";
 import { ProposalForm } from "@/components/feature/proposal-form";
+import { toggleSaveJob, blockClient } from "@/app/actions/jobs";
+import { savedJobIds } from "@/lib/demo/state";
 
 export const metadata = { title: "Job detail" };
 
@@ -21,6 +24,7 @@ export default async function StudentJobDetail({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const isSaved = savedJobIds.has(id);
   const job = await getJob(id);
   if (!job) notFound();
 
@@ -146,6 +150,24 @@ export default async function StudentJobDetail({
             </div>
             <div className="mt-4 text-xs text-[var(--color-ink-muted)]">
               {client?.jobsPosted ?? 0} jobs posted on Stuviora
+            </div>
+          </Card>
+          <Card>
+            <div className="flex flex-col gap-2">
+              <form action={toggleSaveJob}>
+                <input type="hidden" name="jobId" value={job.id} />
+                <Button type="submit" variant={isSaved ? "sage" : "secondary"} size="sm" className="w-full">
+                  <Bookmark className="h-4 w-4" />
+                  {isSaved ? "Saved" : "Save for later"}
+                </Button>
+              </form>
+              <form action={blockClient}>
+                <input type="hidden" name="clientId" value={job.clientId} />
+                <input type="hidden" name="jobId" value={job.id} />
+                <Button type="submit" variant="ghost" size="sm" className="w-full text-[var(--color-ink-muted)]">
+                  <Ban className="h-4 w-4" /> Hide jobs from this client
+                </Button>
+              </form>
             </div>
           </Card>
           <Card tint="warm">

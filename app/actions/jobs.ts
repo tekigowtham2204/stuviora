@@ -6,6 +6,10 @@ import { maybeSession } from "@/lib/auth/dal";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
 import { planForDays } from "@/lib/monetization/featured";
+import { requireRole } from "@/lib/auth/dal";
+import { getServiceSupabase } from "@/lib/supabase/server";
+import { services } from "@/lib/env";
+import * as demoState from "@/lib/demo/state";
 
 /**
  * Demo Server Actions for jobs + proposals.
@@ -59,9 +63,33 @@ export async function submitProposal(formData: FormData) {
   });
   if (!limit.allowed) redirect(`/student/jobs/${jobId}?error=rate_limited`);
 
-  void formData.get("coverLetter");
+  const coverLetter = ((formData.get("coverLetter") as string) || "").trim();
   void formData.get("bidAmount");
   void formData.get("deliveryDays");
+
+  // #43 save-as-template: store the pitch for reuse on future bids.
+  if (formData.get("saveTemplate") === "on" && coverLetter && session) {
+    if (services.supabase) {
+      const supabase = getServiceSupabase();
+      if (supabase) {
+        await supabase.from("proposal_templates").insert({
+          student_id: session.user.id,
+          label: coverLetter.slice(0, 48),
+          body: coverLetter,
+        });
+      }
+    } else {
+      demoState.proposalTemplates.unshift({
+        id: `tpl-${Date.now()}`,
+        studentId: session.user.id,
+        label: coverLetter.slice(0, 48),
+        body: coverLetter,
+        createdAt: Date.now(),
+      });
+    }
+    trackEvent("proposal_template_saved", { jobId }, session.user.id);
+  }
+
   trackEvent("proposal_submitted", { jobId }, session?.user.id);
   revalidatePath(`/student/jobs/${jobId}`);
   revalidatePath("/student/proposals");
@@ -77,4 +105,66 @@ export async function hireProposal(formData: FormData) {
   revalidatePath(`/client/jobs/${jobId}/proposals`);
   // In live mode: create order in `pending_payment`, then redirect to payment page.
   redirect(`/client/payment/${proposalId || "demo"}`);
+}
+
+/** #40 saved jobs: toggle a job in the student's shortlist. */
+export async function toggleSaveJob(formData: FormData) {
+  const session = await requireRole("student");
+  const jobId = (formData.get("jobId") as string) || "";
+  if (!jobId) redirect("/student/jobs");
+
+  let saved: boolean;
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    const { data } = (await supabase
+      ?.from("saved_jobs")
+      .select("job_id")
+      .eq("student_id", session.user.id)
+      .eq("job_id", jobId)
+      .maybeSingle()) ?? { data: null };
+    if (data) {
+      await supabase
+        ?.from("saved_jobs")
+        .delete()
+        .eq("student_id", session.user.id)
+        .eq("job_id", jobId);
+      saved = false;
+    } else {
+      await supabase
+        ?.from("saved_jobs")
+        .insert({ student_id: session.user.id, job_id: jobId });
+      saved = true;
+    }
+  } else {
+    if (demoState.savedJobIds.has(jobId)) {
+      demoState.savedJobIds.delete(jobId);
+      saved = false;
+    } else {
+      demoState.savedJobIds.add(jobId);
+      saved = true;
+    }
+  }
+  trackEvent("job_save_toggled", { jobId, saved }, session.user.id);
+  revalidatePath(`/student/jobs/${jobId}`);
+  redirect(`/student/jobs/${jobId}?saved=${saved ? "1" : "0"}`);
+}
+
+/** #56 block client: hide this client's jobs from the student's feeds. */
+export async function blockClient(formData: FormData) {
+  const session = await requireRole("student");
+  const clientId = (formData.get("clientId") as string) || "";
+  const jobId = (formData.get("jobId") as string) || "";
+  if (!clientId) redirect("/student/jobs");
+
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    await supabase
+      ?.from("blocked_clients")
+      .upsert({ student_id: session.user.id, client_id: clientId });
+  } else {
+    demoState.blockedClientIds.add(clientId);
+  }
+  trackEvent("client_blocked", { clientId }, session.user.id);
+  revalidatePath("/student/jobs");
+  redirect(jobId ? "/student/jobs?blocked=1" : "/student/jobs");
 }

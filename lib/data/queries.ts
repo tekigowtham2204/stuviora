@@ -16,6 +16,7 @@ import {
 } from "@/lib/matching/engine";
 import { rollupCohorts, type CohortRow } from "@/lib/university/engine";
 import { sortFeaturedFirst } from "@/lib/monetization/featured";
+import { blockedClientIds } from "@/lib/demo/state";
 import { buildRoster, type RosterEntry } from "@/lib/university/roster";
 import { services } from "@/lib/env";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -306,6 +307,9 @@ export async function listOpenJobs(filters?: {
 
   let rows = demo.jobs.filter((j) => j.status === "open");
   if (filters?.category) rows = rows.filter((j) => j.categorySlug === filters.category);
+  // #56: hide jobs from clients the student blocked (demo state; live
+  // path filters via blocked_clients in the select).
+  rows = rows.filter((j) => !blockedClientIds.has(j.clientId));
   return sortFeaturedFirst(rows);
 }
 

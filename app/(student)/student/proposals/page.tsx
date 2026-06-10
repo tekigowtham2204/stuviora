@@ -8,12 +8,56 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { listStudentProposals, getJob } from "@/lib/data/queries";
 import { currentStudent } from "@/lib/auth/session";
+import { proposalTemplates } from "@/lib/demo/state";
 import type { Job } from "@/lib/types";
 
 export const metadata = { title: "My proposals" };
 
-export default async function StudentProposalsPage() {
+export default async function StudentProposalsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ templates?: string }>;
+}) {
+  const { templates } = await searchParams;
   const me = currentStudent();
+
+  if (templates) {
+    const mine = proposalTemplates.filter((t) => t.studentId === me.id);
+    return (
+      <>
+        <PageHeader
+          eyebrow="Pipeline"
+          title="Proposal templates."
+          subtitle="Pitches you saved for reuse. Tick the save box when submitting a proposal to add one."
+        />
+        {mine.length === 0 ? (
+          <EmptyState
+            icon={<FileText className="h-6 w-6" />}
+            title="No templates yet"
+            body="When you submit a proposal, tick 'Save this pitch as a template' and it appears here."
+            action={
+              <Button href="/student/proposals" variant="sage">
+                Back to proposals
+              </Button>
+            }
+          />
+        ) : (
+          <div className="space-y-4">
+            {mine.map((t) => (
+              <Card key={t.id}>
+                <div className="text-sm font-medium text-[var(--color-ink)]">{t.label}</div>
+                <p className="mt-2 whitespace-pre-line text-sm text-[var(--color-ink-muted)]">{t.body}</p>
+              </Card>
+            ))}
+            <Button href="/student/proposals" variant="secondary" size="sm">
+              Back to proposals
+            </Button>
+          </div>
+        )}
+      </>
+    );
+  }
+
   const proposals = await listStudentProposals(me.id);
 
   const rows = await Promise.all(
@@ -26,6 +70,11 @@ export default async function StudentProposalsPage() {
         eyebrow="Pipeline"
         title="My proposals."
         subtitle="Every bid you have submitted. Shortlisted ones move fastest."
+        action={
+          <Button href="/student/proposals?templates=1" variant="secondary" size="sm">
+            Templates
+          </Button>
+        }
       />
 
       {rows.length === 0 ? (

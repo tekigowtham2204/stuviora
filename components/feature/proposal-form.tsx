@@ -170,6 +170,15 @@ export function ProposalForm({
         </div>
       </div>
 
+      <label className="flex items-center gap-2 text-sm text-[var(--color-ink-muted)]">
+        <input
+          type="checkbox"
+          name="saveTemplate"
+          className="h-4 w-4 rounded border-[var(--color-line-strong)] accent-[var(--color-sage-deep)]"
+        />
+        Save this pitch as a template for future bids
+      </label>
+
       <Button type="submit" variant="primary" className="w-full">
         Submit proposal
       </Button>
