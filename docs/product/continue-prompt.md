@@ -143,6 +143,7 @@ before touching code so you don't reinvent.
 | `docs/product/build-checklist.md` | T1 to T4 task tiers with file paths |
 | `docs/product/student-audit.md` | 74 student-walkthrough gaps with numbered fixes |
 | `docs/product/gap-fix-plan.md` | 5-sprint plan for the audit |
+| `docs/product/deep-research-category-winner.md` | Web-verified competitive/market research + the category-winner strategy |
 
 ## Recommended next moves, in order
 
