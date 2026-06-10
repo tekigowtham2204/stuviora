@@ -5,6 +5,7 @@ import { AI_GATE_PASS_THRESHOLD } from "@/lib/constants";
 import { services } from "@/lib/env";
 import { chatJson } from "@/lib/llm/client";
 import { QUALITY_GATE_PROMPT } from "@/lib/ai/prompts";
+import { recordGateDecision } from "@/lib/ai/calibration";
 
 /**
  * AI quality gate: the moat (P4).
@@ -108,6 +109,13 @@ export async function runQualityGate(input: QualityGateInput): Promise<QualityGa
         // server-side; LLM mis-classifications cannot leak through.
         const verdict =
           live.score >= AI_GATE_PASS_THRESHOLD ? "PASS" : "FAIL";
+        // Data moat: log the decision for later human-outcome labeling.
+        await recordGateDecision({
+          orderId: input.orderId,
+          score: Math.round(live.score),
+          verdict,
+          promptVersion: QUALITY_GATE_PROMPT.version,
+        });
         return {
           orderId: input.orderId,
           score: Math.round(live.score),
@@ -126,5 +134,12 @@ export async function runQualityGate(input: QualityGateInput): Promise<QualityGa
       // on a transient LLM error. Sentry alerting lands in P6.
     }
   }
-  return demoReview(input);
+  const review = demoReview(input);
+  await recordGateDecision({
+    orderId: input.orderId,
+    score: review.score,
+    verdict: review.verdict,
+    promptVersion: QUALITY_GATE_PROMPT.version,
+  });
+  return review;
 }

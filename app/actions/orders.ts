@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
+import { recordHumanOutcome } from "@/lib/ai/calibration";
 import { getOrder } from "@/lib/data/queries";
 import { services } from "@/lib/env";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -67,6 +68,9 @@ export async function approveOrder(formData: FormData) {
     studentRazorpayAccountId: studentAccount,
   });
 
+  // Data moat: the client's approval labels the gate's decision.
+  await recordHumanOutcome(orderId, "approved");
+
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath("/client/orders");
@@ -79,6 +83,7 @@ export async function requestRevision(formData: FormData) {
   void formData.get("revisionNotes");
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
+  await recordHumanOutcome(orderId, "revision_requested");
   redirect(`/client/orders/${orderId}?revisionRequested=1`);
 }
 
