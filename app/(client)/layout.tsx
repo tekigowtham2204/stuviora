@@ -5,6 +5,7 @@ import {
   ShoppingBag,
   MessagesSquare,
   Sparkles,
+  CreditCard,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import type { MobileNavItem } from "@/components/layout/mobile-nav";
@@ -17,6 +18,7 @@ const NAV: NavItem[] = [
   { href: "/client/matches", label: "Suggested talent", icon: Sparkles },
   { href: "/client/orders", label: "Orders", icon: ShoppingBag },
   { href: "/messages", label: "Messages", icon: MessagesSquare },
+  { href: "/client/billing", label: "Billing", icon: CreditCard },
 ];
 
 const MOBILE_NAV: MobileNavItem[] = [

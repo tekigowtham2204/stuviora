@@ -269,6 +269,7 @@ export const jobs: Job[] = [
     status: "open",
     proposalsCount: 7,
     createdAgo: "2h ago",
+    featuredUntil: Date.now() + 5 * 86400_000,
   },
   {
     id: "job-2",

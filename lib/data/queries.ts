@@ -15,6 +15,7 @@ import {
   type MatchBreakdown,
 } from "@/lib/matching/engine";
 import { rollupCohorts, type CohortRow } from "@/lib/university/engine";
+import { sortFeaturedFirst } from "@/lib/monetization/featured";
 import { buildRoster, type RosterEntry } from "@/lib/university/roster";
 import { services } from "@/lib/env";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -299,13 +300,13 @@ export async function listOpenJobs(filters?: {
       let jobs = data.map((r) => jobFromRow(flattenJob(r)));
       if (filters?.category)
         jobs = jobs.filter((j) => j.categorySlug === filters.category);
-      return jobs;
+      return sortFeaturedFirst(jobs);
     }
   }
 
   let rows = demo.jobs.filter((j) => j.status === "open");
   if (filters?.category) rows = rows.filter((j) => j.categorySlug === filters.category);
-  return rows;
+  return sortFeaturedFirst(rows);
 }
 
 export async function getJob(id: string): Promise<Job | null> {

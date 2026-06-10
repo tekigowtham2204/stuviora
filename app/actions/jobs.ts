@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { maybeSession } from "@/lib/auth/dal";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
+import { planForDays } from "@/lib/monetization/featured";
 
 /**
  * Demo Server Actions for jobs + proposals.
@@ -27,6 +28,21 @@ export async function postJob(formData: FormData) {
   const title = (formData.get("title") as string)?.trim() || "Untitled job";
   // In live mode: insert into `jobs` with the client_id from session.
   void title;
+
+  // P9.1 featured listing: if the client picked a plan, charge it.
+  // Live path: create a Razorpay order for plan.amountPaise with
+  // notes { featured_days, featured_job_id }; the payments webhook sets
+  // jobs.featured_until on payment.captured. Demo: record the intent.
+  const featuredDays = Number(formData.get("featuredDays") || 0);
+  const plan = featuredDays ? planForDays("job", featuredDays) : null;
+  if (plan) {
+    trackEvent(
+      "featured_selected",
+      { days: plan.days, amountRupees: plan.amountRupees },
+      session?.user.id
+    );
+  }
+
   trackEvent("job_posted", { hasTitle: Boolean(title) }, session?.user.id);
   revalidatePath("/client/jobs");
   revalidatePath("/client/dashboard");

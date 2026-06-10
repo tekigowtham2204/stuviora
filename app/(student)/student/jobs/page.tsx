@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { getMatchesForStudent } from "@/lib/data/queries";
 import { SERVICE_CATEGORIES } from "@/lib/constants";
 import { currentStudent } from "@/lib/auth/session";
+import { isFeaturedActive } from "@/lib/monetization/featured";
 
 export const metadata = { title: "Browse jobs" };
 
@@ -56,6 +57,9 @@ export default async function StudentJobsPage({
                 <Card className="transition-all hover:border-[var(--color-sage)] hover:shadow-[var(--shadow-card-lg)]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
+                      {isFeaturedActive(j.featuredUntil) && (
+                        <Badge tone="yellow" className="mb-2">Featured</Badge>
+                      )}
                       <h3 className="font-display text-lg font-medium leading-snug text-[var(--color-ink)]">
                         {j.title}
                       </h3>

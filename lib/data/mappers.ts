@@ -88,6 +88,7 @@ export interface JobJoinedRow {
   status: Job["status"];
   proposals_count: number;
   created_at: string;
+  featured_until?: string | null;
   // Aggregated
   skills?: string[] | null;
 }
@@ -174,6 +175,9 @@ export function jobFromRow(row: JobJoinedRow): Job {
     status: row.status,
     proposalsCount: row.proposals_count,
     createdAgo: agoOf(row.created_at),
+    ...(row.featured_until
+      ? { featuredUntil: new Date(row.featured_until).getTime() }
+      : {}),
   };
 }
 
