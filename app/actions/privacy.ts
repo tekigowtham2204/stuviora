@@ -60,6 +60,27 @@ export async function requestAccountDeletion(formData: FormData) {
   redirect("/data-privacy?deletion=requested");
 }
 
+/**
+ * Student opt-in to share activity with their college's placement cell
+ * (consent purpose share_with_college). Persists the flag only; it does
+ * not touch other consents.
+ */
+export async function setShareWithCollege(formData: FormData) {
+  const session = await requireSession();
+  const share = formData.get("share") === "true";
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase
+        .from("student_profiles")
+        .update({ share_with_college: share })
+        .eq("id", session.user.id);
+    }
+  }
+  trackEvent("share_with_college_set", { share }, session.user.id);
+  redirect("/data-privacy?shared=" + (share ? "on" : "off"));
+}
+
 export async function cancelAccountDeletion() {
   const session = await requireSession();
   if (services.supabase) {

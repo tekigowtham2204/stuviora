@@ -4,6 +4,7 @@ import {
   Trash2,
   CheckCircle2,
   LifeBuoy,
+  GraduationCap,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -14,16 +15,20 @@ import {
   DATA_PRINCIPAL_RIGHTS,
   CONSENT_PURPOSES,
 } from "@/lib/privacy/consent";
-import { requestAccountDeletion } from "@/app/actions/privacy";
+import { requestAccountDeletion, setShareWithCollege } from "@/app/actions/privacy";
+import { getSession } from "@/lib/auth/session";
+import { SHARE_WITH_COLLEGE_IDS } from "@/lib/demo/data";
 
 export const metadata = { title: "Data and privacy" };
 
 export default async function DataPrivacyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ deletion?: string }>;
+  searchParams: Promise<{ deletion?: string; shared?: string }>;
 }) {
-  const { deletion } = await searchParams;
+  const { deletion, shared } = await searchParams;
+  const session = await getSession();
+  const sharing = session ? SHARE_WITH_COLLEGE_IDS.has(session.id) : false;
 
   return (
     <>
@@ -32,6 +37,40 @@ export default async function DataPrivacyPage({
         title="Your data and privacy."
         subtitle="Access, export, or erase your personal data. We follow India's DPDP Act."
       />
+
+      {shared && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mb-6 flex items-center gap-2 text-sm">
+          <CheckCircle2 className="h-4 w-4 text-[var(--color-sage-deep)]" />
+          <span className="text-[var(--color-sage-900)]">
+            {shared === "on"
+              ? "You are now sharing your activity with your college."
+              : "You have stopped sharing with your college."}
+          </span>
+        </Card>
+      )}
+
+      <Card className="mb-6">
+        <div className="flex items-center gap-2">
+          <GraduationCap className="h-4 w-4 text-[var(--color-sage-deep)]" />
+          <CardTitle>Share with my college</CardTitle>
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+          Let your college&apos;s placement cell see your name, activity, and
+          earnings band in their cohort dashboard. Off by default. Cohort totals
+          never identify you; only this opt-in adds your individual row.
+        </p>
+        <div className="mt-4 flex items-center gap-3">
+          <Badge tone={sharing ? "sage" : "neutral"}>
+            {sharing ? "Sharing on" : "Sharing off"}
+          </Badge>
+          <form action={setShareWithCollege}>
+            <input type="hidden" name="share" value={sharing ? "false" : "true"} />
+            <Button type="submit" variant={sharing ? "secondary" : "sage"} size="sm">
+              {sharing ? "Stop sharing" : "Share with my college"}
+            </Button>
+          </form>
+        </div>
+      </Card>
 
       {deletion === "requested" && (
         <Card

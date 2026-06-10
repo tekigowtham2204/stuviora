@@ -21,7 +21,8 @@ export type ConsentPurposeKey =
   | "essential"
   | "analytics"
   | "marketing_email"
-  | "match_notifications";
+  | "match_notifications"
+  | "share_with_college";
 
 export const CONSENT_PURPOSES: ConsentPurpose[] = [
   {
@@ -50,6 +51,13 @@ export const CONSENT_PURPOSES: ConsentPurpose[] = [
     description: "Occasional product news and earning tips. Opt out any time.",
     essential: false,
   },
+  {
+    key: "share_with_college",
+    label: "Share with my college",
+    description:
+      "Let your college's placement cell see your name, activity, and earnings band in their cohort dashboard. Off by default.",
+    essential: false,
+  },
 ];
 
 /** DPDP data-principal rights, surfaced in the rights center. */
@@ -71,6 +79,7 @@ export function defaultConsent(): ConsentState {
     match_notifications: false,
     analytics: false,
     marketing_email: false,
+    share_with_college: false,
   };
 }
 

@@ -10,6 +10,7 @@ import {
   currentAdmin,
 } from "@/lib/auth/session";
 import { services } from "@/lib/env";
+import { DEMO_UNIVERSITY } from "@/lib/demo/data";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -60,6 +61,17 @@ export async function loginAs(formData: FormData) {
       initials: a.avatarInitials,
     });
     redirect("/admin/dashboard");
+  }
+  if (role === "university") {
+    const u = DEMO_UNIVERSITY;
+    await setSession({
+      id: u.id,
+      role: "university",
+      name: u.fullName,
+      initials: u.avatarInitials,
+      college: u.college,
+    });
+    redirect("/university/dashboard");
   }
   const s = currentStudent();
   await setSession({

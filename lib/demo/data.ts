@@ -68,6 +68,25 @@ export const admin = {
   avatarInitials: "SV",
 } as const;
 
+/** Demo university persona: a placement cell scoped to one college. */
+export const DEMO_UNIVERSITY_ID = "uni-you";
+export const DEMO_UNIVERSITY = {
+  id: DEMO_UNIVERSITY_ID,
+  fullName: "IIT Bombay Placement Cell",
+  email: "placement@iitb.ac.in",
+  avatarInitials: "IB",
+  college: "IIT Bombay",
+  keyId: "demo-partner",
+  inviteCode: "IITB2026",
+} as const;
+
+/**
+ * Students who have opted in to share their activity with their college
+ * (consent purpose `share_with_college`). Only these appear individually
+ * in a placement cell's roster; everyone else folds into the aggregate.
+ */
+export const SHARE_WITH_COLLEGE_IDS = new Set<string>([DEMO_STUDENT_ID]);
+
 export const students: StudentProfile[] = [
   {
     id: DEMO_STUDENT_ID,

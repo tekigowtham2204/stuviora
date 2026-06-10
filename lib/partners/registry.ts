@@ -17,13 +17,15 @@ export interface Partner {
   keyId: string;
   secret: string;
   college: string | null;
+  inviteCode?: string;
 }
 
 /** Well-known demo partner. Documented for testing; never used in live. */
 export const DEMO_PARTNER: Partner = {
   keyId: "demo-partner",
   secret: "stuviora-demo-partner-secret",
-  college: null,
+  college: "IIT Bombay",
+  inviteCode: "IITB2026",
 };
 
 export async function getPartnerByKey(keyId: string): Promise<Partner | null> {

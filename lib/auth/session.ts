@@ -46,6 +46,8 @@ export interface SessionUser {
   role: Role;
   name: string;
   initials: string;
+  /** For role=university: the college this partner is scoped to. */
+  college?: string;
 }
 
 const COOKIE = "sv_session";

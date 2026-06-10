@@ -14,7 +14,7 @@ export interface NavItem {
 }
 
 /** Accent maps to the persona theme on the sidebar. */
-type Accent = "sage" | "orange" | "yellow" | "brand" | "trust";
+type Accent = "sage" | "orange" | "yellow" | "brand" | "trust" | "university";
 
 interface PortalShellProps {
   nav: NavItem[];
@@ -61,6 +61,12 @@ const accentStyles: Record<
     activeBar: "bg-[var(--color-orange)]",
     pill: "bg-[var(--color-orange)]/15 text-[var(--color-orange)]",
     sidebarTint: "before:bg-[var(--color-orange)]",
+  },
+  university: {
+    chip: "bg-[var(--color-brown)] text-[var(--color-cream)]",
+    activeBar: "bg-[var(--color-brown)]",
+    pill: "bg-[var(--color-brown)]/15 text-[var(--color-brown)]",
+    sidebarTint: "before:bg-[var(--color-brown)]",
   },
 };
 
@@ -202,7 +208,9 @@ export function PortalShell({
           <MobileNav
             items={mobileNav}
             accent={
-              accent === "trust" || accent === "brand" ? "sage" : accent
+              accent === "trust" || accent === "brand" || accent === "university"
+                ? "sage"
+                : accent
             }
           />
         )}
