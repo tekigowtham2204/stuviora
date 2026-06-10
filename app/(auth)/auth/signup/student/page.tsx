@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, FieldHint, Select } from "@/components/ui/input";
 import { startStudentSignup } from "@/app/actions/auth";
+import { getCollegeForInviteCode } from "@/lib/partners/registry";
 import { AuthStepper } from "@/components/auth/auth-stepper";
 import { PasswordField } from "@/components/auth/password-field";
 
@@ -18,7 +19,14 @@ const STREAMS = [
   "Other",
 ];
 
-export default function StudentSignupPage() {
+export default async function StudentSignupPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ref?: string }>;
+}) {
+  const { ref } = await searchParams;
+  const referredCollege = ref ? await getCollegeForInviteCode(ref) : null;
+
   return (
     <Card className="p-8" surface="glow">
       <AuthStepper current={0} />
@@ -31,7 +39,15 @@ export default function StudentSignupPage() {
         verify it to build trust with clients.
       </p>
 
+      {referredCollege && (
+        <p className="mt-3 rounded-2xl border border-[var(--color-sage-200)] bg-[var(--color-sage-50)] p-3 text-xs text-[var(--color-sage-900)]">
+          Joining via your college invite: your activity will count toward{" "}
+          <span className="font-medium">{referredCollege}</span>.
+        </p>
+      )}
+
       <form action={startStudentSignup} className="mt-6 space-y-4">
+        {ref && <input type="hidden" name="ref" value={ref} />}
         <Field label="Full name" name="name" placeholder="Aarav Mehta" />
         <Field
           label="College email"

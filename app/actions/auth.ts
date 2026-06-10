@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth/session";
 import { services } from "@/lib/env";
 import { DEMO_UNIVERSITY } from "@/lib/demo/data";
+import { getCollegeForInviteCode } from "@/lib/partners/registry";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -87,6 +88,12 @@ export async function startStudentSignup(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   if (!email) redirect("/auth/signup/student?error=missing_email");
 
+  // Invite/referral attribution: a college invite link carries ?ref=CODE,
+  // which we resolve to the college so the student joins that cohort.
+  const ref = ((formData.get("ref") as string) || "").trim();
+  const referredCollege = ref ? await getCollegeForInviteCode(ref) : null;
+  if (ref) trackEvent("signup_referred", { ref, attributed: !!referredCollege });
+
   if (services.supabase) {
     // 1. College-email allowlist check (lib/auth/college-domains.ts).
     try {
@@ -102,12 +109,18 @@ export async function startStudentSignup(formData: FormData) {
       throw err;
     }
 
-    // 2. Send OTP via Supabase Auth.
+    // 2. Send OTP via Supabase Auth. The attributed college rides along in
+    //    user metadata so profile creation can pre-fill it.
     const supabase = await getServerSupabase();
     if (supabase) {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { data: { role: "student" } },
+        options: {
+          data: {
+            role: "student",
+            ...(referredCollege ? { college: referredCollege } : {}),
+          },
+        },
       });
       if (error) {
         redirect(
@@ -120,7 +133,9 @@ export async function startStudentSignup(formData: FormData) {
   }
 
   redirect(
-    `/auth/verify-email?role=student&email=${encodeURIComponent(email)}`
+    `/auth/verify-email?role=student&email=${encodeURIComponent(email)}${
+      ref ? `&ref=${encodeURIComponent(ref)}` : ""
+    }`
   );
 }
 

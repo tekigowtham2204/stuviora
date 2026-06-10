@@ -54,3 +54,30 @@ export async function getPartnerByKey(keyId: string): Promise<Partner | null> {
   // Demo fallback: only the well-known demo key resolves.
   return keyId === DEMO_PARTNER.keyId ? DEMO_PARTNER : null;
 }
+
+/** Resolve a college from an invite/referral code. Null if unknown. */
+export async function getCollegeForInviteCode(
+  code: string
+): Promise<string | null> {
+  const clean = code.trim().toUpperCase();
+  if (!clean) return null;
+
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from("university_partners")
+          .select("college")
+          .eq("invite_code", clean)
+          .eq("active", true)
+          .maybeSingle<{ college: string | null }>();
+        return data?.college ?? null;
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  return clean === DEMO_PARTNER.inviteCode ? DEMO_PARTNER.college : null;
+}
