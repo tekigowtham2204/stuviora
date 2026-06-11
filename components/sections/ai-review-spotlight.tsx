@@ -7,7 +7,7 @@ import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 
 /**
- * Section 2 of the landing — the AI quality gate dramatized.
+ * Section 2 of the landing - the AI quality gate dramatized.
  * A scroll-driven scan beam runs through the score panel as the user reads.
  * One signature motion. Premium, not noisy.
  */
@@ -23,7 +23,7 @@ export function AiReviewSpotlight() {
   const scanY = useTransform(scrollYProgress, [0.1, 0.7], ["0%", "100%"]);
   const scanOpacity = useTransform(scrollYProgress, [0.1, 0.2, 0.6, 0.7], [0, 1, 1, 0]);
 
-  // Score values animate up as the user scrolls — all hoisted to the top.
+  // Score values animate up as the user scrolls - all hoisted to the top.
   const score = useTransform(scrollYProgress, [0.15, 0.55], [0, 86]);
   const scoreRounded = useTransform(score, (v) => Math.round(v));
   const briefAlignment = useTransform(scrollYProgress, [0.15, 0.55], [0, 36]);

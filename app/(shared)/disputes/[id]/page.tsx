@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DisputeTimeline } from "@/components/feature/dispute-timeline";
 import { getDispute } from "@/lib/data/queries";
-import { submitEvidence } from "@/app/actions/disputes";
+import { submitEvidence, appealDispute } from "@/app/actions/disputes";
+import { appealedDisputeIds } from "@/lib/demo/state";
 import { DISPUTE_STATUS_META, DISPUTE_RESOLUTION_META } from "@/lib/status";
 import { isEscalated, ESCALATION_HOURS } from "@/lib/disputes/engine";
 import { formatINR, cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export default async function DisputeDetail({
   const { id } = await params;
   const dispute = await getDispute(id);
   if (!dispute) notFound();
+  const appealed = appealedDisputeIds.has(id);
 
   const meta = DISPUTE_STATUS_META[dispute.status];
   const left = hoursLeft(dispute.deadlineISO);
@@ -43,6 +45,28 @@ export default async function DisputeDetail({
         subtitle={`${dispute.id} · Order #${dispute.orderId}`}
         action={<Badge tone={meta.tone}>{meta.label}</Badge>}
       />
+
+      {appealed && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mb-6 text-sm text-[var(--color-sage-900)]">
+          Appeal filed. The case is back with our review team; both sides
+          will hear from us within 48 hours.
+        </Card>
+      )}
+
+      {dispute.status === "resolved" && !appealed && (
+        <Card surface="flat" tint="warm" className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-[var(--color-ink-muted)]">
+            Disagree with this outcome? You can appeal once within 7 days of
+            resolution.
+          </span>
+          <form action={appealDispute}>
+            <input type="hidden" name="disputeId" value={dispute.id} />
+            <Button type="submit" variant="secondary" size="sm">
+              Appeal this decision
+            </Button>
+          </form>
+        </Card>
+      )}
 
       <Card className="mb-6">
         <DisputeTimeline status={dispute.status} />
@@ -138,7 +162,7 @@ export default async function DisputeDetail({
               >
                 <Clock className="h-3.5 w-3.5" />
                 {escalated
-                  ? "Past the 48h window — escalated to an admin."
+                  ? "Past the 48h window - escalated to an admin."
                   : `~${left}h left in this ${ESCALATION_HOURS}h stage.`}
               </p>
             )}

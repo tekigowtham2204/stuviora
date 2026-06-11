@@ -3,9 +3,11 @@ import {
   MessagesSquare,
   Scale,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import { getSession } from "@/lib/auth/session";
+import { listConversations } from "@/lib/data/queries";
 import { currentStudent, currentClient } from "@/lib/auth/session";
 
 export default async function SharedLayout({ children }: { children: React.ReactNode }) {
@@ -22,6 +24,7 @@ export default async function SharedLayout({ children }: { children: React.React
     { href: "/messages", label: "Messages", icon: MessagesSquare },
     { href: "/disputes", label: "Disputes", icon: Scale },
     { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/data-privacy", label: "Data and privacy", icon: ShieldCheck },
   ];
 
   const me = isClient ? currentClient() : currentStudent();
@@ -40,8 +43,11 @@ export default async function SharedLayout({ children }: { children: React.React
             : "",
       };
 
+  const unread = (await listConversations()).reduce((n, c) => n + c.unread, 0);
+
   return (
     <PortalShell
+      unreadCount={unread}
       nav={NAV}
       accent={isClient ? "orange" : "sage"}
       personaLabel={isClient ? "Client" : "Student"}

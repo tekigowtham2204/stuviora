@@ -39,3 +39,27 @@ export function listFeaturedPlans(kind: FeaturedKind): FeaturedPlan[] {
 export function expiryFor(plan: FeaturedPlan, startMs = Date.now()): number {
   return startMs + plan.days * 86400_000;
 }
+
+export function planForDays(kind: FeaturedKind, days: number): FeaturedPlan | null {
+  return TABLE[kind].find((p) => p.days === days) ?? null;
+}
+
+/** True while a featuredUntil timestamp is in the future. */
+export function isFeaturedActive(
+  featuredUntil: number | undefined,
+  nowMs = Date.now()
+): boolean {
+  return typeof featuredUntil === "number" && featuredUntil > nowMs;
+}
+
+/** Stable sort: active-featured jobs first, original order otherwise. */
+export function sortFeaturedFirst<T extends { featuredUntil?: number }>(
+  items: T[],
+  nowMs = Date.now()
+): T[] {
+  return [...items].sort(
+    (a, b) =>
+      Number(isFeaturedActive(b.featuredUntil, nowMs)) -
+      Number(isFeaturedActive(a.featuredUntil, nowMs))
+  );
+}

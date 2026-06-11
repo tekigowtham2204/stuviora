@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { GraduationCap, Building2, ShieldCheck } from "lucide-react";
+import { GraduationCap, Building2, ShieldCheck, University } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
@@ -58,12 +58,20 @@ export default function LoginPage() {
       </div>
 
       {DEMO_MODE && (
-        <form action={loginAs} className="mt-3">
-          <input type="hidden" name="role" value="admin" />
-          <Button type="submit" variant="ghost" className="w-full text-[var(--color-ink-muted)]">
-            <ShieldCheck className="h-4 w-4" /> Continue as admin (founder)
-          </Button>
-        </form>
+        <div className="mt-3 grid grid-cols-1 gap-3">
+          <form action={loginAs}>
+            <input type="hidden" name="role" value="university" />
+            <Button type="submit" variant="secondary" className="w-full">
+              <University className="h-4 w-4" /> Continue as university
+            </Button>
+          </form>
+          <form action={loginAs}>
+            <input type="hidden" name="role" value="admin" />
+            <Button type="submit" variant="ghost" className="w-full text-[var(--color-ink-muted)]">
+              <ShieldCheck className="h-4 w-4" /> Continue as admin (founder)
+            </Button>
+          </form>
+        </div>
       )}
 
       <p className="mt-7 text-center text-sm text-[var(--color-ink-muted)]">

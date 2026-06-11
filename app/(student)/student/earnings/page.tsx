@@ -5,6 +5,7 @@ import {
   ShieldCheck,
   TrendingUp,
   AlertTriangle,
+  Download,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -60,7 +61,7 @@ export default async function EarningsPage() {
                     )} rupees away from TDS withholding`}
               </CardTitle>
               <p className="mt-1.5 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-                Section 194H withholds {Math.round(TDS_RATE * 100)}% on freelance
+                Section 194-O withholds {TDS_RATE * 100}% on freelance
                 commission once your financial-year gross crosses{" "}
                 <Money value={TDS_THRESHOLD} />.{" "}
                 {tdsApplies
@@ -118,9 +119,14 @@ export default async function EarningsPage() {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
         <div>
-          <h2 className="mb-3 font-display text-xl font-medium text-[var(--color-ink)]">
-            Recent activity
-          </h2>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-xl font-medium text-[var(--color-ink)]">
+              Recent activity
+            </h2>
+            <Button href="/api/student/wallet/export" variant="outline" size="sm">
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </Button>
+          </div>
           <Card className="divide-y divide-[var(--color-line)] p-0">
             {w.transactions.map((tx) => (
               <div

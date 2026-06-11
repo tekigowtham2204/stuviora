@@ -1,5 +1,5 @@
 /**
- * Smart matching engine — Stuviora M5.
+ * Smart matching engine - Stuviora M5.
  *
  * Pure functions only. Both directions (rank jobs for student, rank students
  * for job) reduce to one scorer over normalized signals.

@@ -14,6 +14,10 @@ import {
   rankStudentsForJob,
   type MatchBreakdown,
 } from "@/lib/matching/engine";
+import { rollupCohorts, type CohortRow } from "@/lib/university/engine";
+import { sortFeaturedFirst } from "@/lib/monetization/featured";
+import { blockedClientIds } from "@/lib/demo/state";
+import { buildRoster, type RosterEntry } from "@/lib/university/roster";
 import { services } from "@/lib/env";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
@@ -297,13 +301,16 @@ export async function listOpenJobs(filters?: {
       let jobs = data.map((r) => jobFromRow(flattenJob(r)));
       if (filters?.category)
         jobs = jobs.filter((j) => j.categorySlug === filters.category);
-      return jobs;
+      return sortFeaturedFirst(jobs);
     }
   }
 
   let rows = demo.jobs.filter((j) => j.status === "open");
   if (filters?.category) rows = rows.filter((j) => j.categorySlug === filters.category);
-  return rows;
+  // #56: hide jobs from clients the student blocked (demo state; live
+  // path filters via blocked_clients in the select).
+  rows = rows.filter((j) => !blockedClientIds.has(j.clientId));
+  return sortFeaturedFirst(rows);
 }
 
 export async function getJob(id: string): Promise<Job | null> {
@@ -1024,5 +1031,56 @@ export async function getNotificationPreferences(userId: string) {
       emailWeeklyDigest: true,
       emailMarketing: false,
     }
+  );
+}
+
+// ---------------------------------------------------------------------------
+// University cohort (P9 portal) - always scoped to ONE college.
+// ---------------------------------------------------------------------------
+
+export interface CollegeCohort {
+  row: CohortRow;
+  categoryMix: { category: string; count: number }[];
+}
+
+/** Lifetime completed earnings for a student, demo-sourced. */
+function completedEarnings(studentId: string): number {
+  return demo.orders
+    .filter((o) => o.studentId === studentId && o.status === "completed")
+    .reduce((sum, o) => sum + o.amount, 0);
+}
+
+/** Cohort summary for a single college. Returns null if the college is empty. */
+export async function getCohortForCollege(
+  college: string
+): Promise<CollegeCohort | null> {
+  // Live path would filter users by college in Supabase; demo filters seed.
+  const collegeStudents = demo.students.filter((s) => s.college === college);
+  if (collegeStudents.length === 0) return null;
+
+  const summary = rollupCohorts(collegeStudents, [], demo.orders);
+  const row = summary.topColleges[0];
+  if (!row) return null;
+
+  const counts = new Map<string, number>();
+  for (const s of collegeStudents) {
+    counts.set(s.categorySlug, (counts.get(s.categorySlug) ?? 0) + 1);
+  }
+  const categoryMix = Array.from(counts.entries())
+    .map(([category, count]) => ({ category, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { row, categoryMix };
+}
+
+/** Opt-in roster for a college: only students who consented to share. */
+export async function listConsentedRoster(
+  college: string
+): Promise<RosterEntry[]> {
+  const collegeStudents = demo.students.filter((s) => s.college === college);
+  return buildRoster(
+    collegeStudents,
+    demo.SHARE_WITH_COLLEGE_IDS,
+    completedEarnings
   );
 }

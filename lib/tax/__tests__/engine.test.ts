@@ -24,22 +24,22 @@ describe("computeOrderTax", () => {
     expect(t.studentNet).toBe(8_500);
   });
 
-  it("withholds TDS @ 5% once cumulative FY gross crosses Rs.30,000", () => {
-    const t = computeOrderTax(10_000, 30_000);
+  it("withholds TDS @ 0.1% of gross once cumulative FY gross crosses Rs.5,00,000 (194-O)", () => {
+    const t = computeOrderTax(10_000, 500_000);
     expect(t.tdsApplied).toBe(true);
-    expect(t.tdsWithheld).toBe(425); // 5% of 8500
-    expect(t.studentNet).toBe(8_075);
+    expect(t.tdsWithheld).toBe(10); // 0.1% of the 10,000 gross (194-O base)
+    expect(t.studentNet).toBe(8_490); // 8,500 minus 0.1% of gross
   });
 
   it("does not apply TDS exactly at the threshold", () => {
-    const t = computeOrderTax(1_000, 29_000);
-    // 29,000 + 850 = 29,850 < 30,000
+    const t = computeOrderTax(1_000, 499_000);
+    // 499,000 + 1,000 gross = 500,000, not above the 5L threshold
     expect(t.tdsApplied).toBe(false);
   });
 
-  it("applies TDS the moment we cross the threshold", () => {
-    const t = computeOrderTax(2_000, 29_000);
-    // 29,000 + 1,700 = 30,700 > 30,000
+  it("applies TDS the moment gross crosses the threshold", () => {
+    const t = computeOrderTax(2_000, 499_000);
+    // 499,000 + 2,000 gross = 501,000 > 500,000
     expect(t.tdsApplied).toBe(true);
   });
 
@@ -51,8 +51,8 @@ describe("computeOrderTax", () => {
 
   it("constant rates are sane", () => {
     expect(GST_RATE).toBe(0.18);
-    expect(TDS_RATE).toBe(0.05);
-    expect(TDS_THRESHOLD).toBe(30_000);
+    expect(TDS_RATE).toBe(0.001);
+    expect(TDS_THRESHOLD).toBe(500_000);
   });
 });
 

@@ -1,7 +1,7 @@
 import type { DisputeResolution, DisputeStatus } from "@/lib/types";
 
 /**
- * Dispute engine (M4) — the state machine that protects both sides when an
+ * Dispute engine (M4) - the state machine that protects both sides when an
  * order goes wrong, and the commission-hold logic that freezes money until
  * it's resolved.
  *

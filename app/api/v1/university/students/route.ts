@@ -1,21 +1,21 @@
 /**
- * University B2B API (M7.1).
+ * University B2B API (M7.1 / P9.4).
  *
- * Public read-only endpoint for placement cells, signed by HMAC of the
- * API key. Demo path returns seeded cohort data; live path queries
- * Supabase with the college filter.
- *
- * Authentication (TODO live):
- *   - Read X-Api-Key header
- *   - Verify HMAC SHA-256 of body+timestamp using the partner's secret
- *   - Reject if timestamp drift > 5 minutes
+ * Read-only cohort endpoint for placement cells, authenticated by an
+ * HMAC-SHA256 signature over the canonical request (X-Api-Key +
+ * X-Stuviora-Signature, 5-minute timestamp window). Demo path returns
+ * seeded cohort data; live path queries Supabase with the college filter.
  */
 
 import { NextResponse } from "next/server";
+import { requirePartner } from "@/lib/partners/guard";
 import { rollupCohorts } from "@/lib/university/engine";
 import * as demo from "@/lib/demo/data";
 
 export async function GET(req: Request) {
+  const auth = await requirePartner(req);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
   const college = searchParams.get("college");
 

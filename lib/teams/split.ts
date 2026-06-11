@@ -5,7 +5,7 @@
  * 85% student share is split per-member by their declared share ratio,
  * and the 15% commission still goes to the platform via Razorpay Route.
  *
- * Pure math only — the Route transfer construction lives in lib/razorpay.
+ * Pure math only - the Route transfer construction lives in lib/razorpay.
  */
 
 export interface TeamMember {

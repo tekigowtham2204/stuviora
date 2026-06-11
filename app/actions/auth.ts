@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import {
   setSession,
   clearSession,
@@ -9,6 +10,12 @@ import {
   currentAdmin,
 } from "@/lib/auth/session";
 import { services } from "@/lib/env";
+import { DEMO_UNIVERSITY } from "@/lib/demo/data";
+import { getCollegeForInviteCode } from "@/lib/partners/registry";
+import { rateLimit } from "@/lib/ratelimit";
+import { trackEvent } from "@/lib/observability";
+import { dispatchUserEmail } from "@/lib/email/dispatch";
+import { welcomeEmail } from "@/lib/email/templates";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   requireVerifiedCollege,
@@ -58,6 +65,17 @@ export async function loginAs(formData: FormData) {
     });
     redirect("/admin/dashboard");
   }
+  if (role === "university") {
+    const u = DEMO_UNIVERSITY;
+    await setSession({
+      id: u.id,
+      role: "university",
+      name: u.fullName,
+      initials: u.avatarInitials,
+      college: u.college,
+    });
+    redirect("/university/dashboard");
+  }
   const s = currentStudent();
   await setSession({
     id: s.id,
@@ -71,6 +89,25 @@ export async function loginAs(formData: FormData) {
 export async function startStudentSignup(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   if (!email) redirect("/auth/signup/student?error=missing_email");
+
+  // Blueprint: signup is rate limited per IP to stop OTP-send abuse.
+  const sip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const signupLimit = await rateLimit({
+    key: `signup-ip:${sip}`,
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!signupLimit.allowed) {
+    redirect("/auth/signup/student?error=rate_limited");
+  }
+
+  // Invite/referral attribution: a college invite link carries ?ref=CODE,
+  // which we resolve to the college so the student joins that cohort.
+  const ref = ((formData.get("ref") as string) || "").trim();
+  const referredCollege = ref ? await getCollegeForInviteCode(ref) : null;
+  if (ref) trackEvent("signup_referred", { ref, attributed: !!referredCollege });
 
   if (services.supabase) {
     // 1. College-email allowlist check (lib/auth/college-domains.ts).
@@ -87,12 +124,18 @@ export async function startStudentSignup(formData: FormData) {
       throw err;
     }
 
-    // 2. Send OTP via Supabase Auth.
+    // 2. Send OTP via Supabase Auth. The attributed college rides along in
+    //    user metadata so profile creation can pre-fill it.
     const supabase = await getServerSupabase();
     if (supabase) {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { data: { role: "student" } },
+        options: {
+          data: {
+            role: "student",
+            ...(referredCollege ? { college: referredCollege } : {}),
+          },
+        },
       });
       if (error) {
         redirect(
@@ -105,13 +148,27 @@ export async function startStudentSignup(formData: FormData) {
   }
 
   redirect(
-    `/auth/verify-email?role=student&email=${encodeURIComponent(email)}`
+    `/auth/verify-email?role=student&email=${encodeURIComponent(email)}${
+      ref ? `&ref=${encodeURIComponent(ref)}` : ""
+    }`
   );
 }
 
 export async function startClientSignup(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   if (!email) redirect("/auth/signup/client?error=missing_email");
+
+  const cip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const clientLimit = await rateLimit({
+    key: `signup-ip:${cip}`,
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!clientLimit.allowed) {
+    redirect("/auth/signup/client?error=rate_limited");
+  }
 
   if (services.supabase) {
     // Clients can use any business email; no college-domain check.
@@ -144,6 +201,23 @@ export async function verifyOtp(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   const otp = ((formData.get("otp") as string) || "").trim();
 
+  // Throttle code-checking to blunt brute-force on the 6-digit OTP.
+  // Per-email caps a targeted attack; per-IP caps email-spray from one host.
+  const ip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const [emailLimit, ipLimit] = await Promise.all([
+    rateLimit({ key: `verifyOtp:${email || "anon"}`, max: 6, windowMs: 60_000 }),
+    rateLimit({ key: `verifyOtp-ip:${ip}`, max: 30, windowMs: 60_000 }),
+  ]);
+  if (!emailLimit.allowed || !ipLimit.allowed) {
+    redirect(
+      `/auth/verify-email?role=${role}&email=${encodeURIComponent(
+        email
+      )}&error=rate_limited`
+    );
+  }
+
   if (services.supabase && email && otp) {
     const supabase = await getServerSupabase();
     if (supabase) {
@@ -169,12 +243,17 @@ export async function verifyOtp(formData: FormData) {
         name,
         initials: initialsFrom(name),
       });
+      trackEvent("email_verified", { role }, data!.user.id);
+      if (role !== "client") {
+        await dispatchUserEmail(data!.user.id, welcomeEmail({ name }), "order_update");
+      }
       if (role === "client") redirect("/client/onboarding");
       redirect("/student/onboarding");
     }
   }
 
   // Demo path: accept any code (the verify-email page advertises this).
+  trackEvent("email_verified", { role, demo: true });
   if (role === "client") {
     const c = currentClient();
     await setSession({

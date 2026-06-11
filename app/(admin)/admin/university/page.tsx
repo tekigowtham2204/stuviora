@@ -1,15 +1,23 @@
-import { University, TrendingUp, Users, Award } from "lucide-react";
+import { University, TrendingUp, Users, Award, KeyRound, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Stat } from "@/components/ui/stat";
 import { Badge } from "@/components/ui/badge";
 import { Money } from "@/components/ui/money";
+import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 import * as demo from "@/lib/demo/data";
 import { rollupCohorts } from "@/lib/university/engine";
+import { issuePartner, revokePartner } from "@/app/actions/university";
 
 export const metadata = { title: "University B2B" };
 
-export default async function UniversityPage() {
+export default async function UniversityPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ issued?: string; revoked?: string; error?: string }>;
+}) {
+  const { issued, revoked, error } = await searchParams;
   const summary = rollupCohorts(demo.students, demo.adminUsers, demo.orders);
   const activationPct = summary.totalStudents
     ? Math.round((summary.totalActivated / summary.totalStudents) * 100)
@@ -22,6 +30,22 @@ export default async function UniversityPage() {
         title="College cohort performance."
         subtitle="Activation, GMV, and engagement for every college on Stuviora. Wire to your placement cell via the public REST API or HMAC-signed webhooks."
       />
+
+      {(issued || revoked) && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mb-6 flex items-center gap-2 text-sm">
+          <CheckCircle2 className="h-4 w-4 text-[var(--color-sage-deep)]" />
+          <span className="text-[var(--color-sage-900)]">
+            {issued
+              ? `Partner issued: key ${issued}. The secret is shown once in live mode; share it securely.`
+              : `Partner ${revoked} revoked. Its key no longer authenticates.`}
+          </span>
+        </Card>
+      )}
+      {error && (
+        <Card surface="flat" tint="warm" className="mb-6 text-sm text-[var(--color-orange-900)]">
+          {error === "missing_college" ? "Enter a college name to issue a partner." : "Missing partner key."}
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat
@@ -111,6 +135,36 @@ export default async function UniversityPage() {
           <CodeBlock title="POST webhook student.completed_first_job">
             HMAC-signed delivery on first completion.
           </CodeBlock>
+        </div>
+      </Card>
+
+      <Card surface="raised" className="mt-6">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4 text-[var(--color-sage-deep)]" />
+          <CardTitle>Issue or revoke a partner</CardTitle>
+        </div>
+        <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
+          Mint an HMAC key + invite code for a placement cell, or revoke one.
+        </p>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <form action={issuePartner} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="college">College</Label>
+              <Input id="college" name="college" placeholder="IIT Bombay" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="partnerName">Partner name (optional)</Label>
+              <Input id="partnerName" name="partnerName" placeholder="IIT Bombay Placement Cell" />
+            </div>
+            <Button type="submit" variant="sage" size="sm">Issue partner</Button>
+          </form>
+          <form action={revokePartner} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="keyId">Revoke key id</Label>
+              <Input id="keyId" name="keyId" placeholder="iit-bombay-a1b2c3" />
+            </div>
+            <Button type="submit" variant="secondary" size="sm">Revoke partner</Button>
+          </form>
         </div>
       </Card>
     </>

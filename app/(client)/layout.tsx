@@ -5,10 +5,12 @@ import {
   ShoppingBag,
   MessagesSquare,
   Sparkles,
+  CreditCard,
 } from "lucide-react";
 import { PortalShell, type NavItem } from "@/components/layout/portal-shell";
 import type { MobileNavItem } from "@/components/layout/mobile-nav";
 import { currentClient } from "@/lib/auth/session";
+import { listConversations } from "@/lib/data/queries";
 
 const NAV: NavItem[] = [
   { href: "/client/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -17,6 +19,7 @@ const NAV: NavItem[] = [
   { href: "/client/matches", label: "Suggested talent", icon: Sparkles },
   { href: "/client/orders", label: "Orders", icon: ShoppingBag },
   { href: "/messages", label: "Messages", icon: MessagesSquare },
+  { href: "/client/billing", label: "Billing", icon: CreditCard },
 ];
 
 const MOBILE_NAV: MobileNavItem[] = [
@@ -27,10 +30,13 @@ const MOBILE_NAV: MobileNavItem[] = [
   { href: "/messages", label: "Chat", icon: MessagesSquare },
 ];
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default async function ClientLayout({ children }: { children: React.ReactNode }) {
   const me = currentClient();
+  const unread = (await listConversations()).reduce((n, c) => n + c.unread, 0);
+
   return (
     <PortalShell
+      unreadCount={unread}
       nav={NAV}
       mobileNav={MOBILE_NAV}
       accent="orange"

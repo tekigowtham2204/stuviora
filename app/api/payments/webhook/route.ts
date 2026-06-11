@@ -87,6 +87,22 @@ export async function POST(req: NextRequest) {
 
   switch (event.event) {
     case "payment.captured": {
+      // P9.1 featured-listing purchase: a captured payment whose notes
+      // carry featured_days + featured_job_id promotes the job.
+      const notes = event.payload?.payment?.entity?.notes;
+      const featuredDays = Number(notes?.featured_days ?? 0);
+      const featuredJobId = notes?.featured_job_id;
+      if (supabase && featuredDays > 0 && featuredJobId) {
+        await supabase
+          .from("jobs")
+          .update({
+            featured_until: new Date(
+              Date.now() + featuredDays * 86400_000
+            ).toISOString(),
+          })
+          .eq("id", featuredJobId);
+      }
+
       // Lock escrow on the order. Update the orders row from
       // pending_payment -> active so the student dashboard surfaces it.
       if (supabase && orderId) {

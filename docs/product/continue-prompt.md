@@ -5,7 +5,7 @@
 > off. This doc itself is the long-form explanation; the prompt at
 > the bottom is the short, self-contained handoff.
 
-**Last touched:** 2026-06-07 after PR #9 (`d3da3b2`) merged. If you
+**Last touched:** 2026-06-10 after the P5-P11 build-out on `claude/cool-ritchie-QmYEO`. If you
 return after later commits, re-skim this doc to make sure the "where
 we are" snapshot is still accurate.
 
@@ -37,13 +37,13 @@ in any user-visible string (hard ban).
 | P2 — Auth + storage | DONE | Real Supabase Auth in `getSession`; `lib/auth/college-domains.ts` + 42-domain allowlist; `lib/storage/files.ts`; bucket migration 0005; proxy session refresh |
 | P3 — Razorpay Route | DONE | SDK 2.9.6; Order with on-hold transfers; webhook idempotency via `webhook_events`; 72h auto-release cron filled |
 | P4 — OpenRouter LLM | DONE | `chatJson` with Zod retry; versioned prompts; live AI gate + proposal writer + case-study; Inngest registration of 10 functions; PDF/DOCX/ZIP/text extractors |
-| P5 — Resend email + retention | **PAUSED** | (Reumed only after audit Sprint 5 closes, per user direction) |
-| P6 — Search + rate limit + observability | NOT STARTED | Meilisearch, Upstash, Sentry, PostHog |
-| P7 — Hardening (PII, files, a11y) | NOT STARTED | Supabase Vault, DPDP flows, ZIP guards, Lighthouse |
-| P8 — Load tests + runbooks | NOT STARTED | k6, `/admin/ops` |
-| P9 — B2B + monetization | NOT STARTED | Featured-listing checkout, subscriptions, team splits, partner HMAC |
-| P10 — Expo mobile (M7.3) | NOT STARTED | `mobile/` workspace |
-| P11 — Launch ops | NOT STARTED | DNS, Cloudflare, status page, beachhead playbook |
+| P5 — Resend email + retention | DONE (wired) | Resend REST client, 7 templates, match fan-out + 3/day cap, weekly digest |
+| P6 — Search + rate limit + observability | DONE (wired) | Meilisearch REST indexer, Upstash rate limit + fallback, PostHog capture, funnel events |
+| P7 — Hardening | MOSTLY DONE | Upload validation + ZIP traversal guard; DPDP consent/export/erasure/banner. Remaining: PII Vault (keys), Lighthouse (browser) |
+| P8 — Load tests + runbooks | DONE | Commission reconciler engine + cron, /admin/ops, k6 smoke, 4 runbooks |
+| P9 — B2B + monetization | DONE (wired) | Partner HMAC API, university portal + invite attribution, featured listings, subscriptions, team splits |
+| P10 — Expo mobile (M7.3) | SCAFFOLDED | mobile/README.md plan; needs the Expo toolchain (separate machine) |
+| P11 — Launch ops | CODE DONE | sitemap + robots + /trust page; DNS/Cloudflare/status page are founder ops |
 
 ### Student-audit progress
 
@@ -143,6 +143,7 @@ before touching code so you don't reinvent.
 | `docs/product/build-checklist.md` | T1 to T4 task tiers with file paths |
 | `docs/product/student-audit.md` | 74 student-walkthrough gaps with numbered fixes |
 | `docs/product/gap-fix-plan.md` | 5-sprint plan for the audit |
+| `docs/product/deep-research-category-winner.md` | Web-verified competitive/market research + the category-winner strategy |
 
 ## Recommended next moves, in order
 

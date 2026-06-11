@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, MessageSquare } from "lucide-react";
+import { Clock, MessageSquare, Users, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,21 @@ import { getOrder, getClientById } from "@/lib/data/queries";
 import { ORDER_STATUS_META } from "@/lib/status";
 import { formatINR } from "@/lib/utils";
 import { computeSplit } from "@/lib/utils";
+import { computeTeamSplit } from "@/lib/teams/split";
+import { Input, Label } from "@/components/ui/input";
+import { declareTeamSplit } from "@/app/actions/teams";
 
 export const metadata = { title: "Order detail" };
 
 export default async function StudentOrderDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ team?: string; pct?: string }>;
 }) {
   const { id } = await params;
+  const { team, pct } = await searchParams;
   const order = await getOrder(id);
   if (!order) notFound();
 
@@ -98,6 +104,53 @@ export default async function StudentOrderDetail({
             >
               <MessageSquare className="h-4 w-4" /> Message client
             </Link>
+          </Card>
+          <Card>
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-[var(--color-sage-deep)]" />
+              <CardTitle>Working as a team?</CardTitle>
+            </div>
+            {team === "saved" && pct ? (
+              <div role="status" aria-live="polite" className="mt-3 flex items-start gap-2 text-sm text-[var(--color-sage-900)]">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-sage-deep)]" />
+                <span>
+                  Split saved. Your teammate gets {pct}% of the payout:{" "}
+                  {formatINR(
+                    computeTeamSplit(order.amount, [
+                      { studentId: "you", shareRatio: (100 - Number(pct)) / 100 },
+                      { studentId: "mate", shareRatio: Number(pct) / 100 },
+                    ]).perMember[1].amount
+                  )}
+                  . Payouts fan out automatically on release.
+                </span>
+              </div>
+            ) : (
+              <>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+                  Split the payout with a teammate. Each of you is paid your
+                  share directly when escrow releases.
+                </p>
+                {team === "invalid" && (
+                  <p className="mt-2 text-xs text-[var(--color-danger-deep)]">
+                    Enter a teammate username and a share between 1 and 99.
+                  </p>
+                )}
+                <form action={declareTeamSplit} className="mt-4 space-y-3">
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="teammate">Teammate username</Label>
+                    <Input id="teammate" name="teammate" placeholder="diyawrites" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="teammatePct">Their share (%)</Label>
+                    <Input id="teammatePct" name="teammatePct" type="number" min={1} max={99} placeholder="40" />
+                  </div>
+                  <Button type="submit" variant="secondary" size="sm" className="w-full">
+                    Save team split
+                  </Button>
+                </form>
+              </>
+            )}
           </Card>
         </aside>
       </div>

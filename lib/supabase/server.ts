@@ -23,7 +23,7 @@ export async function getServerSupabase() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // Called from a Server Component — safe to ignore; the proxy refreshes sessions.
+          // Called from a Server Component - safe to ignore; the proxy refreshes sessions.
         }
       },
     },
@@ -31,7 +31,7 @@ export async function getServerSupabase() {
 }
 
 /**
- * Privileged service-role client — bypasses RLS. Use ONLY in trusted server
+ * Privileged service-role client - bypasses RLS. Use ONLY in trusted server
  * code (webhooks, background jobs, ledger writes). Never expose to the browser.
  */
 export function getServiceSupabase() {

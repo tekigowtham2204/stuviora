@@ -26,10 +26,12 @@ import {
 
 export const metadata = { title: "Tax & TDS" };
 
+// Demo rows model a high-earning senior who crossed the 194-O threshold;
+// TDS = 0.1% of the gross order value (studentGross / 0.85).
 const FY_EVENTS = [
-  { order: "SV-1021", studentGross: 4250, tdsWithheld: 212.5, date: "2026-05-15" },
-  { order: "SV-0998", studentGross: 6800, tdsWithheld: 340,    date: "2026-04-22" },
-  { order: "SV-0942", studentGross: 3200, tdsWithheld: 160,    date: "2026-03-30" },
+  { order: "SV-1021", studentGross: 4250, tdsWithheld: 5, date: "2026-05-15" },
+  { order: "SV-0998", studentGross: 6800, tdsWithheld: 8, date: "2026-04-22" },
+  { order: "SV-0942", studentGross: 3200, tdsWithheld: 4, date: "2026-03-30" },
 ];
 
 export default async function TaxPage({
@@ -62,6 +64,8 @@ export default async function TaxPage({
 
       {pan === "saved" && (
         <Card
+          role="status"
+          aria-live="polite"
           surface="flat"
           tint="sage"
           className="mb-6 flex items-center gap-2 text-sm text-[var(--color-sage-900)]"
@@ -79,9 +83,9 @@ export default async function TaxPage({
           accent="ink"
         />
         <Stat
-          label={`TDS withheld (${Math.round(TDS_RATE * 100)}%)`}
+          label={`TDS withheld (${TDS_RATE * 100}%)`}
           value={`Rs.${totalTds.toLocaleString("en-IN")}`}
-          sub="Sec. 194H, deposited to IT dept"
+          sub="Sec. 194-O, deposited to IT dept"
           accent="orange"
         />
         <Stat
@@ -97,7 +101,7 @@ export default async function TaxPage({
           <Card>
             <CardTitle>How TDS works on Stuviora</CardTitle>
             <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-              Under Section 194H, {Math.round(TDS_RATE * 100)}% TDS is withheld on
+              Under Section 194-O, {TDS_RATE * 100}% TDS is withheld on
               your earnings once your gross for the financial year crosses{" "}
               <span className="font-medium text-[var(--color-ink)]">
                 <Money value={TDS_THRESHOLD} />
@@ -189,7 +193,7 @@ export default async function TaxPage({
                       - <Money value={e.tdsWithheld} />
                     </div>
                     <div className="text-xs text-[var(--color-ink-faint)]">
-                      TDS at {Math.round(TDS_RATE * 100)}%
+                      TDS at {TDS_RATE * 100}%
                     </div>
                   </div>
                 </div>

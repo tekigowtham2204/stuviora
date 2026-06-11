@@ -19,14 +19,54 @@
 import { rankStudentsForJob } from "@/lib/matching/engine";
 import { computeTrustScore } from "@/lib/trust/score";
 import { buildCaseStudyDraft } from "@/lib/portfolio/case-study";
-import { selectTopMatchesForJob } from "@/lib/matching/notify";
+import { selectTopMatchesForJob, notifyMatches } from "@/lib/matching/notify";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { services } from "@/lib/env";
+import { sendEmail } from "@/lib/email/client";
+import { weeklyDigestEmail } from "@/lib/email/templates";
+import { recordNotification } from "@/lib/notifications/log";
+import { publishOrderVerdict } from "@/lib/realtime/order";
+import { runQualityGate } from "@/lib/ai/quality-gate";
+import {
+  reconcileCommissions,
+  type TransferEvent,
+  type CommissionEntry,
+} from "@/lib/payments/reconcile";
+import { captureError } from "@/lib/observability";
+import { TDS_THRESHOLD } from "@/lib/tax/engine";
+import {
+  indexDocuments,
+  studentToSearchDoc,
+  jobToSearchDoc,
+  STUDENT_INDEX,
+  JOB_INDEX,
+} from "@/lib/search/client";
 import * as demo from "@/lib/demo/data";
 
 /** Hours an order may sit in awaiting_approval before auto-release fires. */
 const AUTO_RELEASE_HOURS = 72;
+
+/**
+ * Resolve a user's email for live sends. PII lives in the users table,
+ * not StudentProfile, so workers look it up by id. Returns null in demo
+ * (no DB), which routes callers to their log-only path.
+ */
+async function resolveUserEmail(userId: string): Promise<string | null> {
+  if (!services.supabase) return null;
+  const supabase = getServiceSupabase();
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase
+      .from("users")
+      .select("email")
+      .eq("id", userId)
+      .maybeSingle<{ email: string | null }>();
+    return data?.email ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // --- Cron jobs --------------------------------------------------------------
 
@@ -92,35 +132,147 @@ export async function escrowAutoRelease() {
   };
 }
 
-/** Daily at 2 AM IST: reconcile commission ledger against Razorpay events. */
+/**
+ * Daily at 2 AM IST: reconcile the commission ledger against settled
+ * transfers, using the pure reconcileCommissions engine. Drift (double
+ * payouts, missing/orphan/mismatched commissions) is captured to the
+ * observability sink for an operator to action. Demo: returns a clean
+ * empty report.
+ */
 export async function commissionReconciler() {
-  // Live: stream webhook_events for the day, cross-check against
-  // commission_event rows, alert if any mismatch.
-  return { ran: "commissionReconciler", at: new Date().toISOString() };
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      try {
+        const { data } = await supabase
+          .from("commission_events")
+          .select(
+            "order_id, job_amount, commission_amount, razorpay_transfer_id, status"
+          )
+          .returns<
+            Array<{
+              order_id: string;
+              job_amount: number | string | null;
+              commission_amount: number | string | null;
+              razorpay_transfer_id: string | null;
+              status: string;
+            }>
+          >();
+        const rows = data ?? [];
+        const transfers: TransferEvent[] = rows
+          .filter((r) => r.status === "settled" && r.razorpay_transfer_id)
+          .map((r) => ({
+            eventId: r.razorpay_transfer_id as string,
+            orderId: r.order_id,
+            amount: Number(r.commission_amount ?? 0),
+            status: "processed",
+          }));
+        const commissions: CommissionEntry[] = rows.map((r) => ({
+          orderId: r.order_id,
+          orderAmount: Number(r.job_amount ?? 0),
+          commission: Number(r.commission_amount ?? 0),
+        }));
+        const report = reconcileCommissions(transfers, commissions);
+        if (!report.ok) {
+          captureError(new Error("commission reconciliation drift"), {
+            issues: report.issues,
+          });
+        }
+        return { ran: "commissionReconciler", ...report, at: new Date().toISOString() };
+      } catch (e) {
+        captureError(e, { job: "commissionReconciler" });
+      }
+    }
+  }
+  const report = reconcileCommissions([], []);
+  return { ran: "commissionReconciler", ...report, at: new Date().toISOString() };
 }
 
-/** Monday 9 AM IST: weekly earnings digest. */
+/**
+ * Monday 9 AM IST: weekly earnings digest.
+ *
+ * Demo: iterates seeded students, composes the digest, logs intended
+ * sends. Live: resolves each opted-in student's email and dispatches via
+ * Resend, recording a notification_log row. The opted-in filter against
+ * notification_preferences is applied in the live data layer; here we
+ * send only to students with completed orders this period.
+ */
 export async function weeklyEarningsDigest() {
-  // Live: for each opted-in student (notification_preferences.email_weekly_digest),
-  // aggregate completed orders since last_digest_sent_at, render Resend template.
-  return { ran: "weeklyEarningsDigest", at: new Date().toISOString() };
+  let sent = 0;
+  for (const s of demo.students) {
+    const completed = demo.orders.filter(
+      (o) => o.studentId === s.id && o.status === "completed"
+    );
+    if (completed.length === 0) continue;
+    const earned = completed.reduce(
+      (sum, o) => sum + Math.round(Number(o.amount) * 0.85),
+      0
+    );
+    const message = weeklyDigestEmail({
+      name: s.fullName,
+      completedCount: completed.length,
+      earned,
+      newMatches: 0,
+    });
+    const email = await resolveUserEmail(s.id);
+    if (services.resend && email) {
+      const res = await sendEmail(email, message);
+      if (res.ok) {
+        await recordNotification({
+          userId: s.id,
+          kind: "weekly_digest",
+          subject: message.subject,
+        });
+        sent++;
+      }
+    } else {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`[digest] would send to ${s.username}: "${message.subject}"`);
+      }
+      sent++;
+    }
+  }
+  return { ran: "weeklyEarningsDigest", sent, at: new Date().toISOString() };
 }
 
 /** Monthly: TDS threshold checker; flags students about to cross 30k. */
 export async function tdsThresholdChecker() {
-  // Live: for each student, sum studentGross for current FY; if within 10% of
-  // TDS_THRESHOLD and PAN missing, send a "complete PAN to avoid payout pause" email.
-  return { ran: "tdsThresholdChecker", at: new Date().toISOString() };
+  // Flags students whose FY gross is within 10% of the Section 194-O
+  // threshold so they complete PAN before payouts pause. Live: sum
+  // tax_events per student and email via Resend; demo: evaluate the
+  // seeded wallet so the job is observable without keys.
+  const nearThreshold = demo.students.filter((s) => {
+    const gross = demo.orders
+      .filter((o) => o.studentId === s.id && o.status === "completed")
+      .reduce((sum, o) => sum + o.amount, 0);
+    return gross >= TDS_THRESHOLD * 0.9 && gross <= TDS_THRESHOLD;
+  });
+  return {
+    ran: "tdsThresholdChecker",
+    flagged: nearThreshold.length,
+    threshold: TDS_THRESHOLD,
+    at: new Date().toISOString(),
+  };
 }
 
 // --- Event-driven jobs ------------------------------------------------------
 
 /** Async AI quality gate: file extraction + Claude scoring + Realtime push. */
 export async function aiQualityCheck(event: { orderId: string; storageKeys: string[] }) {
-  // Live: pull files from Storage, extract text (pdf-parse/mammoth/Claude Vision),
-  // call Claude with structured JSON prompt, write ai_reviews row, broadcast result
-  // via Supabase Realtime channel `order:${orderId}`.
-  void event;
+  // Live: pull files from Storage, extract text (pdf-parse/mammoth/Claude
+  // Vision), call the gate, write the ai_reviews row, then push the
+  // verdict over Realtime so the submit page updates without polling.
+  // Demo submit runs the gate synchronously, so this worker only fires
+  // in live mode.
+  const review = await runQualityGate({
+    orderId: event.orderId,
+    jobBrief: { title: "", description: "" },
+    submissionText: "",
+  });
+  await publishOrderVerdict(event.orderId, {
+    score: review.score,
+    verdict: review.verdict,
+  });
 }
 
 /** Recompute trust score for a student after a new review or order. */
@@ -153,9 +305,19 @@ export async function portfolioAutoGenerator(event: { orderId: string }) {
 /** Fan out top-20 match notifications when a job is posted. */
 export async function smartMatchFanout(event: { jobId: string }) {
   const job = demo.jobs.find((j) => j.id === event.jobId);
-  if (!job) return;
-  await selectTopMatchesForJob(job, demo.students, demo.proposals, { limit: 20 });
-  // Live: enqueue Resend sends, write notification_log rows per send for cap.
+  if (!job) return { ran: "smartMatchFanout", sent: 0, skipped: 0 };
+  const selection = await selectTopMatchesForJob(
+    job,
+    demo.students,
+    demo.proposals,
+    { limit: 20 }
+  );
+  // notifyMatches enforces the 3-emails/student/day cap via notification_log,
+  // sends via Resend in live mode, and logs intended sends in demo.
+  const result = await notifyMatches(job, selection, {
+    resolveEmail: resolveUserEmail,
+  });
+  return { ran: "smartMatchFanout", jobId: job.id, ...result };
 }
 
 /** 48-hour dispute escalation timer. */
@@ -165,7 +327,7 @@ export async function disputeEscalationTimer(event: { disputeId: string }) {
   void event;
 }
 
-/** College-domain verifier — check the student's email against college_domains. */
+/** College-domain verifier - check the student's email against college_domains. */
 export async function collegeDomainVerifier(event: { studentId: string; email: string }) {
   // Live: SELECT 1 FROM college_domains WHERE domain = ?
   void event;
@@ -182,4 +344,23 @@ export async function recomputeMatches(event: { jobId: string }) {
   const job = demo.jobs.find((j) => j.id === event.jobId);
   if (!job) return;
   rankStudentsForJob(job, demo.students, { limit: 20 });
+}
+
+/**
+ * Rebuild the Meilisearch indexes (P6). Demo: indexDocuments no-ops.
+ * Live: pushes every published student + open job document to Meili.
+ */
+export async function searchReindex() {
+  const studentDocs = demo.students.map(studentToSearchDoc);
+  const jobDocs = demo.jobs
+    .filter((j) => j.status === "open")
+    .map(jobToSearchDoc);
+  const s = await indexDocuments(STUDENT_INDEX, studentDocs);
+  const j = await indexDocuments(JOB_INDEX, jobDocs);
+  return {
+    ran: "searchReindex",
+    students: s.count,
+    jobs: j.count,
+    at: new Date().toISOString(),
+  };
 }

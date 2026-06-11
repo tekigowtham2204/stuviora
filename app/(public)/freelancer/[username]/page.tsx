@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ReportUser } from "@/components/feature/report-user";
 import {
   Star,
   BadgeCheck,
@@ -39,10 +40,13 @@ export async function generateMetadata({
 
 export default async function FreelancerProfilePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ report?: string }>;
 }) {
   const { username } = await params;
+  const { report } = await searchParams;
   const s = await getStudentByUsername(username);
   if (!s) notFound();
 
@@ -189,7 +193,7 @@ export default async function FreelancerProfilePage({
           </div>
 
           {/* Sticky right rail */}
-          <aside className="lg:sticky lg:top-24 lg:h-fit">
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
             <Card surface="glow" className="p-7">
               <div className="flex items-baseline gap-2">
                 <span className="font-display text-4xl font-medium tabular-nums text-[var(--color-ink)]">
@@ -220,6 +224,12 @@ export default async function FreelancerProfilePage({
                 <Row icon={BadgeCheck} label="College-verified identity" />
               </div>
             </Card>
+            <ReportUser
+              targetName={s.fullName}
+              context="profile"
+              returnTo={`/freelancer/${s.username}`}
+              flash={report}
+            />
           </aside>
         </div>
       </Container>

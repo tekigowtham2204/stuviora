@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { requireSession } from "@/lib/auth/dal";
+import { authErrorResponse } from "@/lib/auth/route-guard";
 import { financialYear } from "@/lib/tax/engine";
 
 /**
@@ -13,18 +14,23 @@ import { financialYear } from "@/lib/tax/engine";
  */
 
 const DEMO_ROWS = [
-  { order: "SV-1021", studentGross: 4250, tdsWithheld: 212.5, settledAt: "2026-05-15" },
-  { order: "SV-0998", studentGross: 6800, tdsWithheld: 340, settledAt: "2026-04-22" },
-  { order: "SV-0942", studentGross: 3200, tdsWithheld: 160, settledAt: "2026-03-30" },
+  { order: "SV-1021", studentGross: 4250, tdsWithheld: 5, settledAt: "2026-05-15" },
+  { order: "SV-0998", studentGross: 6800, tdsWithheld: 8, settledAt: "2026-04-22" },
+  { order: "SV-0942", studentGross: 3200, tdsWithheld: 4, settledAt: "2026-03-30" },
 ];
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   void req;
-  // requireSession will throw if the request is unauthenticated; the
-  // DAL handles redirecting at higher levels.
-  await requireSession();
+  // Unauthenticated requests get a clean 401 rather than an unhandled 500.
+  try {
+    await requireSession();
+  } catch (e) {
+    const res = authErrorResponse(e);
+    if (res) return res;
+    throw e;
+  }
   const fy = financialYear();
 
   const header = [

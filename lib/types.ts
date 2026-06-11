@@ -81,6 +81,8 @@ export interface Job {
   status: JobStatus;
   proposalsCount: number;
   createdAgo: string;
+  /** Epoch ms until which the job is featured (paid promotion, P9.1). */
+  featuredUntil?: number;
 }
 
 export interface Proposal {
