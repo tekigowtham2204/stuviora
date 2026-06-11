@@ -169,18 +169,68 @@
 }
 
 .dark {
+  /* Warm-night canvas */
   --color-background: #1f1812;
   --color-surface: #2b2218;
+  --color-surface-warm: #261e14;
   --color-surface-muted: #251d14;
   --color-surface-subtle: #1a140d;
+  --color-cream-deep: #322a1d;
+
+  /* Ink flips to warm cream text. --color-cream itself stays light:
+     it is the text colour on brown chrome (sidebar, dark sections),
+     which keeps its brown background in dark mode. The brown scale
+     stays dark for the same reason. */
+  --color-ink: #f3eddc;
+  --color-ink-muted: #c8bba6;
+  --color-ink-faint: #8e8273;
+  --color-line: #3a2f23;
+  --color-line-strong: #4a3d2d;
+
+  /* Legacy semantic names follow the same flip. */
   --color-foreground: #f3eddc;
   --color-muted: #c8bba6;
   --color-subtle: #8e8273;
   --color-border: #3a2f23;
   --color-border-strong: #4a3d2d;
-
   --color-elevated: #2b2218;
   --color-elevated-border: #3a2f23;
+
+  /* Accent tints: 50/100/200 are light washes in light mode, so they
+     become deep washes here; 700/900 are dark text on those washes,
+     so they become light. Base + deep accents read on both themes. */
+  --color-sage-50: #2a2e1c;
+  --color-sage-100: #343a23;
+  --color-sage-200: #49532f;
+  --color-sage-700: #c4d49a;
+  --color-sage-900: #dde8bf;
+
+  --color-yellow-50: #322a14;
+  --color-yellow-100: #41361a;
+  --color-yellow-200: #5b4b22;
+  --color-yellow-700: #ecd093;
+  --color-yellow-900: #f6e3b4;
+
+  --color-orange-50: #342316;
+  --color-orange-100: #432c1b;
+  --color-orange-200: #5d3c23;
+  --color-orange-700: #f4bd92;
+  --color-orange-900: #f8d0ae;
+
+  --color-danger-soft: #3c2320;
+  --color-danger-deep: #eda49b;
+
+  /* Bronze trust-tier chip (the only brown-100/700 consumers). */
+  --color-brown-100: #3b3226;
+  --color-brown-700: #cdbfa9;
+
+  /* Status mappings re-point at the flipped tints. */
+  --color-info: var(--color-ink);
+  --color-info-bg: var(--color-cream-deep);
+
+  /* Shadows read against the dark canvas. */
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.25), 0 8px 24px -16px rgba(0, 0, 0, 0.55);
+  --shadow-card-lg: 0 2px 0 rgba(0, 0, 0, 0.3), 0 24px 48px -24px rgba(0, 0, 0, 0.65);
 
   --hero-canvas-from: #1a140d;
   --hero-canvas-via: #251d14;
