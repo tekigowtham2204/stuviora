@@ -21,13 +21,22 @@ import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { currentStudent } from "@/lib/auth/session";
-import { listStudentOrders, getMatchesForStudent } from "@/lib/data/queries";
+import { listStudentOrders, getMatchesForStudent, listPortfolio } from "@/lib/data/queries";
+import { computeProfileCompleteness } from "@/lib/students/completeness";
+import { passedSkillBadges } from "@/lib/demo/state";
 import { TRUST_TIERS } from "@/lib/constants";
 
 export const metadata = { title: "Dashboard" };
 
 export default async function StudentDashboard() {
   const me = currentStudent();
+  const portfolio = await listPortfolio(me.id);
+  const completeness = computeProfileCompleteness({
+    student: me,
+    portfolioCount: portfolio.length,
+    hasSkillBadge: passedSkillBadges.size > 0,
+    hasPayoutDetails: true, // demo wallet has UPI on file
+  });
   const orders = await listStudentOrders(me.id);
   const { matches } = await getMatchesForStudent(me.id, { limit: 4 });
 
@@ -57,7 +66,38 @@ export default async function StudentDashboard() {
         subtitle="Here is what is happening with your work today, ranked by how well it fits your skills."
         action={
           <Button href="/student/matches" variant="primary">
-            <Sparkles className="h-4 w-4" /> See top matches
+            <Sparkles className="h-4 w-4" />
+
+      {completeness.percent < 100 && completeness.next && (
+        <Card surface="flat" tint="warm" className="mt-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-[var(--color-ink)]">
+                Profile {completeness.percent}% complete
+              </div>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">
+                Complete profiles get matched first. Next up: {completeness.next.label.toLowerCase()}.
+              </p>
+            </div>
+            <Button href={completeness.next.href} variant="sage" size="sm">
+              {completeness.next.label}
+            </Button>
+          </div>
+          <div
+            className="mt-3 h-2 overflow-hidden rounded-full bg-[var(--color-line)]"
+            role="progressbar"
+            aria-valuenow={completeness.percent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Profile completeness"
+          >
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[var(--color-sage)] to-[var(--color-sage-deep)]"
+              style={{ width: `${completeness.percent}%` }}
+            />
+          </div>
+        </Card>
+      )} See top matches
           </Button>
         }
       />

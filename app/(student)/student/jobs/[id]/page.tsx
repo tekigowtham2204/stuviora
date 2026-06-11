@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
-import { getJob, getClientById, listPortfolio } from "@/lib/data/queries";
+import { getJob, getClientById, listPortfolio, getMarketSignals } from "@/lib/data/queries";
 import { currentStudent } from "@/lib/auth/session";
 import { suggestPricing } from "@/lib/pricing/engine";
 import { writeProposalDraft } from "@/lib/proposals/writer";
@@ -39,6 +39,7 @@ export default async function StudentJobDetail({
     bidAmount: pricing.suggested,
   });
   const variants = buildProposalVariants(draft);
+  const market = (await getMarketSignals([job.id])).get(job.id);
   const ceiling = TIER_BUDGET_CEILING[me.trustTier];
   const bidCeiling = ceiling === Infinity ? null : ceiling;
 
@@ -63,6 +64,11 @@ export default async function StudentJobDetail({
               <span className="inline-flex items-center gap-1 text-[var(--color-ink-muted)]">
                 <Users className="h-4 w-4" /> {job.proposalsCount} proposals so far
               </span>
+              {market?.avgBid && (
+                <span className="inline-flex items-center gap-1 text-[var(--color-ink-muted)]">
+                  Avg bid <Money value={market.avgBid} compact />
+                </span>
+              )}
             </div>
             <div className="mt-6">
               <h2 className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--color-ink-muted)]">

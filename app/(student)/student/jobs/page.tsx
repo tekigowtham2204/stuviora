@@ -12,6 +12,8 @@ import { currentStudent } from "@/lib/auth/session";
 import { isFeaturedActive } from "@/lib/monetization/featured";
 import { KeyNav } from "@/components/feature/key-nav";
 import { saveSearch } from "@/app/actions/jobs";
+import { getMarketSignals } from "@/lib/data/queries";
+import { ShieldCheck } from "lucide-react";
 
 export const metadata = { title: "Browse jobs" };
 
@@ -24,6 +26,7 @@ export default async function StudentJobsPage({
   const me = currentStudent();
   // Ranked by the same engine as /student/matches so the two stay in sync.
   const { matches: ranked } = await getMatchesForStudent(me.id, { limit: 50, category });
+  const signals = await getMarketSignals(ranked.map((r) => r.job.id));
 
   return (
     <>
@@ -98,6 +101,14 @@ export default async function StudentJobsPage({
                         </span>
                         <span className="inline-flex items-center gap-1">
                           <Users className="h-3.5 w-3.5" /> {j.proposalsCount} proposals
+                        </span>
+                        {signals.get(j.id)?.avgBid && (
+                          <span className="inline-flex items-center gap-1">
+                            Avg bid <Money value={signals.get(j.id)!.avgBid!} compact />
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 text-[var(--color-sage-900)]">
+                          <ShieldCheck className="h-3.5 w-3.5" /> Escrow protected
                         </span>
                         <span>{j.createdAgo}</span>
                       </div>
