@@ -85,7 +85,7 @@ export function PortalShell({
 
   return (
     <div className="flex min-h-screen bg-[var(--color-background)]">
-      {/* Sidebar (desktop) — warm brown chrome, cream text */}
+      {/* Sidebar (desktop) - warm brown chrome, cream text */}
       <aside
         className={cn(
           "relative hidden w-72 shrink-0 flex-col bg-[var(--color-brown)] text-[var(--color-cream)] lg:flex",

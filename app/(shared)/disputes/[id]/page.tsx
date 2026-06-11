@@ -162,7 +162,7 @@ export default async function DisputeDetail({
               >
                 <Clock className="h-3.5 w-3.5" />
                 {escalated
-                  ? "Past the 48h window — escalated to an admin."
+                  ? "Past the 48h window - escalated to an admin."
                   : `~${left}h left in this ${ESCALATION_HOURS}h stage.`}
               </p>
             )}

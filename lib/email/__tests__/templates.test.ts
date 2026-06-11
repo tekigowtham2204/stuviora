@@ -11,7 +11,7 @@ import {
   type EmailMessage,
 } from "@/lib/email/templates";
 
-const DASH = /[–—]/; // en-dash or em-dash (hard ban in user copy)
+const DASH = /[\u2013\u2014]/; // en/em dash (hard ban in user copy)
 
 const all: EmailMessage[] = [
   welcomeEmail({ name: "Diya" }),

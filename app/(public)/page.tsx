@@ -46,7 +46,7 @@ export default function HomePage() {
 }
 
 // =============================================================================
-// 1. Hero — anchor with a live deal in progress
+// 1. Hero - anchor with a live deal in progress
 // =============================================================================
 
 function Hero() {
@@ -116,7 +116,7 @@ function Hero() {
               </div>
             </div>
 
-            {/* RIGHT — live deal in progress */}
+            {/* RIGHT - live deal in progress */}
             <div className="relative">
               <LiveDealCard />
             </div>
@@ -244,7 +244,7 @@ function LiveDealCard() {
 }
 
 // =============================================================================
-// 2. Proof strip — the platform's pulse, in numbers
+// 2. Proof strip - the platform's pulse, in numbers
 // =============================================================================
 
 function ProofStrip() {
@@ -277,7 +277,7 @@ function ProofStrip() {
 }
 
 // =============================================================================
-// 3. The moat — AI quality gate, with the live scoring panel
+// 3. The moat - AI quality gate, with the live scoring panel
 // =============================================================================
 
 function Moat() {
@@ -394,7 +394,7 @@ function ReviewPanel() {
 }
 
 // =============================================================================
-// 4. The loop — three beats
+// 4. The loop - three beats
 // =============================================================================
 
 function Loop() {
@@ -468,7 +468,7 @@ function Loop() {
 }
 
 // =============================================================================
-// 5. Real wins — three student stories
+// 5. Real wins - three student stories
 // =============================================================================
 
 function RealWins() {
@@ -587,7 +587,7 @@ function RealWins() {
 }
 
 // =============================================================================
-// 6. Trust pillars — compact 5-layer grid
+// 6. Trust pillars - compact 5-layer grid
 // =============================================================================
 
 function TrustPillars() {
@@ -644,7 +644,7 @@ function TrustPillars() {
 }
 
 // =============================================================================
-// 7. Closing CTA — brown, with concrete claim
+// 7. Closing CTA - brown, with concrete claim
 // =============================================================================
 
 function ClosingCta() {

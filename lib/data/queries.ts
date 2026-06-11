@@ -1035,7 +1035,7 @@ export async function getNotificationPreferences(userId: string) {
 }
 
 // ---------------------------------------------------------------------------
-// University cohort (P9 portal) — always scoped to ONE college.
+// University cohort (P9 portal) - always scoped to ONE college.
 // ---------------------------------------------------------------------------
 
 export interface CollegeCohort {

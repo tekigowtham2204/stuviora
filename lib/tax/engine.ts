@@ -1,5 +1,5 @@
 /**
- * Tax engine (M4) — India compliance on top of the 85/15 split.
+ * Tax engine (M4) - India compliance on top of the 85/15 split.
  *
  * Two taxes apply to a completed order:
  *
@@ -30,7 +30,7 @@ export interface OrderTax {
   jobAmount: number;
   commission: number; // 15% platform fee
   gstOnCommission: number; // 18% of commission
-  /** Commission inclusive of GST — what the ledger books as revenue in. */
+  /** Commission inclusive of GST - what the ledger books as revenue in. */
   commissionWithGst: number;
   studentGross: number; // 85% before TDS
   tdsWithheld: number; // 0.1% of gross once over threshold, else 0

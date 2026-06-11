@@ -1,4 +1,4 @@
-/** Domain constants for Stuviora — single source of truth for brand + taxonomy. */
+/** Domain constants for Stuviora - single source of truth for brand + taxonomy. */
 
 export const BRAND = {
   name: "Stuviora",

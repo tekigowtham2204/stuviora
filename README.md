@@ -1,5 +1,7 @@
 # Stuviora
 
+![CI](https://github.com/tekigowtham2204/stuviora/actions/workflows/ci.yml/badge.svg)
+
 **India's first AI-powered student freelancing platform.** Every deliverable passes an AI quality check before it reaches the client — _"Hire students. Trust the platform."_
 
 This repository is the **complete full product** (responsive web app), built phase by phase. See [`../STUVIORA_MASTER_PLAN.md`](../STUVIORA_MASTER_PLAN.md) for the strategy and milestone roadmap.

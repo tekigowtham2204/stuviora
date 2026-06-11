@@ -32,6 +32,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Copy ban (no em/en dashes in user-visible source)
+        run: |
+          EN=$(printf '\342\200\223'); EM=$(printf '\342\200\224')
+          if grep -rl -e "$EN" -e "$EM" app components lib inngest; then
+            echo "::error::en/em dashes found in user-visible source (hard ban, see AGENTS.md)"
+            exit 1
+          fi
+
       - name: Unit tests
         run: npm test
 

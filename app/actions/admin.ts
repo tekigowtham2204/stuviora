@@ -8,7 +8,7 @@ import type { DisputeResolution } from "@/lib/types";
 
 /**
  * Admin (founder) Server Actions. Every privileged action writes an immutable
- * row to `admin_actions` in live mode — the audit trail is non-negotiable.
+ * row to `admin_actions` in live mode - the audit trail is non-negotiable.
  * Demo paths validate inputs, then revalidate + redirect.
  */
 

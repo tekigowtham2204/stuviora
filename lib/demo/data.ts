@@ -51,7 +51,7 @@ export interface Wallet {
 }
 
 /**
- * Seeded demo dataset — powers the entire product before live keys exist.
+ * Seeded demo dataset - powers the entire product before live keys exist.
  * "You" are `DEMO_STUDENT` or `DEMO_CLIENT` depending on the role you pick.
  */
 
@@ -260,7 +260,7 @@ export const jobs: Job[] = [
     clientId: "cli-2",
     title: "Write 4 blog posts on B2B SaaS onboarding",
     description:
-      "We need 4 well-researched blog posts (1200–1500 words each) about SaaS user onboarding best practices. SEO-aware, friendly tone, with examples.",
+      "We need 4 well-researched blog posts (1200 to 1500 words each) about SaaS user onboarding best practices. SEO-aware, friendly tone, with examples.",
     categorySlug: "content-copywriting",
     budgetMin: 6000,
     budgetMax: 10000,
@@ -406,7 +406,7 @@ export const orders: Order[] = [
       originality: 99,
       issues: [],
       suggestions: [],
-      reviewerNote: "Excellent — on-brief, original, and polished.",
+      reviewerNote: "Excellent - on-brief, original, and polished.",
     },
   },
 ];
@@ -448,7 +448,7 @@ export const conversations: Conversation[] = [
     orderId: "SV-1039",
     withName: "Vikram Singh",
     withInitials: "VS",
-    lastMessage: "Great — the deduped sample looks right. Go ahead with the full run.",
+    lastMessage: "Great - the deduped sample looks right. Go ahead with the full run.",
     lastAgo: "20m ago",
     unread: 1,
   },
@@ -512,12 +512,12 @@ export const wallet: Wallet = {
 
 export const messages: Message[] = [
   { id: "m1", conversationId: "conv-1", fromSelf: false, body: "Hi! Sharing a 500-row sample of the cleaned CRM data.", ago: "1h ago" },
-  { id: "m2", conversationId: "conv-1", fromSelf: true, body: "Thanks — checking now.", ago: "45m ago" },
-  { id: "m3", conversationId: "conv-1", fromSelf: false, body: "Great — the deduped sample looks right. Go ahead with the full run.", ago: "20m ago" },
+  { id: "m2", conversationId: "conv-1", fromSelf: true, body: "Thanks - checking now.", ago: "45m ago" },
+  { id: "m3", conversationId: "conv-1", fromSelf: false, body: "Great - the deduped sample looks right. Go ahead with the full run.", ago: "20m ago" },
 ];
 
 // ---------------------------------------------------------------------------
-// M4 — Trust, disputes, tax & admin
+// M4 - Trust, disputes, tax & admin
 // ---------------------------------------------------------------------------
 
 const in18h = new Date(Date.now() + 18 * 3600_000).toISOString();
@@ -638,10 +638,10 @@ export const adminUsers: AdminUser[] = [
 ];
 
 export const adminActions: AdminAction[] = [
-  { id: "aa-1", adminName: "Founder", action: "Dispute resolved", target: "DSP-1980", reason: "Partial split — vectors delivered late", ago: "12d ago" },
+  { id: "aa-1", adminName: "Founder", action: "Dispute resolved", target: "DSP-1980", reason: "Partial split - vectors delivered late", ago: "12d ago" },
   { id: "aa-2", adminName: "Founder", action: "Account suspended", target: "Rohan Gupta", reason: "Two unresolved late deliveries; pending review", ago: "9d ago" },
   { id: "aa-3", adminName: "Founder", action: "Payout override", target: "SV-0992", reason: "Razorpay transfer stuck; manual release approved", ago: "15d ago" },
-  { id: "aa-4", adminName: "Founder", action: "Commission adjusted", target: "SV-0961", reason: "Goodwill — first-job money-back honored", ago: "20d ago" },
+  { id: "aa-4", adminName: "Founder", action: "Commission adjusted", target: "SV-0961", reason: "Goodwill - first-job money-back honored", ago: "20d ago" },
 ];
 
 export interface TrustHistoryEntry {

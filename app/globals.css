@@ -30,7 +30,7 @@
   --color-line: #ebe3cf;
   --color-line-strong: #d8cdb1;
 
-  /* Sage — primary brand accent */
+  /* Sage - primary brand accent */
   --color-sage-50: #f4f7e9;
   --color-sage-100: #e8eed3;
   --color-sage-200: #d3dea8;
@@ -40,7 +40,7 @@
   --color-sage-700: #6c8540;
   --color-sage-900: #3e4e22;
 
-  /* Yellow — premium, earnings */
+  /* Yellow - premium, earnings */
   --color-yellow-50: #fdf7e4;
   --color-yellow-100: #fbeec0;
   --color-yellow-200: #f8df8c;
@@ -49,7 +49,7 @@
   --color-yellow-700: #8a6712;
   --color-yellow-900: #4a3705;
 
-  /* Orange — primary CTA, alerts */
+  /* Orange - primary CTA, alerts */
   --color-orange-50: #fef1e3;
   --color-orange-100: #fde0c2;
   --color-orange-200: #fcc391;
@@ -58,7 +58,7 @@
   --color-orange-700: #a45a1f;
   --color-orange-900: #5e2f08;
 
-  /* Brown — dark surfaces, sidebar */
+  /* Brown - dark surfaces, sidebar */
   --color-brown-100: #ebe3d4;
   --color-brown-300: #b6a692;
   --color-brown-500: #7a6957;
@@ -116,7 +116,7 @@
   --color-info: var(--color-brown);
   --color-info-bg: var(--color-cream-deep);
 
-  /* Radii — generous */
+  /* Radii - generous */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -125,7 +125,7 @@
   --radius-card: 1.25rem;
   --radius-pill: 9999px;
 
-  /* Shadows — soft, warm */
+  /* Shadows - soft, warm */
   --shadow-card: 0 1px 0 rgba(71, 60, 51, 0.04), 0 8px 24px -16px rgba(71, 60, 51, 0.18);
   --shadow-card-lg: 0 2px 0 rgba(71, 60, 51, 0.05), 0 24px 48px -24px rgba(71, 60, 51, 0.22);
   --shadow-glow-orange: 0 8px 24px -8px rgba(253, 167, 105, 0.45);
@@ -248,7 +248,7 @@ body {
   text-wrap: pretty;
 }
 
-/* Soft warm bloom — used behind hero sections. One per viewport. */
+/* Soft warm bloom - used behind hero sections. One per viewport. */
 .aurora {
   position: absolute;
   inset: 0;
@@ -384,7 +384,7 @@ main.sv-page,
   animation: sv-page-in 0.42s var(--ease-out-strong) both;
 }
 
-/* Focus ring — warm ink, always visible. */
+/* Focus ring - warm ink, always visible. */
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;

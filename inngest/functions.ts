@@ -327,7 +327,7 @@ export async function disputeEscalationTimer(event: { disputeId: string }) {
   void event;
 }
 
-/** College-domain verifier — check the student's email against college_domains. */
+/** College-domain verifier - check the student's email against college_domains. */
 export async function collegeDomainVerifier(event: { studentId: string; email: string }) {
   // Live: SELECT 1 FROM college_domains WHERE domain = ?
   void event;

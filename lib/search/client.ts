@@ -72,7 +72,7 @@ function matchesJob(j: Job, needle: string) {
 }
 
 // ---------------------------------------------------------------------------
-// Live (Meilisearch) — indexer + id search
+// Live (Meilisearch) - indexer + id search
 // ---------------------------------------------------------------------------
 
 export interface StudentSearchDoc {

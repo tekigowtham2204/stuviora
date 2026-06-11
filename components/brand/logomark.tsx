@@ -6,7 +6,7 @@ interface LogomarkProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
- * Stuviora logomark. A stylized leaf-and-arc — the student (leaf) growing
+ * Stuviora logomark. A stylized leaf-and-arc - the student (leaf) growing
  * inside the platform's protective curve (arc). Two-tone friendly.
  */
 export function Logomark({ accent = "currentColor", className, ...props }: LogomarkProps) {
