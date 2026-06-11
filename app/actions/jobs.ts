@@ -10,6 +10,9 @@ import { requireRole } from "@/lib/auth/dal";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { services } from "@/lib/env";
 import * as demoState from "@/lib/demo/state";
+import { dispatchUserEmail } from "@/lib/email/dispatch";
+import { orderHiredEmail } from "@/lib/email/templates";
+import { getJob, listJobProposals, getStudentById } from "@/lib/data/queries";
 
 /**
  * Demo Server Actions for jobs + proposals.
@@ -100,8 +103,28 @@ export async function hireProposal(formData: FormData) {
   const session = await maybeSession();
   const jobId = (formData.get("jobId") as string) || "";
   const proposalId = (formData.get("proposalId") as string) || "";
-  void proposalId;
   trackEvent("proposal_hired", { jobId, proposalId }, session?.user.id);
+
+  // Blueprint flow: the hired student is notified with escrow context.
+  const [job, proposals] = await Promise.all([
+    getJob(jobId),
+    listJobProposals(jobId),
+  ]);
+  const hired = proposals.find((p) => p.id === proposalId);
+  if (job && hired) {
+    const hiredStudent = await getStudentById(hired.studentId);
+    await dispatchUserEmail(
+      hired.studentId,
+      orderHiredEmail({
+        studentName: hiredStudent?.fullName ?? "there",
+        jobTitle: job.title,
+        amount: hired.bidAmount,
+        orderId: proposalId,
+      }),
+      "order_update",
+      jobId
+    );
+  }
   revalidatePath(`/client/jobs/${jobId}/proposals`);
   // In live mode: create order in `pending_payment`, then redirect to payment page.
   redirect(`/client/payment/${proposalId || "demo"}`);

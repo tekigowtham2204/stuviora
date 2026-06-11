@@ -14,6 +14,8 @@ import { DEMO_UNIVERSITY } from "@/lib/demo/data";
 import { getCollegeForInviteCode } from "@/lib/partners/registry";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
+import { dispatchUserEmail } from "@/lib/email/dispatch";
+import { welcomeEmail } from "@/lib/email/templates";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   requireVerifiedCollege,
@@ -88,6 +90,19 @@ export async function startStudentSignup(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   if (!email) redirect("/auth/signup/student?error=missing_email");
 
+  // Blueprint: signup is rate limited per IP to stop OTP-send abuse.
+  const sip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const signupLimit = await rateLimit({
+    key: `signup-ip:${sip}`,
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!signupLimit.allowed) {
+    redirect("/auth/signup/student?error=rate_limited");
+  }
+
   // Invite/referral attribution: a college invite link carries ?ref=CODE,
   // which we resolve to the college so the student joins that cohort.
   const ref = ((formData.get("ref") as string) || "").trim();
@@ -142,6 +157,18 @@ export async function startStudentSignup(formData: FormData) {
 export async function startClientSignup(formData: FormData) {
   const email = ((formData.get("email") as string) || "").trim();
   if (!email) redirect("/auth/signup/client?error=missing_email");
+
+  const cip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "unknown";
+  const clientLimit = await rateLimit({
+    key: `signup-ip:${cip}`,
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!clientLimit.allowed) {
+    redirect("/auth/signup/client?error=rate_limited");
+  }
 
   if (services.supabase) {
     // Clients can use any business email; no college-domain check.
@@ -217,6 +244,9 @@ export async function verifyOtp(formData: FormData) {
         initials: initialsFrom(name),
       });
       trackEvent("email_verified", { role }, data!.user.id);
+      if (role !== "client") {
+        await dispatchUserEmail(data!.user.id, welcomeEmail({ name }), "order_update");
+      }
       if (role === "client") redirect("/client/onboarding");
       redirect("/student/onboarding");
     }

@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
+import { dispatchUserEmail } from "@/lib/email/dispatch";
+import { orderSubmittedEmail, payoutSettledEmail } from "@/lib/email/templates";
+import { getClientById } from "@/lib/data/queries";
+import { rateLimit } from "@/lib/ratelimit";
 import { dispatchPartnerWebhook } from "@/lib/partners/webhooks";
 import { getStudentById } from "@/lib/data/queries";
 import { getOrder } from "@/lib/data/queries";
@@ -22,6 +26,14 @@ export async function submitWork(formData: FormData) {
   const order = await getOrder(orderId);
   if (!order) redirect("/student/orders");
 
+  // Blueprint: the quality-check trigger is rate limited per order.
+  const limit = await rateLimit({
+    key: `submitWork:${orderId}`,
+    max: 5,
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) redirect(`/student/orders/${orderId}?error=rate_limited`);
+
   // Live: upload files to Storage, fire Inngest 'ai/quality.check'.
   // Demo: run gate synchronously so UI can show the result immediately.
   await runQualityGate({
@@ -29,6 +41,19 @@ export async function submitWork(formData: FormData) {
     jobBrief: { title: order.jobTitle, description: notes || "Submitted work for review." },
     submissionText: notes,
   });
+
+  // Blueprint flow: client notified that a delivery is ready.
+  const client = await getClientById(order!.clientId);
+  await dispatchUserEmail(
+    order!.clientId,
+    orderSubmittedEmail({
+      clientName: client?.fullName ?? "there",
+      jobTitle: order!.jobTitle,
+      orderId,
+    }),
+    "order_update",
+    orderId
+  );
 
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath(`/client/orders/${orderId}`);
@@ -73,9 +98,22 @@ export async function approveOrder(formData: FormData) {
   // Data moat: the client's approval labels the gate's decision.
   await recordHumanOutcome(orderId, "approved");
 
+  const student = await getStudentById(order!.studentId);
+
+  // Blueprint flow: student notified the payout settled.
+  await dispatchUserEmail(
+    order!.studentId,
+    payoutSettledEmail({
+      studentName: student?.fullName ?? "there",
+      amount: Math.round(order!.amount * 0.85),
+      orderTitle: order!.jobTitle,
+    }),
+    "payout_settled",
+    orderId
+  );
+
   // Partner milestone: a student's first completed job notifies their
   // college's placement cell (signed webhook; demo logs).
-  const student = await getStudentById(order!.studentId);
   if (student && student.jobsCompleted === 0) {
     await dispatchPartnerWebhook("student.completed_first_job", student.college, {
       username: student.username,

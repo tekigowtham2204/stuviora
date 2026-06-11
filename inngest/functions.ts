@@ -34,6 +34,7 @@ import {
   type CommissionEntry,
 } from "@/lib/payments/reconcile";
 import { captureError } from "@/lib/observability";
+import { TDS_THRESHOLD } from "@/lib/tax/engine";
 import {
   indexDocuments,
   studentToSearchDoc,
@@ -236,9 +237,22 @@ export async function weeklyEarningsDigest() {
 
 /** Monthly: TDS threshold checker; flags students about to cross 30k. */
 export async function tdsThresholdChecker() {
-  // Live: for each student, sum studentGross for current FY; if within 10% of
-  // TDS_THRESHOLD and PAN missing, send a "complete PAN to avoid payout pause" email.
-  return { ran: "tdsThresholdChecker", at: new Date().toISOString() };
+  // Flags students whose FY gross is within 10% of the Section 194-O
+  // threshold so they complete PAN before payouts pause. Live: sum
+  // tax_events per student and email via Resend; demo: evaluate the
+  // seeded wallet so the job is observable without keys.
+  const nearThreshold = demo.students.filter((s) => {
+    const gross = demo.orders
+      .filter((o) => o.studentId === s.id && o.status === "completed")
+      .reduce((sum, o) => sum + o.amount, 0);
+    return gross >= TDS_THRESHOLD * 0.9 && gross <= TDS_THRESHOLD;
+  });
+  return {
+    ran: "tdsThresholdChecker",
+    flagged: nearThreshold.length,
+    threshold: TDS_THRESHOLD,
+    at: new Date().toISOString(),
+  };
 }
 
 // --- Event-driven jobs ------------------------------------------------------
