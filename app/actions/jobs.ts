@@ -33,8 +33,33 @@ export async function postJob(formData: FormData) {
   if (!limit.allowed) redirect("/client/post-job?error=rate_limited");
 
   const title = (formData.get("title") as string)?.trim() || "Untitled job";
-  // In live mode: insert into `jobs` with the client_id from session.
-  void title;
+  const description = ((formData.get("description") as string) || "").trim();
+  const category = (formData.get("category") as string) || "";
+  const budgetMin = Number(formData.get("budgetMin") || 0) || null;
+  const budgetMax = Number(formData.get("budgetMax") || 0) || null;
+  const deadlineDays = Number(formData.get("deadlineDays") || 7);
+
+  // Live write: insert the job for the session client. Demo: in-memory only.
+  if (services.supabase && session) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const { data: cat } = await supabase
+        .from("job_categories")
+        .select("id")
+        .eq("slug", category)
+        .maybeSingle<{ id: string }>();
+      await supabase.from("jobs").insert({
+        client_id: session.user.id,
+        category_id: cat?.id ?? null,
+        title,
+        description,
+        budget_min: budgetMin,
+        budget_max: budgetMax,
+        deadline: new Date(Date.now() + deadlineDays * 86400_000).toISOString(),
+        status: "open",
+      });
+    }
+  }
 
   // P9.1 featured listing: if the client picked a plan, charge it.
   // Live path: create a Razorpay order for plan.amountPaise with
@@ -67,8 +92,6 @@ export async function submitProposal(formData: FormData) {
   if (!limit.allowed) redirect(`/student/jobs/${jobId}?error=rate_limited`);
 
   const coverLetter = ((formData.get("coverLetter") as string) || "").trim();
-  void formData.get("bidAmount");
-  void formData.get("deliveryDays");
 
   // #43 save-as-template: store the pitch for reuse on future bids.
   if (formData.get("saveTemplate") === "on" && coverLetter && session) {
@@ -93,6 +116,24 @@ export async function submitProposal(formData: FormData) {
     trackEvent("proposal_template_saved", { jobId }, session.user.id);
   }
 
+  // Live write: insert the proposal (unique per job+student).
+  if (services.supabase && session) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase.from("proposals").upsert(
+        {
+          job_id: jobId,
+          student_id: session.user.id,
+          cover_letter: coverLetter,
+          bid_amount: Number(formData.get("bidAmount") || 0),
+          delivery_days: Number(formData.get("deliveryDays") || 0) || null,
+          status: "submitted",
+        },
+        { onConflict: "job_id,student_id" }
+      );
+    }
+  }
+
   trackEvent("proposal_submitted", { jobId }, session?.user.id);
   revalidatePath(`/student/jobs/${jobId}`);
   revalidatePath("/student/proposals");
@@ -111,6 +152,30 @@ export async function hireProposal(formData: FormData) {
     listJobProposals(jobId),
   ]);
   const hired = proposals.find((p) => p.id === proposalId);
+
+  // Live write: create the order in pending_payment; the payment page +
+  // webhook take it from there.
+  if (services.supabase && job && hired) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase.from("orders").insert({
+        job_id: job.id,
+        proposal_id: hired.id,
+        client_id: job.clientId,
+        student_id: hired.studentId,
+        amount: hired.bidAmount,
+        status: "pending_payment",
+        deadline: new Date(
+          Date.now() + (hired.deliveryDays || 7) * 86400_000
+        ).toISOString(),
+      });
+      await supabase
+        .from("proposals")
+        .update({ status: "accepted" })
+        .eq("id", hired.id);
+    }
+  }
+
   if (job && hired) {
     const hiredStudent = await getStudentById(hired.studentId);
     await dispatchUserEmail(
@@ -190,4 +255,15 @@ export async function blockClient(formData: FormData) {
   trackEvent("client_blocked", { clientId }, session.user.id);
   revalidatePath("/student/jobs");
   redirect(jobId ? "/student/jobs?blocked=1" : "/student/jobs");
+}
+
+/** #21 saved search: remember a category filter for alerting (P5 emails). */
+export async function saveSearch(formData: FormData) {
+  const session = await requireRole("student");
+  const category = ((formData.get("category") as string) || "all").trim();
+  demoState.savedSearches.add(category);
+  trackEvent("search_saved", { category }, session.user.id);
+  const qs = new URLSearchParams({ search: "saved" });
+  if (category !== "all") qs.set("category", category);
+  redirect(`/student/jobs?${qs.toString()}`);
 }

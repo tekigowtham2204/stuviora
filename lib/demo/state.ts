@@ -40,3 +40,18 @@ export interface UserReport {
   createdAt: number;
 }
 export const userReports: UserReport[] = [];
+
+/** Saved search filters (#21): category slugs the student saved. */
+export const savedSearches = new Set<string>();
+
+/** Auto-withdraw threshold in rupees; null = off (#34). */
+export const autoWithdraw: { threshold: number | null } = { threshold: null };
+
+/** Imported portfolio drafts awaiting publish (#37/#38). */
+export interface PortfolioDraft {
+  id: string;
+  title: string;
+  outcome: string;
+  source: "github" | "profile";
+}
+export const portfolioDrafts: PortfolioDraft[] = [];

@@ -39,6 +39,7 @@ export function ProposalForm({
   const [variantIndex, setVariantIndex] = useState(0);
   const [pitch, setPitch] = useState(variants[0]?.text ?? "");
   const [bid, setBid] = useState(String(pricing.suggested));
+  const [preview, setPreview] = useState(false);
 
   const words = countWords(pitch);
   const wordsInRange = words >= WORD_TARGET_MIN && words <= WORD_TARGET_MAX;
@@ -80,6 +81,14 @@ export function ProposalForm({
             <Badge tone="orange">
               <Sparkles className="h-3 w-3" /> AI-drafted
             </Badge>
+            <button
+              type="button"
+              onClick={() => setPreview((p) => !p)}
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--color-line-strong)] px-2.5 py-1 text-xs font-medium text-[var(--color-ink)] hover:bg-[var(--color-surface-warm)]"
+              aria-pressed={preview}
+            >
+              {preview ? "Edit" : "Preview"}
+            </button>
             {canRegenerate && (
               <button
                 type="button"
@@ -91,13 +100,23 @@ export function ProposalForm({
             )}
           </div>
         </div>
-        <Textarea
-          id="coverLetter"
-          name="coverLetter"
-          rows={8}
-          value={pitch}
-          onChange={(e) => setPitch(e.target.value)}
-        />
+        {preview ? (
+          <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-warm)] p-4 text-sm leading-relaxed text-[var(--color-ink)]">
+            <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
+              How the client sees it
+            </div>
+            <p className="whitespace-pre-line">{pitch}</p>
+            <textarea name="coverLetter" value={pitch} readOnly hidden />
+          </div>
+        ) : (
+          <Textarea
+            id="coverLetter"
+            name="coverLetter"
+            rows={8}
+            value={pitch}
+            onChange={(e) => setPitch(e.target.value)}
+          />
+        )}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-[var(--color-ink-muted)]">
             The pitch stays yours. Edit before sending: clients respond to

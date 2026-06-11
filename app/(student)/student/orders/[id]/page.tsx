@@ -43,6 +43,18 @@ export default async function StudentOrderDetail({
 
       <OrderTimeline status={order.status} />
 
+      {order.status === "active" && (
+        <Card surface="flat" tint="sage" className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-[var(--color-sage-900)]">
+            Before you start: a quick check-in message catches brief
+            misunderstandings early. Most disputes trace back to silence.
+          </span>
+          <Button href={`/messages`} variant="sage" size="sm">
+            Send a first check-in
+          </Button>
+        </Card>
+      )}
+
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">
           <Card>
