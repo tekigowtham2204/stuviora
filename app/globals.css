@@ -140,6 +140,21 @@
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Semantic tokens. These MUST live inside @theme so Tailwind v4
+     generates their utilities (text-muted, border-border-strong,
+     bg-surface-muted, etc.). The .dark block below overrides the same
+     names so the utilities flip automatically in dark mode. */
+  --color-background: var(--color-cream);
+  --color-surface-muted: var(--color-surface-warm);
+  --color-surface-subtle: var(--color-cream-deep);
+  --color-foreground: var(--color-ink);
+  --color-muted: var(--color-ink-muted);
+  --color-subtle: var(--color-ink-faint);
+  --color-border: var(--color-line);
+  --color-border-strong: var(--color-line-strong);
+  --color-elevated: #ffffff;
+  --color-elevated-border: var(--color-line);
 }
 
 /* ============================================================
@@ -148,18 +163,8 @@
    warm-night dark theme.
    ============================================================ */
 :root {
-  --color-background: var(--color-cream);
-  --color-surface: #ffffff;
-  --color-surface-muted: var(--color-surface-warm);
-  --color-surface-subtle: var(--color-cream-deep);
-  --color-foreground: var(--color-ink);
-  --color-muted: var(--color-ink-muted);
-  --color-subtle: var(--color-ink-faint);
-  --color-border: var(--color-line);
-  --color-border-strong: var(--color-line-strong);
-
-  --color-elevated: #ffffff;
-  --color-elevated-border: var(--color-line);
+  /* Semantic color tokens now live in @theme (above) so their utilities
+     generate; only the non-utility canvas vars remain here. */
 
   /* Hero canvas: warm cream with sage radial bloom */
   --hero-canvas-from: var(--color-cream);
