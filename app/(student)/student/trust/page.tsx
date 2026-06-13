@@ -166,6 +166,12 @@ export default async function TrustPage() {
           </Card>
 
           <div>
+            <div className="mb-4">
+              <div className="text-xs uppercase tracking-[0.14em] text-[var(--color-ink-muted)]">
+                Score trend
+              </div>
+              <Sparkline points={history.map((x) => x.score).reverse()} />
+            </div>
             <h2 className="mb-3 font-display text-xl font-medium text-[var(--color-ink)]">
               Recent movements
             </h2>
@@ -218,5 +224,37 @@ export default async function TrustPage() {
         </div>
       </div>
     </>
+  );
+}
+
+function Sparkline({ points }: { points: number[] }) {
+  if (points.length < 2) return null;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const coords = points
+    .map((v, i) => {
+      const x = (i / (points.length - 1)) * 100;
+      const y = 28 - ((v - min) / range) * 24;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <svg
+      viewBox="0 0 100 32"
+      className="h-8 w-full"
+      role="img"
+      aria-label={`Trust score trend from ${points[0]} to ${points[points.length - 1]}`}
+      preserveAspectRatio="none"
+    >
+      <polyline
+        points={coords}
+        fill="none"
+        stroke="var(--color-sage-deep)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

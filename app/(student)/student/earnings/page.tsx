@@ -15,13 +15,19 @@ import { Stat } from "@/components/ui/stat";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Money } from "@/components/ui/money";
 import { getStudentWallet } from "@/lib/data/queries";
-import { withdraw } from "@/app/actions/services";
+import { withdraw, setAutoWithdraw } from "@/app/actions/services";
+import { autoWithdraw } from "@/lib/demo/state";
 import { TDS_THRESHOLD, TDS_RATE } from "@/lib/tax/engine";
 import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Earnings" };
 
-export default async function EarningsPage() {
+export default async function EarningsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ withdrawn?: string; auto?: string }>;
+}) {
+  const { withdrawn, auto } = await searchParams;
   const w = await getStudentWallet();
 
   // TDS proximity: warn the student BEFORE the first ₹30k cross, so the
@@ -41,6 +47,21 @@ export default async function EarningsPage() {
         title="Earnings."
         subtitle="Your wallet, what is in escrow, and the lifetime view."
       />
+
+      {withdrawn && Number(withdrawn) > 0 && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mt-6 text-sm text-[var(--color-sage-900)]">
+          Withdrawal of Rs.{Number(withdrawn).toLocaleString("en-IN")} is on its
+          way. If this was your first one: that is real money earned from real
+          work. Tell your friends how it felt.
+        </Card>
+      )}
+      {auto && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mt-6 text-sm text-[var(--color-sage-900)]">
+          {auto === "off"
+            ? "Auto-withdraw is off."
+            : `Auto-withdraw is on: your balance sweeps to your account whenever it crosses Rs.${Number(auto).toLocaleString("en-IN")}.`}
+        </Card>
+      )}
 
       {(tdsApplies || tdsClose) && (
         <Card
@@ -215,6 +236,30 @@ export default async function EarningsPage() {
               <Button type="submit" variant="primary" className="w-full">
                 Request withdrawal
               </Button>
+            </form>
+            <form action={setAutoWithdraw} className="mt-5 space-y-2 border-t border-[var(--color-line)] pt-4">
+              <label className="flex items-center gap-2 text-sm text-[var(--color-ink)]">
+                <input
+                  type="checkbox"
+                  name="enabled"
+                  defaultChecked={autoWithdraw.threshold !== null}
+                  className="h-4 w-4 accent-[var(--color-sage-deep)]"
+                />
+                Auto-withdraw when balance crosses
+              </label>
+              <div className="flex items-center gap-2">
+                <Input
+                  name="threshold"
+                  type="number"
+                  min={100}
+                  defaultValue={autoWithdraw.threshold ?? 5000}
+                  className="h-10"
+                />
+                <Button type="submit" variant="secondary" size="sm">Save</Button>
+              </div>
+              <p className="text-xs text-[var(--color-ink-faint)]">
+                No more logging in just to tap Withdraw.
+              </p>
             </form>
           </Card>
         </aside>

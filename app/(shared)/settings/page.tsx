@@ -1,4 +1,4 @@
-import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck, Receipt, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck, Receipt, AlertTriangle, KeyRound, MonitorSmartphone } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,15 +9,16 @@ import { currentStudent, currentClient } from "@/lib/auth/session";
 import { getNotificationPreferences } from "@/lib/data/queries";
 import { saveNotificationPreferences } from "@/app/actions/notifications";
 import { saveBilling } from "@/app/actions/billing";
+import { enrollTotp, signOutOtherDevices } from "@/app/actions/security";
 
 export const metadata = { title: "Settings" };
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ saved?: string; error?: string }>;
+  searchParams: Promise<{ saved?: string; error?: string; security?: string }>;
 }) {
-  const { saved, error } = await searchParams;
+  const { saved, error, security } = await searchParams;
   const session = await getSession();
   const isClient = session?.role === "client";
   const me = isClient ? currentClient() : currentStudent();
@@ -38,6 +39,19 @@ export default async function SettingsPage({
         </Card>
       )}
 
+
+      {security && (
+        <Card role="status" aria-live="polite" surface="flat" tint="sage" className="mb-6 text-sm text-[var(--color-sage-900)]">
+          {security === "mfa_demo" &&
+            "Two-factor setup recorded. With live keys this shows a QR code to scan in your authenticator app."}
+          {security === "mfa_enrolled" &&
+            "Two-factor enrollment started. Scan the QR code shown by your authenticator app to finish."}
+          {security === "mfa_failed" &&
+            "Could not start two-factor enrollment. Try again in a moment."}
+          {security === "sessions_cleared" &&
+            "Signed out everywhere else. Only this device stays logged in."}
+        </Card>
+      )}
       {error === "invalid_gstin" && (
         <Card surface="flat" tint="warm" className="mb-6 flex items-start gap-2 border-[var(--color-orange-200)] text-sm">
           <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--color-orange-900)]" />
@@ -86,7 +100,7 @@ export default async function SettingsPage({
             {!isClient && (
               <>
                 <Row label="College verification" value="Verified" badge="sage" />
-                <Row label="PAN (for TDS)" value="Add to receive payouts above Rs.30k/yr" />
+                <Row label="PAN (for TDS)" value="Add before gross earnings cross Rs.5L/yr (TDS)" />
               </>
             )}
             {isClient && (
@@ -179,6 +193,43 @@ export default async function SettingsPage({
           </form>
         </Card>
       </div>
+
+      <Card className="mt-6">
+        <div className="flex items-center gap-2">
+          <KeyRound className="h-4 w-4 text-[var(--color-sage-deep)]" />
+          <CardTitle>Security</CardTitle>
+        </div>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <div>
+            <div className="text-sm font-medium text-[var(--color-ink)]">
+              Two-factor authentication
+            </div>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+              Protect payouts with a one-time code from an authenticator app.
+              Strongly recommended once you have earnings.
+            </p>
+            <form action={enrollTotp} className="mt-3">
+              <Button type="submit" variant="sage" size="sm">
+                Set up 2FA
+              </Button>
+            </form>
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-ink)]">
+              <MonitorSmartphone className="h-4 w-4" /> Active sessions
+            </div>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+              Left yourself logged in on a hostel or lab computer? Sign out
+              everywhere except this device.
+            </p>
+            <form action={signOutOtherDevices} className="mt-3">
+              <Button type="submit" variant="secondary" size="sm">
+                Sign out other devices
+              </Button>
+            </form>
+          </div>
+        </div>
+      </Card>
     </>
   );
 }

@@ -243,6 +243,10 @@ When a feature moves up or gets cut, log the date + the reason here.
 | Date | Feature | Decision | Reason |
 |---|---|---|---|
 | 2026-06-06 | Native mobile | Promoted from v2 to v1 (M7.3) | User explicit decision in plan-mode session. |
+| 2026-06-06 | Skill assessment | Promoted to P0 blocker | Landing promised it; shipped 2026-06-11 (6-category MCQ, server-graded). |
+| 2026-06-06 | Import-from-Upwork | Promoted to v1 | Shipped 2026-06-12 as /student/import (GitHub repos + paste-profile extraction). |
+| 2026-06-06 | Time-tracking | Rejected | Project-based fixed-fee model; a tracker conflicts with it. |
+| 2026-06-12 | Bulk-bid (#44) | Deferred to v1.1 | P2; checkbox-multiselect conflicts with the card-link UX. Needs a design pass; templates (#43) cover most of the value. |
 | 2026-06-06 | OpenRouter via Claude Sonnet 4.5 | Adopted for all LLM calls | User-provided integration; replaces direct Anthropic SDK. |
 | 2026-06-06 | Video calls in messages | Deferred to v1.2 | Not load-bearing for the core loop. |
 | 2026-06-07 | Matches pagination (audit #41) | Shipped | Engine + queries now return `{ matches, total }`; pagination primitive added. |

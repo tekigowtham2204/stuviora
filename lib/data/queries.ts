@@ -17,6 +17,7 @@ import {
 import { rollupCohorts, type CohortRow } from "@/lib/university/engine";
 import { sortFeaturedFirst } from "@/lib/monetization/featured";
 import { blockedClientIds } from "@/lib/demo/state";
+import { marketSignals, type MarketSignal } from "@/lib/jobs/market";
 import { buildRoster, type RosterEntry } from "@/lib/university/roster";
 import { services } from "@/lib/env";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -1083,4 +1084,15 @@ export async function listConsentedRoster(
     demo.SHARE_WITH_COLLEGE_IDS,
     completedEarnings
   );
+}
+
+/**
+ * Market signals for a set of jobs (freelancer.com-style "N bids,
+ * avg Rs.X"). Demo computes over seeded proposals; live aggregates
+ * proposals by job_id in one query.
+ */
+export async function getMarketSignals(
+  jobIds: string[]
+): Promise<Map<string, MarketSignal>> {
+  return marketSignals(jobIds, demo.proposals);
 }

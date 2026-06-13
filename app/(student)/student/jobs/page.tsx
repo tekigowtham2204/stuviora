@@ -10,18 +10,23 @@ import { getMatchesForStudent } from "@/lib/data/queries";
 import { SERVICE_CATEGORIES } from "@/lib/constants";
 import { currentStudent } from "@/lib/auth/session";
 import { isFeaturedActive } from "@/lib/monetization/featured";
+import { KeyNav } from "@/components/feature/key-nav";
+import { saveSearch } from "@/app/actions/jobs";
+import { getMarketSignals } from "@/lib/data/queries";
+import { ShieldCheck } from "lucide-react";
 
 export const metadata = { title: "Browse jobs" };
 
 export default async function StudentJobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; search?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, search } = await searchParams;
   const me = currentStudent();
   // Ranked by the same engine as /student/matches so the two stay in sync.
   const { matches: ranked } = await getMatchesForStudent(me.id, { limit: 50, category });
+  const signals = await getMarketSignals(ranked.map((r) => r.job.id));
 
   return (
     <>
@@ -43,6 +48,27 @@ export default async function StudentJobsPage({
         ))}
       </div>
 
+      <div className="mb-5 flex items-center gap-3">
+        <form action={saveSearch}>
+          <input type="hidden" name="category" value={category ?? "all"} />
+          <button
+            type="submit"
+            className="rounded-full border border-[var(--color-line-strong)] px-3 py-1.5 text-xs font-medium text-[var(--color-ink)] hover:bg-[var(--color-surface-warm)]"
+          >
+            Save this search
+          </button>
+        </form>
+        {search === "saved" && (
+          <span role="status" aria-live="polite" className="text-xs text-[var(--color-sage-900)]">
+            Saved. You will get match alerts for this filter once email lands.
+          </span>
+        )}
+        <span className="ml-auto hidden text-[11px] text-[var(--color-ink-faint)] sm:block">
+          Tip: j / k to move between jobs
+        </span>
+      </div>
+      <KeyNav />
+
       {ranked.length === 0 ? (
         <EmptyState
           icon={<Sparkles className="h-6 w-6" />}
@@ -53,7 +79,7 @@ export default async function StudentJobsPage({
         <div className="grid gap-4">
           {ranked.map(({ job: j, breakdown }, i) => (
             <Reveal key={j.id} index={i}>
-              <Link href={`/student/jobs/${j.id}`}>
+              <Link href={`/student/jobs/${j.id}`} data-keynav className="rounded-[var(--radius-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-sage-deep)]">
                 <Card className="transition-all hover:border-[var(--color-sage)] hover:shadow-[var(--shadow-card-lg)]">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
@@ -75,6 +101,14 @@ export default async function StudentJobsPage({
                         </span>
                         <span className="inline-flex items-center gap-1">
                           <Users className="h-3.5 w-3.5" /> {j.proposalsCount} proposals
+                        </span>
+                        {signals.get(j.id)?.avgBid && (
+                          <span className="inline-flex items-center gap-1">
+                            Avg bid <Money value={signals.get(j.id)!.avgBid!} compact />
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1 text-[var(--color-sage-900)]">
+                          <ShieldCheck className="h-3.5 w-3.5" /> Escrow protected
                         </span>
                         <span>{j.createdAgo}</span>
                       </div>
