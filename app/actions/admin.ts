@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { requireRole } from "@/lib/auth/dal";
 import { getDispute } from "@/lib/data/queries";
 import { assertTransition, resolveOutcome } from "@/lib/disputes/engine";
 import type { DisputeResolution } from "@/lib/types";
@@ -9,10 +10,12 @@ import type { DisputeResolution } from "@/lib/types";
 /**
  * Admin (founder) Server Actions. Every privileged action writes an immutable
  * row to `admin_actions` in live mode - the audit trail is non-negotiable.
- * Demo paths validate inputs, then revalidate + redirect.
+ * Demo paths validate inputs, then revalidate + redirect. Each action first
+ * calls requireRole("admin") so only the founder can reach these mutations.
  */
 
 export async function resolveDispute(formData: FormData) {
+  await requireRole("admin");
   const disputeId = (formData.get("disputeId") as string) || "";
   const resolution = (formData.get("resolution") as DisputeResolution) || "pending";
   const reason = (formData.get("reason") as string) || "";
@@ -39,6 +42,7 @@ export async function resolveDispute(formData: FormData) {
 }
 
 export async function overridePayout(formData: FormData) {
+  await requireRole("admin");
   const orderId = (formData.get("orderId") as string) || "";
   const reason = (formData.get("reason") as string) || "";
   void reason;
@@ -50,6 +54,7 @@ export async function overridePayout(formData: FormData) {
 }
 
 export async function toggleUserActive(formData: FormData) {
+  await requireRole("admin");
   const userId = (formData.get("userId") as string) || "";
   const activate = formData.get("activate") === "true";
   const reason = (formData.get("reason") as string) || "";

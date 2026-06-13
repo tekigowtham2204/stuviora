@@ -39,7 +39,19 @@ async function verifySignature(rawBody: string, signature: string | null) {
   const expected = Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  return expected === signature;
+  // Constant-time compare so a forged signature cannot be brute-forced
+  // by timing the response. Runtime-agnostic (no Node Buffer needed).
+  return timingSafeEqualStr(expected, signature);
+}
+
+/** Length-checked, constant-time string comparison. */
+function timingSafeEqualStr(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 interface RazorpayWebhookEvent {

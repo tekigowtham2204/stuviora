@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { requireRole } from "@/lib/auth/dal";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
@@ -21,10 +22,12 @@ import { getServiceSupabase } from "@/lib/supabase/server";
  */
 
 export async function submitWork(formData: FormData) {
+  const session = await requireRole("student");
   const orderId = (formData.get("orderId") as string) || "";
   const notes = (formData.get("notes") as string) || "";
   const order = await getOrder(orderId);
-  if (!order) redirect("/student/orders");
+  // Only the student who owns the order may submit work for it.
+  if (!order || order.studentId !== session.user.id) redirect("/student/orders");
 
   // Blueprint: the quality-check trigger is rate limited per order.
   const limit = await rateLimit({
@@ -61,9 +64,11 @@ export async function submitWork(formData: FormData) {
 }
 
 export async function approveOrder(formData: FormData) {
+  const session = await requireRole("client");
   const orderId = (formData.get("orderId") as string) || "";
   const order = await getOrder(orderId);
-  if (!order) redirect("/client/orders");
+  // Only the client who funded the order may approve it and release escrow.
+  if (!order || order.clientId !== session.user.id) redirect("/client/orders");
 
   // Look up the student's linked Route account (set when student first
   // configures payouts). releaseEscrow handles the demo + live branches
@@ -128,7 +133,10 @@ export async function approveOrder(formData: FormData) {
 }
 
 export async function requestRevision(formData: FormData) {
+  const session = await requireRole("client");
   const orderId = (formData.get("orderId") as string) || "";
+  const order = await getOrder(orderId);
+  if (!order || order.clientId !== session.user.id) redirect("/client/orders");
   void formData.get("revisionNotes");
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
@@ -137,7 +145,10 @@ export async function requestRevision(formData: FormData) {
 }
 
 export async function leaveReview(formData: FormData) {
+  const session = await requireRole("client");
   const orderId = (formData.get("orderId") as string) || "";
+  const order = await getOrder(orderId);
+  if (!order || order.clientId !== session.user.id) redirect("/client/orders");
   void formData.get("rating");
   void formData.get("comment");
   revalidatePath(`/client/orders/${orderId}`);

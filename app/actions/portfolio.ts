@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireRole } from "@/lib/auth/dal";
 import { currentStudent } from "@/lib/auth/session";
 import { getOrder, listReviewsForStudent } from "@/lib/data/queries";
 import { buildCaseStudyDraft } from "@/lib/portfolio/case-study";
@@ -14,9 +15,11 @@ import { buildCaseStudyDraft } from "@/lib/portfolio/case-study";
  * student can edit before publishing.
  */
 export async function generateCaseStudy(formData: FormData) {
+  const session = await requireRole("student");
   const orderId = String(formData.get("orderId"));
   const order = await getOrder(orderId);
-  if (!order) redirect("/student/orders");
+  // Only the student who delivered the order may turn it into a case study.
+  if (!order || order.studentId !== session.user.id) redirect("/student/orders");
   if (order.status !== "completed") {
     redirect(`/student/orders/${orderId}?error=not-completed`);
   }
