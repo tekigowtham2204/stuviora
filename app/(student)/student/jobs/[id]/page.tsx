@@ -6,7 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
-import { getJob, getClientById, listPortfolio, getMarketSignals } from "@/lib/data/queries";
+import {
+  getJob,
+  getClientById,
+  listPortfolio,
+  getMarketSignals,
+  listClientOrders,
+} from "@/lib/data/queries";
+import { computeClientHistory } from "@/lib/clients/history";
+import { ClientTrustPanel } from "@/components/feature/client-trust-panel";
 import { currentStudent } from "@/lib/auth/session";
 import { suggestPricing } from "@/lib/pricing/engine";
 import { writeProposalDraft } from "@/lib/proposals/writer";
@@ -29,6 +37,11 @@ export default async function StudentJobDetail({
   if (!job) notFound();
 
   const client = await getClientById(job.clientId);
+  const clientOrders = await listClientOrders(job.clientId);
+  const clientHistory = computeClientHistory({
+    client: { jobsPosted: client?.jobsPosted ?? 0 },
+    orders: clientOrders,
+  });
   const me = currentStudent();
   const pricing = suggestPricing(job, me.trustTier);
   const portfolio = await listPortfolio(me.id);
@@ -141,23 +154,7 @@ export default async function StudentJobDetail({
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
-          <Card>
-            <CardTitle>About the client</CardTitle>
-            <div className="mt-4 flex items-center gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-orange)] text-base font-semibold text-[var(--color-brown-900)]">
-                {client?.avatarInitials ?? "C"}
-              </span>
-              <div>
-                <div className="font-medium text-[var(--color-ink)]">
-                  {client?.companyName ?? "Client"}
-                </div>
-                <div className="text-xs text-[var(--color-ink-muted)]">{client?.city}</div>
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-[var(--color-ink-muted)]">
-              {client?.jobsPosted ?? 0} jobs posted on Stuviora
-            </div>
-          </Card>
+          <ClientTrustPanel client={client} history={clientHistory} />
           <Card>
             <div className="flex flex-col gap-2">
               <form action={toggleSaveJob}>
