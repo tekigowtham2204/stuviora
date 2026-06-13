@@ -180,7 +180,7 @@ function LiveDealCard() {
                 </span>
               </div>
             </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/60">
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--color-cream-deep)]">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-[var(--color-sage)] to-[var(--color-sage-deep)]"
                 style={{ width: "86%" }}
