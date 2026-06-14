@@ -24,6 +24,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { compactINR } from "@/components/ui/money";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getPlatformMetrics } from "@/lib/data/queries";
 import { services } from "@/lib/env";
 import { COMMISSION_RATE, TRUST_LAYERS } from "@/lib/constants";
@@ -31,6 +32,22 @@ import { COMMISSION_RATE, TRUST_LAYERS } from "@/lib/constants";
 export default function HomePage() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Stuviora",
+          url: "https://stuviora.com",
+          description:
+            "India's AI-powered student freelancing marketplace. Every deliverable passes an AI quality check before it reaches the client.",
+          areaServed: "IN",
+          knowsAbout: [
+            "student freelancing",
+            "AI quality review",
+            "escrow payments",
+          ],
+        }}
+      />
       <Hero />
       <ProofStrip />
       <Section spacing="tight">
