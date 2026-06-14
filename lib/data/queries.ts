@@ -1044,22 +1044,41 @@ export interface CollegeCohort {
   categoryMix: { category: string; count: number }[];
 }
 
-/** Lifetime completed earnings for a student, demo-sourced. */
-function completedEarnings(studentId: string): number {
-  return demo.orders
-    .filter((o) => o.studentId === studentId && o.status === "completed")
-    .reduce((sum, o) => sum + o.amount, 0);
+/** Completed-order earnings per student id, from a flat order list. */
+function earningsFromOrders(orders: Order[]): Map<string, number> {
+  const byId = new Map<string, number>();
+  for (const o of orders) {
+    if (o.status !== "completed") continue;
+    byId.set(o.studentId, (byId.get(o.studentId) ?? 0) + o.amount);
+  }
+  return byId;
+}
+
+/**
+ * Students belonging to one college. Sourced via listStudents() so it is
+ * correct in both modes (live: real rows; demo: seed), then filtered by the
+ * college the caller is scoped to. Scoping is enforced upstream:
+ * scopedCollege() derives `college` from the session, never a URL param, so
+ * a partner can only ever read its own college.
+ */
+async function studentsForCollege(college: string): Promise<StudentProfile[]> {
+  return (await listStudents()).filter((s) => s.college === college);
 }
 
 /** Cohort summary for a single college. Returns null if the college is empty. */
 export async function getCohortForCollege(
   college: string
 ): Promise<CollegeCohort | null> {
-  // Live path would filter users by college in Supabase; demo filters seed.
-  const collegeStudents = demo.students.filter((s) => s.college === college);
+  const collegeStudents = await studentsForCollege(college);
   if (collegeStudents.length === 0) return null;
 
-  const summary = rollupCohorts(collegeStudents, [], demo.orders);
+  // GMV + activation come from the cohort's completed orders, fetched via the
+  // proven per-student order query (live or demo). rollupCohorts is pure.
+  const orders = (
+    await Promise.all(collegeStudents.map((s) => listStudentOrders(s.id)))
+  ).flat();
+
+  const summary = rollupCohorts(collegeStudents, [], orders);
   const row = summary.topColleges[0];
   if (!row) return null;
 
@@ -1078,12 +1097,37 @@ export async function getCohortForCollege(
 export async function listConsentedRoster(
   college: string
 ): Promise<RosterEntry[]> {
-  const collegeStudents = demo.students.filter((s) => s.college === college);
-  return buildRoster(
-    collegeStudents,
-    demo.SHARE_WITH_COLLEGE_IDS,
-    completedEarnings
-  );
+  const collegeStudents = await studentsForCollege(college);
+  if (collegeStudents.length === 0) return [];
+
+  // Consent set: only students who opted into share_with_college. Fails
+  // closed - if the live lookup errors, nobody is shown (privacy default).
+  let consented: Set<string>;
+  if (await liveOn()) {
+    const supabase = await getServerSupabase();
+    const { data } = await supabase!
+      .from("student_profiles")
+      .select("user_id, share_with_college")
+      .in(
+        "user_id",
+        collegeStudents.map((s) => s.id)
+      )
+      .returns<{ user_id: string; share_with_college: boolean }[]>();
+    consented = new Set(
+      (data ?? []).filter((r) => r.share_with_college).map((r) => r.user_id)
+    );
+  } else {
+    consented = demo.SHARE_WITH_COLLEGE_IDS;
+  }
+
+  // Lifetime completed earnings, only for consented students.
+  const consentedStudents = collegeStudents.filter((s) => consented.has(s.id));
+  const orders = (
+    await Promise.all(consentedStudents.map((s) => listStudentOrders(s.id)))
+  ).flat();
+  const earned = earningsFromOrders(orders);
+
+  return buildRoster(collegeStudents, consented, (id) => earned.get(id) ?? 0);
 }
 
 /**
