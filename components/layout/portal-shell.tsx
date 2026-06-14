@@ -165,6 +165,7 @@ export function PortalShell({
               <button
                 type="submit"
                 title="Log out"
+                aria-label="Log out"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--color-cream)]/60 transition-colors hover:bg-white/10 hover:text-[var(--color-cream)]"
               >
                 <LogOut className="h-4 w-4" />
