@@ -24,12 +24,14 @@ export function OrdersViews({ orders }: { orders: Order[] }) {
         className="mb-6 inline-flex rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] p-1"
       >
         <ViewTab
+          id="orders-tab-list"
           active={view === "list"}
           onClick={() => setView("list")}
           icon={<LayoutList className="h-4 w-4" />}
           label="List"
         />
         <ViewTab
+          id="orders-tab-board"
           active={view === "board"}
           onClick={() => setView("board")}
           icon={<Columns3 className="h-4 w-4" />}
@@ -37,17 +39,25 @@ export function OrdersViews({ orders }: { orders: Order[] }) {
         />
       </div>
 
-      {view === "list" ? <ListView orders={orders} /> : <BoardView orders={orders} />}
+      <div
+        id="orders-panel"
+        role="tabpanel"
+        aria-labelledby={view === "list" ? "orders-tab-list" : "orders-tab-board"}
+      >
+        {view === "list" ? <ListView orders={orders} /> : <BoardView orders={orders} />}
+      </div>
     </>
   );
 }
 
 function ViewTab({
+  id,
   active,
   onClick,
   icon,
   label,
 }: {
+  id: string;
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
@@ -55,9 +65,11 @@ function ViewTab({
 }) {
   return (
     <button
+      id={id}
       type="button"
       role="tab"
       aria-selected={active}
+      aria-controls="orders-panel"
       onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",

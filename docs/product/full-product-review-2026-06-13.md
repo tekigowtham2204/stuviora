@@ -189,16 +189,40 @@ missing alt, focus-visible ring styles, motion preferences.
 
 ---
 
-## Prioritized backlog (after the two fixes already shipped)
+## Status update (shipped on this branch after the initial pass)
 
-1. **Product honesty** - decide and apply the marketing-stats/testimonials
-   approach (section 3). Pre-launch blocker.
-2. **University cohort live path + college scoping** (1.3) - before any
-   multi-college partner.
-3. **Unify split-math rounding** (section 2) and **add 194-O TDS tests** -
-   data/compliance correctness.
-4. **Wire `validateUpload` into the live submit path** (1.4) and **add LLM
-   error logging** (1.5).
-5. **A11y quick wins** (section 5) and **OG image + JSON-LD** (section 6).
-6. **Phase V live verification** once keys land (see
-   `docs/product/go-live-keys.md`).
+Beyond the two emergency fixes (auth bypass, Tailwind tokens), the following
+review items were since fixed and pushed:
+
+- **Product honesty (section 3): FIXED.** Marketing numbers now gate behind
+  real platformMetrics; fabricated testimonials replaced with an honest
+  "how payouts work" section; hero card relabeled "Sample / Example"; trust
+  page gated.
+- **Split-math + 194-O tests (section 2): FIXED.** computeSplit unified to
+  paise; cross-consistency + gross-base TDS tests added.
+- **A11y (section 5): FIXED** (logout aria-label, orders tablist/tabpanel).
+  Consent banner intentionally left (non-modal; aria-modal would mislead).
+- **SEO (section 6): FIXED.** Generated OG image + Organization/Person
+  JSON-LD.
+- **University cohort live path + scoping (1.3): FIXED.** Live path composed
+  from proven queries; consent fails closed; scoping is session-bound.
+
+## Remaining backlog
+
+1. **Upload validation on submit (1.4): FIXED.** `submitWork` now validates
+   any attached deliverable file (extension/MIME/size) at the boundary
+   before it can reach Storage or the gate; fails closed on the first bad
+   file. The live Storage write still lands with the file-upload phase.
+2. **LLM error logging (1.5): FIXED.** The AI gate routes live failures
+   through `captureError` instead of swallowing them, and `captureError`
+   now always logs (visible in platform logs before a Sentry DSN exists).
+3. **HMAC nonce replay store (1.6): FIXED (in-process).** The partner guard
+   rejects a replayed nonce within the skew window via a time-windowed
+   store (`lib/partners/nonce-store.ts`), unit-tested. A durable
+   cross-instance store (Supabase/Upstash) drops in behind the same
+   `markNonceSeen` interface once the schema is applied.
+4. **Form-primitive consolidation** (4.2) - low-priority cleanup.
+5. **Phase V live verification** once keys land (see
+   `docs/product/go-live-keys.md`): apply migrations, real auth round-trip,
+   one real AI-gate call, a Rs.100 Razorpay test, and confirm the
+   university/honesty live paths against a real Supabase.

@@ -10,6 +10,7 @@ import {
   TDS_RATE,
   TDS_THRESHOLD,
 } from "@/lib/tax/engine";
+import { computeSplit } from "@/lib/utils";
 
 describe("computeOrderTax", () => {
   it("computes the 85/15 split with 18% GST on commission, no TDS under threshold", () => {
@@ -49,10 +50,37 @@ describe("computeOrderTax", () => {
     expect(t.studentGross).toBe(9_000);
   });
 
+  it("computes 194-O TDS on the GROSS order value, not the student net or commission", () => {
+    const t = computeOrderTax(100_000, 500_000); // over threshold
+    expect(t.tdsWithheld).toBe(100); // 0.1% * 100,000 gross
+    // guard against regressing the base to studentGross (85,000 -> 85)
+    expect(t.tdsWithheld).not.toBe(85);
+  });
+
   it("constant rates are sane", () => {
     expect(GST_RATE).toBe(0.18);
     expect(TDS_RATE).toBe(0.001);
     expect(TDS_THRESHOLD).toBe(500_000);
+  });
+});
+
+describe("computeSplit agrees with computeOrderTax (paise precision)", () => {
+  it.each([10_000, 9_999, 5_050, 7_333, 100])(
+    "matches commission/student/gst for Rs.%i",
+    (amount) => {
+      const split = computeSplit(amount);
+      const tax = computeOrderTax(amount, 0);
+      expect(split.commission).toBe(tax.commission);
+      expect(split.studentPayout).toBe(tax.studentGross);
+      expect(split.gst).toBe(tax.gstOnCommission);
+    }
+  );
+
+  it("keeps commission + student payout exactly equal to the job amount", () => {
+    const split = computeSplit(5_050);
+    expect(split.commission).toBe(757.5);
+    expect(split.studentPayout).toBe(4_292.5);
+    expect(split.commission + split.studentPayout).toBe(5_050);
   });
 });
 

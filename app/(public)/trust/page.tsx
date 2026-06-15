@@ -8,25 +8,43 @@ import {
   SectionLede,
 } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
-import * as demo from "@/lib/demo/data";
+import { compactINR } from "@/components/ui/money";
+import { getPlatformMetrics } from "@/lib/data/queries";
+import { services } from "@/lib/env";
 import { AI_GATE_PASS_THRESHOLD } from "@/lib/constants";
 
 export const metadata = {
   title: "Trust, in numbers",
   description:
-    "How Stuviora keeps both sides safe: escrow-protected payments, an AI quality gate on every delivery, and verified students. The numbers, published.",
+    "How Stuviora keeps both sides safe: escrow-protected payments, an AI quality gate on every delivery, and verified students. The numbers we hold ourselves to.",
 };
 
-export default function TrustPage() {
-  const m = demo.platformMetrics;
+export default async function TrustPage() {
+  const m = await getPlatformMetrics();
 
-  // Mirrors the landing-page proof strip; wire to live metrics post-launch.
-  const stats = [
-    { label: "AI-gate first-pass rate", value: "91%" },
-    { label: "Paid to students", value: `Rs.${(m.gmv / 100000).toFixed(0)}L+` },
-    { label: "Verified colleges", value: "500+" },
+  // Honesty rule: the live traction numbers only appear once they are real
+  // (live mode + non-zero). The policy guarantees below are always true, so
+  // the page is never padded with invented metrics.
+  const realStats: { label: string; value: string }[] = services.supabase
+    ? [
+        m.gmv > 0 ? { label: "Processed in escrow", value: compactINR(m.gmv) } : null,
+        m.students > 0
+          ? { label: "Students verified", value: m.students.toLocaleString("en-IN") }
+          : null,
+        m.clients > 0
+          ? { label: "Businesses hiring", value: m.clients.toLocaleString("en-IN") }
+          : null,
+      ].filter((s): s is { label: string; value: string } => s !== null)
+    : [];
+
+  const guarantees = [
+    { label: "AI-gate minimum score", value: `${AI_GATE_PASS_THRESHOLD}` },
+    { label: "Student share on approval", value: "85%" },
+    { label: "Auto-release window", value: "72h" },
     { label: "Double payouts, ever", value: "0" },
   ];
+
+  const stats = [...realStats, ...guarantees].slice(0, 4);
 
   const layers = [
     {

@@ -15,6 +15,7 @@ import { getStudentById } from "@/lib/data/queries";
 import { getOrder } from "@/lib/data/queries";
 import { services } from "@/lib/env";
 import { getServiceSupabase } from "@/lib/supabase/server";
+import { validateUpload } from "@/lib/uploads/validate";
 
 /**
  * Order lifecycle Server Actions. Demo paths just revalidate + redirect;
@@ -36,6 +37,25 @@ export async function submitWork(formData: FormData) {
     windowMs: 60_000,
   });
   if (!limit.allowed) redirect(`/student/orders/${orderId}?error=rate_limited`);
+
+  // Validate any attached deliverable files before they can touch Storage
+  // or the AI gate. The validator (extension/MIME/size + the ZIP-traversal
+  // guard it backs) is pure and unit-tested; the live Storage write lands
+  // with the file-upload phase, but the guard belongs here now so an
+  // invalid file is rejected at the boundary. Fail closed on the first one.
+  const files = formData
+    .getAll("files")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+  for (const file of files) {
+    const check = validateUpload({
+      filename: file.name,
+      mime: file.type,
+      size: file.size,
+    });
+    if (!check.ok) {
+      redirect(`/student/orders/${orderId}?error=upload_invalid`);
+    }
+  }
 
   // Live: upload files to Storage, fire Inngest 'ai/quality.check'.
   // Demo: run gate synchronously so UI can show the result immediately.

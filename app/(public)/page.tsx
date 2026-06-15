@@ -8,7 +8,6 @@ import {
   Building2,
   Sparkles,
   CheckCircle2,
-  Quote,
   type LucideIcon,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
@@ -24,11 +23,31 @@ import {
 import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
+import { compactINR } from "@/components/ui/money";
+import { JsonLd } from "@/components/seo/json-ld";
+import { getPlatformMetrics } from "@/lib/data/queries";
+import { services } from "@/lib/env";
 import { COMMISSION_RATE, TRUST_LAYERS } from "@/lib/constants";
 
 export default function HomePage() {
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Stuviora",
+          url: "https://stuviora.com",
+          description:
+            "India's AI-powered student freelancing marketplace. Every deliverable passes an AI quality check before it reaches the client.",
+          areaServed: "IN",
+          knowsAbout: [
+            "student freelancing",
+            "AI quality review",
+            "escrow payments",
+          ],
+        }}
+      />
       <Hero />
       <ProofStrip />
       <Section spacing="tight">
@@ -106,7 +125,7 @@ function Hero() {
                   "Razorpay escrow",
                   "Claude AI quality gate",
                   "72h auto-release",
-                  "500+ verified colleges",
+                  "College-verified students",
                 ].map((t) => (
                   <span key={t} className="inline-flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-sage-deep)]" />
@@ -135,11 +154,11 @@ function LiveDealCard() {
         <Card surface="glow" className="relative z-10 rounded-[28px] p-7">
           <div className="flex items-center justify-between">
             <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-ink-muted)]">
-              Order SV-1042 · in progress
+              Sample order · how a deal flows
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-sage-50)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-sage-900)]">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-sage-deep)]" />
-              Live
+              Example
             </span>
           </div>
 
@@ -247,13 +266,37 @@ function LiveDealCard() {
 // 2. Proof strip - the platform's pulse, in numbers
 // =============================================================================
 
-function ProofStrip() {
-  const stats = [
-    { value: "₹12L+", label: "paid to students" },
-    { value: "500+", label: "verified colleges" },
-    { value: "91%", label: "AI-gate first-pass" },
-    { value: "4.8 / 5", label: "client rating" },
+async function ProofStrip() {
+  // Honesty rule: every NUMBER here is gated behind real, non-zero platform
+  // metrics (live mode only). Until there is real traction, we show only true
+  // facts about how the platform works, never invented social proof.
+  const m = await getPlatformMetrics();
+  const studentSharePct = Math.round((1 - COMMISSION_RATE) * 100);
+
+  const realStats: { value: string; label: string }[] = services.supabase
+    ? [
+        m.gmv > 0 ? { value: compactINR(m.gmv), label: "processed in escrow" } : null,
+        m.students > 0
+          ? { value: m.students.toLocaleString("en-IN"), label: "students verified" }
+          : null,
+        m.clients > 0
+          ? { value: m.clients.toLocaleString("en-IN"), label: "businesses hiring" }
+          : null,
+        m.activeOrders > 0
+          ? { value: m.activeOrders.toLocaleString("en-IN"), label: "live orders" }
+          : null,
+      ].filter((s): s is { value: string; label: string } => s !== null)
+    : [];
+
+  // True statements about the model: shown until real metrics exist.
+  const guarantees = [
+    { value: `${studentSharePct}%`, label: "goes to the student" },
+    { value: "100%", label: "escrow-protected" },
+    { value: "AI", label: "checked before delivery" },
+    { value: "72h", label: "auto-release safety net" },
   ];
+
+  const stats = realStats.length >= 2 ? realStats.slice(0, 4) : guarantees;
   return (
     <Section spacing="tight" tone="warm">
       <Container>
@@ -472,39 +515,26 @@ function Loop() {
 // =============================================================================
 
 function RealWins() {
-  const wins = [
+  // Honest "how payouts work" framing. No fabricated testimonials: every
+  // claim below is a true statement about the platform's guarantees.
+  const steps = [
     {
-      avatar: "DS",
-      name: "Diya Sharma",
-      college: "LSR · Delhi",
-      project: "4 SaaS onboarding blog posts",
-      payout: "₹8,500",
-      quote:
-        "Got hired in 3 hours, paid the day after delivery. Cleaner than any other gig site I tried.",
-      accent: "yellow" as const,
-      tier: "silver" as const,
-    },
-    {
-      avatar: "AM",
-      name: "Aarav Mehta",
-      college: "IIT Bombay",
-      project: "Python script to dedupe a CRM export",
-      payout: "₹5,100",
-      quote:
-        "AI gate caught a missing edge case before the client saw it. Saved me a revision round.",
+      icon: Bot,
       accent: "sage" as const,
-      tier: "gold" as const,
+      title: "Passes the AI gate first",
+      body: "Every deliverable is scored against the original brief before the client sees it. Below the bar, it bounces back to the student with specific fixes, not a rejection.",
     },
     {
-      avatar: "KR",
-      name: "Kabir Rao",
-      college: "NID · Ahmedabad",
-      project: "Coffee brand Instagram kit",
-      payout: "₹5,950",
-      quote:
-        "First job here got me a Platinum tier in a month. Repeat clients found me, not the other way.",
+      icon: ShieldCheck,
+      accent: "yellow" as const,
+      title: "Backed by funded escrow",
+      body: "The client funds Razorpay escrow the moment they hire. The student starts knowing the money is already there, so nobody gets ghosted.",
+    },
+    {
+      icon: Wallet,
       accent: "orange" as const,
-      tier: "platinum" as const,
+      title: "Released on approval",
+      body: "The student gets 85% on client approval, with a 72-hour auto-release safety net so payment never stalls if the client goes quiet.",
     },
   ];
 
@@ -512,65 +542,36 @@ function RealWins() {
     <Section spacing="generous">
       <Container>
         <Reveal className="max-w-2xl">
-          <SectionEyebrow>Real wins</SectionEyebrow>
-          <SectionTitle>Students paid this week.</SectionTitle>
+          <SectionEyebrow>How payouts work</SectionEyebrow>
+          <SectionTitle>Every rupee is earned, then released.</SectionTitle>
           <SectionLede>
-            Every payout is escrow-released only after a passing AI review and a
-            client approval. Real names, real money.
+            No payout happens until the work clears the AI gate and the client
+            approves. Here is exactly what stands behind every delivery.
           </SectionLede>
         </Reveal>
 
         <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {wins.map((w, i) => (
-            <Reveal key={w.name} index={i}>
+          {steps.map((s, i) => (
+            <Reveal key={s.title} index={i}>
               <Card className="flex h-full flex-col p-6">
-                <div className="flex items-start gap-3">
-                  <span
-                    className={
-                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-semibold text-[var(--color-brown-900)] " +
-                      (w.accent === "sage"
-                        ? "bg-[var(--color-sage)]"
-                        : w.accent === "yellow"
-                        ? "bg-[var(--color-yellow)]"
-                        : "bg-[var(--color-orange)]")
-                    }
-                  >
-                    {w.avatar}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-display text-base font-medium text-[var(--color-ink)]">
-                      {w.name}
-                    </div>
-                    <div className="text-xs text-[var(--color-ink-muted)]">
-                      {w.college}
-                    </div>
-                  </div>
-                  <TrustTierBadge tier={w.tier} size="sm" />
+                <span
+                  className={
+                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[var(--color-brown-900)] " +
+                    (s.accent === "sage"
+                      ? "bg-[var(--color-sage)]"
+                      : s.accent === "yellow"
+                      ? "bg-[var(--color-yellow)]"
+                      : "bg-[var(--color-orange)]")
+                  }
+                >
+                  <s.icon className="h-5 w-5" />
+                </span>
+                <div className="mt-5 font-display text-lg font-medium text-[var(--color-ink)]">
+                  {s.title}
                 </div>
-
-                <Quote className="mt-5 h-4 w-4 text-[var(--color-ink-faint)]" />
-                <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-[var(--color-ink)]">
-                  {w.quote}
+                <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+                  {s.body}
                 </p>
-
-                <div className="mt-auto flex items-center justify-between border-t border-[var(--color-line)] pt-4">
-                  <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                      Project
-                    </div>
-                    <div className="truncate text-xs font-medium text-[var(--color-ink)]">
-                      {w.project}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                      Paid
-                    </div>
-                    <div className="font-display text-base font-medium tabular-nums text-[var(--color-ink)]">
-                      {w.payout}
-                    </div>
-                  </div>
-                </div>
               </Card>
             </Reveal>
           ))}
@@ -578,7 +579,7 @@ function RealWins() {
 
         <div className="mt-10 flex justify-center">
           <Button href="/explore" variant="secondary">
-            See more verified students <ArrowRight className="h-4 w-4" />
+            Browse verified students <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </Container>
@@ -697,7 +698,7 @@ function ClosingCta() {
 
               <div className="grid grid-cols-2 gap-4 sm:gap-5">
                 <ClosingStat label="Student share" value="85%" />
-                <ClosingStat label="AI-gate pass rate" value="91%" />
+                <ClosingStat label="Min payout" value="₹100" />
                 <ClosingStat label="Auto-release window" value="72h" />
                 <ClosingStat label="Commission GST handled" value="18%" />
               </div>

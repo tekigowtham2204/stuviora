@@ -18,6 +18,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { Money } from "@/components/ui/money";
 import { Section } from "@/components/ui/section";
+import { JsonLd } from "@/components/seo/json-ld";
 import {
   getStudentByUsername,
   listPortfolio,
@@ -55,6 +56,21 @@ export default async function FreelancerProfilePage({
 
   return (
     <Section spacing="tight">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: s.fullName,
+          url: `https://stuviora.com/freelancer/${s.username}`,
+          description: s.headline,
+          jobTitle: s.stream,
+          knowsAbout: s.skills,
+          affiliation: {
+            "@type": "CollegeOrUniversity",
+            name: s.college,
+          },
+        }}
+      />
       <Container>
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
           {/* Main column */}
