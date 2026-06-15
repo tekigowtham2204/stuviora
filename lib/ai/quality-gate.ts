@@ -6,6 +6,7 @@ import { services } from "@/lib/env";
 import { chatJson } from "@/lib/llm/client";
 import { QUALITY_GATE_PROMPT } from "@/lib/ai/prompts";
 import { recordGateDecision } from "@/lib/ai/calibration";
+import { captureError } from "@/lib/observability";
 
 /**
  * AI quality gate: the moat (P4).
@@ -129,9 +130,12 @@ export async function runQualityGate(input: QualityGateInput): Promise<QualityGa
           reviewerNote: live.reviewerNote,
         };
       }
-    } catch {
-      // Live failure falls back to demo so the order does not block
-      // on a transient LLM error. Sentry alerting lands in P6.
+    } catch (err) {
+      // Live failure falls back to demo so the order does not block on a
+      // transient LLM error, but we must not swallow it: a schema mismatch
+      // and a network blip look identical otherwise. Log it (Sentry routing
+      // lands when a DSN exists) before falling through to the demo verdict.
+      captureError(err, { scope: "ai/quality-gate", orderId: input.orderId });
     }
   }
   const review = demoReview(input);

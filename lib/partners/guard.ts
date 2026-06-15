@@ -16,6 +16,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { getPartnerByKey, type Partner } from "@/lib/partners/registry";
 import { verifyRequest } from "@/lib/partners/hmac";
+import { markNonceSeen } from "@/lib/partners/nonce-store";
 
 export type PartnerAuth =
   | { ok: true; partner: Partner }
@@ -56,5 +57,12 @@ export async function requirePartner(req: Request): Promise<PartnerAuth> {
   });
 
   if (!result.ok) return unauthorized(result.reason);
+
+  // Replay defence: the signature is valid and the timestamp is fresh, so
+  // reject a nonce we have already seen inside the skew window.
+  if (markNonceSeen(keyId, nonce)) {
+    return unauthorized("replayed_nonce");
+  }
+
   return { ok: true, partner };
 }

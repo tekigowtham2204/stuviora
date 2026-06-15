@@ -20,9 +20,10 @@ export function captureError(err: unknown, ctx?: Record<string, unknown>) {
     // Live: Sentry is initialised in instrumentation.ts; capture there or
     // via globalThis Sentry. Kept out of the hot path until a DSN exists.
   }
-  if (process.env.NODE_ENV !== "production") {
-    console.error("[observability]", err, ctx);
-  }
+  // Always log errors: unlike funnel events, an error must stay visible in
+  // the platform logs even before a Sentry DSN is configured. Swallowing it
+  // here is what hid the AI-gate failures (review item 1.5).
+  console.error("[observability]", err, ctx);
 }
 
 /**
