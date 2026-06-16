@@ -1048,7 +1048,7 @@ on conflict (id) do nothing;
 -- see all via service role. RLS therefore is permissive for read of own
 -- files (matched by inferring student_id from auth) and otherwise
 -- forbids direct reads.
-create policy if not exists submissions_read_own
+create policy submissions_read_own
   on storage.objects for select
   using (
     bucket_id = 'submissions'
@@ -1061,7 +1061,7 @@ create policy if not exists submissions_read_own
   );
 
 -- dispute_evidence: same pattern as submissions.
-create policy if not exists dispute_evidence_read_service
+create policy dispute_evidence_read_service
   on storage.objects for select
   using (
     bucket_id = 'dispute_evidence' and auth.role() = 'service_role'
@@ -1069,7 +1069,7 @@ create policy if not exists dispute_evidence_read_service
 
 -- gst_invoices: client of the order, surfaced via signed URL. The
 -- policy keeps direct read off-limits unless minted by service role.
-create policy if not exists gst_invoices_read_service
+create policy gst_invoices_read_service
   on storage.objects for select
   using (
     bucket_id = 'gst_invoices' and auth.role() = 'service_role'
