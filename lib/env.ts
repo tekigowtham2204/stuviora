@@ -17,7 +17,12 @@ export const env = {
   appUrl: read("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000",
 
   supabaseUrl: read("NEXT_PUBLIC_SUPABASE_URL"),
-  supabaseAnonKey: read("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+  // Accepts either Supabase key format: the legacy JWT anon key or the new
+  // `sb_publishable_...` key (Supabase's new API-key system). Both authorize
+  // the public client at the `anon` RLS role, so either works here.
+  supabaseAnonKey:
+    read("NEXT_PUBLIC_SUPABASE_ANON_KEY") ??
+    read("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
   supabaseServiceKey: read("SUPABASE_SERVICE_ROLE_KEY"),
 
   razorpayKeyId: read("RAZORPAY_KEY_ID"),
