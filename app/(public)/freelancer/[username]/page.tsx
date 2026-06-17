@@ -52,7 +52,7 @@ export default async function FreelancerProfilePage({
   if (!s) notFound();
 
   const portfolio = await listPortfolio(s.id);
-  const reviews = await listReviewsForStudent();
+  const reviews = await listReviewsForStudent(s.id);
 
   return (
     <Section spacing="tight">
