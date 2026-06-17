@@ -15,7 +15,7 @@ export const metadata = { title: "Trust score" };
 export default async function TrustPage() {
   const me = currentStudent();
   const breakdown = await getTrustBreakdown(me.id);
-  const history = await listTrustHistory();
+  const history = await listTrustHistory(me.id);
   if (!breakdown) return null;
 
   const next = nextTier(breakdown.score);

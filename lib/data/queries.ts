@@ -5,6 +5,7 @@ import type {
   Dispute,
   Job,
   Order,
+  PlatformMetrics,
   Proposal,
   StudentProfile,
 } from "@/lib/types";
@@ -842,8 +843,168 @@ export async function getTrustBreakdown(studentId: string) {
 // M4 admin
 // ---------------------------------------------------------------------------
 
-export async function getPlatformMetrics() {
-  return demo.platformMetrics;
+/**
+ * Builds a 14-day sparkline keyed by UTC day. Returns zero-filled buckets
+ * for the trailing two weeks and folds any ledger rows into the matching day.
+ */
+function buildRevenueSparkline(
+  rows: { created_at: string; amount: number | null }[]
+): { day: string; amount: number }[] {
+  const out: { day: string; amount: number }[] = [];
+  const indexByKey = new Map<string, number>();
+  const today = new Date();
+  for (let pos = 0; pos < 14; pos++) {
+    const d = new Date(today);
+    d.setUTCDate(today.getUTCDate() - (13 - pos));
+    out.push({
+      day: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      amount: 0,
+    });
+    indexByKey.set(d.toISOString().slice(0, 10), pos);
+  }
+  for (const r of rows) {
+    const idx = indexByKey.get(String(r.created_at).slice(0, 10));
+    if (idx !== undefined) out[idx].amount += Number(r.amount ?? 0);
+  }
+  return out;
+}
+
+/**
+ * Platform-wide metrics for the admin dashboard, homepage proof strip, and
+ * trust page. In live mode these are REAL aggregates computed from Supabase;
+ * we never fall back to demo traction numbers when live (a transient error
+ * yields honest zeros, which the public surfaces gate out). Demo numbers are
+ * returned only when Supabase is not configured.
+ */
+export async function getPlatformMetrics(): Promise<PlatformMetrics> {
+  if (!(await liveOn())) return demo.platformMetrics;
+
+  const empty: PlatformMetrics = {
+    gmv: 0,
+    revenueNet: 0,
+    gstCollected: 0,
+    tdsWithheld: 0,
+    activeOrders: 0,
+    openDisputes: 0,
+    students: 0,
+    clients: 0,
+    escrowHeld: 0,
+    dailyRevenue: buildRevenueSparkline([]),
+  };
+
+  try {
+    const supabase = await getServerSupabase();
+    if (!supabase) return empty;
+
+    // Working states where money sits in escrow (paid, not yet released).
+    const ESCROW_STATES = [
+      "active",
+      "submitted",
+      "in_ai_review",
+      "awaiting_approval",
+      "revision_requested",
+      "disputed",
+    ];
+    // Active = in-flight work, excludes disputed/completed/refunded.
+    const ACTIVE_STATES = [
+      "active",
+      "submitted",
+      "in_ai_review",
+      "awaiting_approval",
+      "revision_requested",
+    ];
+    const OPEN_DISPUTE_STATES = ["open", "evidence_collection", "admin_review"];
+
+    const [
+      ordersRes,
+      ledgerRes,
+      taxRes,
+      studentsRes,
+      clientsRes,
+      activeRes,
+      disputesRes,
+    ] = await Promise.all([
+      // GMV + escrow held: every order that cleared payment.
+      supabase
+        .from("orders")
+        .select("amount, status")
+        .not("status", "in", "(pending_payment,cancelled)"),
+      // Net platform revenue + daily sparkline.
+      supabase
+        .from("platform_ledger")
+        .select("commission_amount, net_amount, type, created_at"),
+      // TDS + GST audit trail.
+      supabase.from("tax_events").select("tax_type, tax_amount"),
+      supabase
+        .from("student_profiles")
+        .select("user_id", { count: "exact", head: true }),
+      supabase
+        .from("client_profiles")
+        .select("user_id", { count: "exact", head: true }),
+      supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .in("status", ACTIVE_STATES),
+      supabase
+        .from("dispute_cases")
+        .select("id", { count: "exact", head: true })
+        .in("status", OPEN_DISPUTE_STATES),
+    ]);
+
+    const orders = (ordersRes.data ?? []) as {
+      amount: number | null;
+      status: string;
+    }[];
+    const gmv = orders.reduce((s, o) => s + Number(o.amount ?? 0), 0);
+    const escrowHeld = orders
+      .filter((o) => ESCROW_STATES.includes(o.status))
+      .reduce((s, o) => s + Number(o.amount ?? 0), 0);
+
+    const ledger = (ledgerRes.data ?? []) as {
+      commission_amount: number | null;
+      net_amount: number | null;
+      type: string;
+      created_at: string;
+    }[];
+    const revenueNet = ledger
+      .filter((l) => l.type === "COMMISSION")
+      .reduce((s, l) => s + Number(l.net_amount ?? l.commission_amount ?? 0), 0);
+    const dailyRevenue = buildRevenueSparkline(
+      ledger
+        .filter((l) => l.type === "COMMISSION")
+        .map((l) => ({
+          created_at: l.created_at,
+          amount: Number(l.net_amount ?? l.commission_amount ?? 0),
+        }))
+    );
+
+    const tax = (taxRes.data ?? []) as {
+      tax_type: string;
+      tax_amount: number | null;
+    }[];
+    const gstCollected = tax
+      .filter((t) => t.tax_type === "GST")
+      .reduce((s, t) => s + Number(t.tax_amount ?? 0), 0);
+    const tdsWithheld = tax
+      .filter((t) => t.tax_type === "TDS")
+      .reduce((s, t) => s + Number(t.tax_amount ?? 0), 0);
+
+    return {
+      gmv,
+      revenueNet,
+      gstCollected,
+      tdsWithheld,
+      activeOrders: activeRes.count ?? 0,
+      openDisputes: disputesRes.count ?? 0,
+      students: studentsRes.count ?? 0,
+      clients: clientsRes.count ?? 0,
+      escrowHeld,
+      dailyRevenue,
+    };
+  } catch {
+    // Live but failed: honest zeros, never demo traction.
+    return empty;
+  }
 }
 
 export async function listAdminUsers() {

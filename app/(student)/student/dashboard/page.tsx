@@ -25,6 +25,7 @@ import { listStudentOrders, getMatchesForStudent, listPortfolio } from "@/lib/da
 import { computeProfileCompleteness } from "@/lib/students/completeness";
 import { passedSkillBadges } from "@/lib/demo/state";
 import { TRUST_TIERS } from "@/lib/constants";
+import { computeSplit } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 
@@ -45,7 +46,7 @@ export default async function StudentDashboard() {
   );
   const earned = orders
     .filter((o) => o.status === "completed")
-    .reduce((sum, o) => sum + Math.round(o.amount * 0.85), 0);
+    .reduce((sum, o) => sum + computeSplit(o.amount).studentPayout, 0);
   const nextTier = TRUST_TIERS.find((t) => t.min > me.trustScore);
 
   // The student is "new" when they have never run the loop. We pick a
