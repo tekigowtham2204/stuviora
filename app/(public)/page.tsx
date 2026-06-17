@@ -22,12 +22,16 @@ import {
 } from "@/components/ui/section";
 import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
-import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { compactINR } from "@/components/ui/money";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPlatformMetrics } from "@/lib/data/queries";
 import { services } from "@/lib/env";
-import { COMMISSION_RATE, TRUST_LAYERS } from "@/lib/constants";
+import {
+  COMMISSION_RATE,
+  AI_GATE_PASS_THRESHOLD,
+  ESCROW_AUTO_RELEASE_HOURS,
+  TRUST_LAYERS,
+} from "@/lib/constants";
 
 export default function HomePage() {
   return (
@@ -65,7 +69,7 @@ export default function HomePage() {
 }
 
 // =============================================================================
-// 1. Hero - anchor with a live deal in progress
+// 1. Hero - anchor with the deal flow (mechanism, no fabricated instance)
 // =============================================================================
 
 function Hero() {
@@ -135,9 +139,9 @@ function Hero() {
               </div>
             </div>
 
-            {/* RIGHT - live deal in progress */}
+            {/* RIGHT - how a deal flows (mechanism, not a fabricated order) */}
             <div className="relative">
-              <LiveDealCard />
+              <DealFlowCard />
             </div>
           </div>
         </Container>
@@ -146,86 +150,92 @@ function Hero() {
   );
 }
 
-function LiveDealCard() {
+function DealFlowCard() {
+  const studentSharePct = Math.round((1 - COMMISSION_RATE) * 100);
+  const platformPct = Math.round(COMMISSION_RATE * 100);
+  const flow: {
+    icon: LucideIcon;
+    title: string;
+    body: string;
+    accent: "sage" | "yellow" | "orange";
+  }[] = [
+    {
+      icon: ShieldCheck,
+      accent: "sage",
+      title: "Client funds escrow",
+      body: "Razorpay holds the full amount upfront, before any work begins.",
+    },
+    {
+      icon: GraduationCap,
+      accent: "yellow",
+      title: "Verified student delivers",
+      body: "A college-verified student submits the work against the brief.",
+    },
+    {
+      icon: Bot,
+      accent: "orange",
+      title: "AI quality gate",
+      body: `Every submission is scored to 100. Only work at ${AI_GATE_PASS_THRESHOLD} or above reaches the client.`,
+    },
+    {
+      icon: Wallet,
+      accent: "sage",
+      title: "Paid on approval",
+      body: `${studentSharePct}% releases to the student on approval, or after ${ESCROW_AUTO_RELEASE_HOURS}h auto-release.`,
+    },
+  ];
+
   return (
     <div className="relative mx-auto w-full max-w-md">
-      {/* The deal card */}
       <Reveal>
         <Card surface="glow" className="relative z-10 rounded-[28px] p-7">
-          <div className="flex items-center justify-between">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-ink-muted)]">
-              Sample order · how a deal flows
-            </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-sage-50)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-sage-900)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-sage-deep)]" />
-              Example
-            </span>
+          <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-ink-muted)]">
+            How every deal works
           </div>
 
-          {/* Student row */}
-          <div className="mt-5 flex items-start gap-3">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-sage)] text-lg font-semibold text-[var(--color-brown-900)]">
-              KR
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="font-display text-lg font-medium text-[var(--color-ink)]">
-                  Kabir Rao
+          <ol className="mt-5 space-y-4">
+            {flow.map(({ icon: Icon, title, body, accent }) => (
+              <li key={title} className="flex items-start gap-3">
+                <span
+                  className={
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[var(--color-brown-900)] " +
+                    (accent === "sage"
+                      ? "bg-[var(--color-sage)]"
+                      : accent === "yellow"
+                      ? "bg-[var(--color-yellow)]"
+                      : "bg-[var(--color-orange)]")
+                  }
+                >
+                  <Icon className="h-4 w-4" />
                 </span>
-                <ShieldCheck className="h-4 w-4 text-[var(--color-sage-deep)]" />
-              </div>
-              <div className="text-xs text-[var(--color-ink-muted)]">
-                NID Ahmedabad · Communication Design
-              </div>
-            </div>
-            <TrustTierBadge tier="platinum" size="sm" />
-          </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-[var(--color-ink)]">
+                    {title}
+                  </div>
+                  <p className="mt-0.5 text-xs leading-relaxed text-[var(--color-ink-muted)]">
+                    {body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
 
-          <p className="mt-5 text-sm leading-relaxed text-[var(--color-ink)]">
-            Delivered: Instagram content kit for a coffee brand. 10 posts and 3
-            reel covers.
-          </p>
-
-          {/* AI review readout */}
-          <div className="mt-5 rounded-2xl border border-[var(--color-sage-200)] bg-[var(--color-sage-50)] p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--color-sage-900)]">
-                <Bot className="h-3.5 w-3.5" /> AI quality gate
-              </div>
-              <div className="font-display text-2xl font-medium tabular-nums text-[var(--color-ink)]">
-                86
-                <span className="ml-1 text-xs font-normal text-[var(--color-ink-faint)]">
-                  / 100
-                </span>
-              </div>
-            </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--color-cream-deep)]">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[var(--color-sage)] to-[var(--color-sage-deep)]"
-                style={{ width: "86%" }}
-              />
-            </div>
-            <div className="mt-2 text-[11px] text-[var(--color-sage-900)]/80">
-              PASS. Safe to deliver.
-            </div>
-          </div>
-
-          {/* Split */}
-          <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+          {/* The split - policy facts, not a fabricated order */}
+          <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-2xl bg-[var(--color-surface-warm)] p-4">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
                 Student receives
               </div>
               <div className="mt-1 font-display text-xl font-medium tabular-nums text-[var(--color-ink)]">
-                ₹5,950
+                {studentSharePct}%
               </div>
             </div>
             <div className="rounded-2xl bg-[var(--color-surface-warm)] p-4">
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                Platform fee (15%)
+                Platform fee
               </div>
               <div className="mt-1 font-display text-xl font-medium tabular-nums text-[var(--color-ink)]">
-                ₹1,050
+                {platformPct}%
               </div>
             </div>
           </div>
@@ -240,7 +250,7 @@ function LiveDealCard() {
         </div>
       </div>
 
-      {/* Floating: payout pill */}
+      {/* Floating: escrow pill */}
       <div className="absolute -bottom-6 -left-6 z-20 -rotate-[3deg]">
         <Card surface="raised" className="px-4 py-3" tint="white">
           <div className="flex items-center gap-2">
@@ -249,10 +259,10 @@ function LiveDealCard() {
             </span>
             <div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                Razorpay payout
+                Razorpay escrow
               </div>
-              <div className="font-display text-base font-medium tabular-nums text-[var(--color-ink)]">
-                ₹5,950 credited
+              <div className="font-display text-base font-medium text-[var(--color-ink)]">
+                Paid on approval
               </div>
             </div>
           </div>
@@ -367,7 +377,7 @@ function Moat() {
           </Reveal>
 
           <Reveal index={1}>
-            <ReviewPanel />
+            <GateRubricCard />
           </Reveal>
         </div>
       </Container>
@@ -375,12 +385,15 @@ function Moat() {
   );
 }
 
-function ReviewPanel() {
-  const scores = [
-    { label: "Brief alignment", value: 36, max: 40 },
-    { label: "Completeness", value: 27, max: 30 },
-    { label: "Quality", value: 23, max: 30 },
-    { label: "Originality", value: 96, max: 100 },
+function GateRubricCard() {
+  // The real rubric (lib/ai/quality-gate.ts): brief alignment is weighted /40,
+  // completeness and quality /30 each (sum 100). Originality is a separate
+  // plagiarism / AI-content check. We show the rubric itself, not a fabricated
+  // score for an order that never happened.
+  const dimensions = [
+    { label: "Brief alignment", weight: 40 },
+    { label: "Completeness", weight: 30 },
+    { label: "Quality", weight: 30 },
   ];
   return (
     <Card className="relative overflow-hidden p-7" surface="glow">
@@ -391,36 +404,39 @@ function ReviewPanel() {
           </span>
           <div>
             <div className="text-sm font-semibold text-[var(--color-ink)]">
-              AI quality review
+              What the AI gate checks
             </div>
-            <div className="font-mono text-xs text-[var(--color-ink-faint)]">
-              order SV-1042
+            <div className="text-xs text-[var(--color-ink-faint)]">
+              Scored on every delivery
             </div>
           </div>
         </div>
         <div className="text-right">
           <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--color-ink-muted)]">
-            Score
+            Pass mark
           </div>
           <div className="font-display text-4xl font-medium tabular-nums text-[var(--color-ink)]">
-            86
+            {AI_GATE_PASS_THRESHOLD}
+            <span className="ml-1 text-xs font-normal text-[var(--color-ink-faint)]">
+              / 100
+            </span>
           </div>
         </div>
       </div>
 
       <div className="mt-6 space-y-4">
-        {scores.map((s) => (
-          <div key={s.label}>
+        {dimensions.map((d) => (
+          <div key={d.label}>
             <div className="flex justify-between text-xs">
-              <span className="text-[var(--color-ink-muted)]">{s.label}</span>
+              <span className="text-[var(--color-ink-muted)]">{d.label}</span>
               <span className="font-mono font-medium tabular-nums text-[var(--color-ink)]">
-                {s.value}/{s.max}
+                weighted /{d.weight}
               </span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-[var(--color-surface-warm)]">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-[var(--color-sage)] to-[var(--color-sage-deep)]"
-                style={{ width: `${(s.value / s.max) * 100}%` }}
+                style={{ width: `${d.weight}%` }}
               />
             </div>
           </div>
@@ -428,9 +444,10 @@ function ReviewPanel() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-[var(--color-sage-200)] bg-[var(--color-sage-50)] p-4 text-xs leading-relaxed text-[var(--color-sage-900)]">
-        <span className="font-semibold">PASS. </span>
-        Deliverable matches the brief and reads cleanly. Minor: tighten the
-        intro. Safe to deliver.
+        <span className="font-semibold">Plus an originality check. </span>
+        Submissions are scanned for plagiarism and AI-generated content, so the
+        work stays genuinely the student&apos;s. Anything below{" "}
+        {AI_GATE_PASS_THRESHOLD} bounces back with specific fixes.
       </div>
     </Card>
   );

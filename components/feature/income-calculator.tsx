@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { Calculator } from "lucide-react";
+import { COMMISSION_RATE } from "@/lib/constants";
 
 /**
  * Income calculator (audit #2). Client-side widget: pick what you do and
- * how many projects a month; see the take-home estimate (after the 15%
- * platform share). Numbers mirror the pricing engine's category floors
- * and typical project sizes; copy stays honest with "typical" framing.
+ * how many projects a month; see the take-home estimate (after the
+ * platform share). The per-category numbers are typical project sizes,
+ * not real platform data: the UI frames them as "typical" / "estimated"
+ * so nothing reads as a real metric. The platform split is single-sourced
+ * from COMMISSION_RATE.
  */
 
 const CATEGORIES = [
@@ -19,7 +22,7 @@ const CATEGORIES = [
   { slug: "data-ai", name: "Data & AI services", typical: 6000 },
 ];
 
-const STUDENT_SHARE = 0.85;
+const STUDENT_SHARE = 1 - COMMISSION_RATE;
 
 export function IncomeCalculator() {
   const [slug, setSlug] = useState(CATEGORIES[0].slug);
@@ -72,7 +75,8 @@ export function IncomeCalculator() {
           <span className="text-base text-[var(--color-ink-muted)]"> /month</span>
         </div>
         <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
-          Based on typical {cat.name.toLowerCase()} project sizes. You keep 85% of every project.
+          Based on typical {cat.name.toLowerCase()} project sizes. You keep{" "}
+          {Math.round(STUDENT_SHARE * 100)}% of every project.
         </p>
       </div>
     </div>
