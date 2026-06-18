@@ -57,7 +57,7 @@ export default function AboutPage() {
           </div>
 
           <Reveal index={2} className="mx-auto mt-12 max-w-3xl">
-            <div className="relative overflow-hidden rounded-[36px] bg-[var(--color-brown)] p-10 text-center text-[var(--color-cream)] sm:p-14">
+            <div className="relative overflow-hidden rounded-[36px] bg-[var(--color-brown)] p-10 text-center text-[var(--color-cream)] sm:p-14 dark:border dark:border-white/10">
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-70"
