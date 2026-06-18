@@ -1,5 +1,12 @@
 # 13 Gap fix plan
 
+> **STATUS (2026-06-18): all five sprints + 5b are CLOSED.** See the
+> status header in [`student-audit.md`](./student-audit.md) and the
+> "Session update (2026-06-18)" block in
+> [`continue-prompt.md`](./continue-prompt.md) for what shipped (PRs
+> #24-#29) and the remaining keys/wiring backlog. The plan below is kept
+> as the historical record of how the sprints were sequenced.
+
 > Five sprints to close the 74 gaps from
 > [`student-audit.md`](./student-audit.md). Sprint 1 is the
 > highest-leverage; finishing it kills 10 of the 36 Diya-gaps in one

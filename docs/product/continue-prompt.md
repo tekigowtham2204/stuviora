@@ -5,11 +5,74 @@
 > off. This doc itself is the long-form explanation; the prompt at
 > the bottom is the short, self-contained handoff.
 
-**Last touched:** 2026-06-10 after the P5-P11 build-out on `claude/cool-ritchie-QmYEO`. If you
-return after later commits, re-skim this doc to make sure the "where
-we are" snapshot is still accurate.
+**Last touched:** 2026-06-18. See the **Session update (2026-06-18)**
+block immediately below for the current true state; the older sections
+further down are historical context. If you return after later commits,
+re-skim to confirm the snapshot still holds.
 
 ---
+
+## Session update (2026-06-18)
+
+`main` now includes six squash-merged PRs from this session (all green on
+CI: tsc + lint + em/en-dash copy-ban + 239 unit tests + build):
+
+| PR | What landed |
+|---|---|
+| #24 | `getPlatformMetrics()` computes REAL Supabase aggregates in live mode (orders, platform_ledger, tax_events, profile/dispute counts, 14-day sparkline); honest zeros on error, demo only when unconfigured. Freelancer reviews + trust history now filtered by studentId in live mode. Student dashboard uses `computeSplit()`. |
+| #25 | Fabricated data stripped from public pages: homepage hero "sample order" card -> factual `DealFlowCard`; AI review panel -> real rubric (`GateRubricCard`, weights 40/30/30, pass 70); income calculator single-sources the split from `COMMISSION_RATE`. |
+| #26 | Audit Sprint 5: onboarding pricing tip sourced from the pricing engine (`priceFloorFor`); low-fit "why" hint on the jobs list (#20); "AI is reviewing" order state (#31). |
+| #27 | Audit Sprint 5b: 7-day dispute appeal window enforced via tested `canAppealDispute()` (#55), `Dispute.resolvedAtISO` added. (#40 saved jobs, #43 templates, #56 block-client were already live-wired.) |
+| #28 | Light/dark theme audit: dark-mode separation for inset brown CTA blocks; trust-ring track contrast; AI-panel icon + messages sent-bubble contrast; `app/error.tsx` hex -> `var(token, fallback)`. |
+| #29 | P5/P6 wiring: `postJob` fires the match-fanout Inngest event with the real job id; `hireProposal` captures the real order id for the hire email; `dispatchUserEmail` honors email opt-outs; funnel `trackEvent` on order + dispute lifecycle; `sendMessage` rate-limited. |
+
+**Audit status:** the fake-data audit, theme audit, and student-audit
+Sprints 1-5 + 5b are CLOSED. Most of Sprints 5/5b turned out to have been
+shipped already by the P5-P11 build-out; only the genuine holes were
+closed.
+
+**Deferred backlog (intentionally NOT shipped until the core loop is
+verified live, since these touch the live path and cannot be verified
+without keys/deps here):**
+- Meilisearch live search: `searchIds()` exists in `lib/search/client.ts`
+  but `app/(public)/search/page.tsx` + `explore/page.tsx` call
+  `searchDemo()` directly. Needs a `searchSite()` hydration wrapper
+  (try `searchIds` -> hydrate via queries -> fall back to demo).
+- Per-recipient email opt-out filters inside the match fan-out
+  (`lib/matching/notify.ts`) and weekly digest (`inngest/functions.ts`)
+  workers. The dispatch-level gate (`lib/email/dispatch.ts`) already
+  covers the direct order/payout emails.
+- `getDispute()` (`lib/data/queries.ts`) is still demo-only; wiring its
+  live read (incl. `resolved_at`) makes the appeal window correct in live
+  mode.
+- Sentry: `captureError()` is a stub; needs `@sentry/nextjs` +
+  `instrumentation.ts`.
+
+**THE bottleneck is Phase V (live verification), which must run from the
+Codespace/local, NOT this remote container (egress to *.supabase.co is
+blocked here).** Code is wired behind `services.<flag>`; nothing in the
+live loop has been exercised with real keys yet. Do Phase V before any
+more live-wiring.
+
+### SECURITY TODOs (operator, do not skip)
+1. **Revoke** the Supabase personal access token pasted in chat earlier
+   (`sbp_a0a8805b...`) at supabase.com/dashboard/account/tokens.
+2. **Rotate** the `service_role` key after Phase V passes.
+
+### Phase V runbook (from Codespace/local)
+1. `npm run dev`; if `@tailwindcss/oxide ... Cannot find native binding`,
+   run `rm -rf node_modules package-lock.json .next && npm install`.
+2. `npm run verify:supabase` -> expect all 6 checks green.
+3. Sign up with an allow-listed college email (e.g. `test@iitb.ac.in`,
+   `student@ashoka.edu.in`; 42 domains seeded via migration 0003).
+   Confirm a row in Supabase Auth > Users and that the portal shows the
+   empty REAL account, NOT a demo persona (Aarav/Diya).
+4. Add Razorpay TEST keys + an OpenRouter key to `.env.local` and run the
+   full loop: post job -> hire -> fund escrow -> submit -> AI gate ->
+   approve -> payout. Watch Inngest + webhook logs.
+
+---
+
 
 ## What Stuviora is
 
@@ -169,7 +232,7 @@ track — the user has accepted both rhythms.
 ```bash
 npx tsc --noEmit          # type-check
 npm run lint              # eslint
-npm test                  # vitest, 144 tests as of d3da3b2
+npm test                  # vitest, 239 tests as of 5d17a4b (#29)
 npm run build             # next build, 43+ routes
 ```
 
@@ -208,10 +271,15 @@ first — it is the canonical handoff and points at the other docs you
 need. Then read docs/product/build-checklist.md Part D for the queued
 tasks and docs/product/student-audit.md Part D for the gap fix list.
 
-Repo at tekigowtham2204/stuviora. Working tree currently on main
-at d3da3b2 (or later — check git log). Phases P0 to P4 are wired
-behind services.<flag>; P5 is paused; P6 to P11 not started. Audit
-Sprints 1 to 4 closed; Sprint 5 queued.
+Repo at tekigowtham2204/stuviora. Working tree on main at 5d17a4b (#29)
+or later — check git log and the "Session update (2026-06-18)" block at
+the top of this doc. Phases P0 to P11 are wired behind services.<flag>;
+the fake-data audit, theme audit, and student-audit Sprints 1 to 5 + 5b
+are CLOSED. The bottleneck is Phase V (live verification) which runs from
+the Codespace/local, NOT a remote container (egress to *.supabase.co is
+blocked there). See the Session update block for the deferred live-wiring
+backlog and the SECURITY TODOs (revoke the pasted Supabase PAT; rotate the
+service_role key after Phase V).
 
 Convention recap (so I do not have to repeat):
 - Branch per logical unit; squash-merge PR to main.
