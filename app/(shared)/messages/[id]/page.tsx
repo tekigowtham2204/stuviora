@@ -59,7 +59,7 @@ export default async function MessageThreadPage({
                 className={cn(
                   "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                   m.fromSelf
-                    ? "rounded-br-sm bg-brand-600 text-white"
+                    ? "rounded-br-sm bg-[var(--color-sage-deep)] text-[var(--color-brown-900)]"
                     : "rounded-bl-sm bg-surface text-foreground border border-border"
                 )}
               >
@@ -67,7 +67,7 @@ export default async function MessageThreadPage({
                 <p
                   className={cn(
                     "mt-1 text-[10px]",
-                    m.fromSelf ? "text-white/70" : "text-subtle"
+                    m.fromSelf ? "text-[var(--color-brown-900)]/70" : "text-subtle"
                   )}
                 >
                   {m.ago}
