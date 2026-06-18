@@ -122,6 +122,23 @@ export default async function StudentJobsPage({
                           </span>
                         ))}
                       </div>
+                      {breakdown.score < 40 &&
+                        (() => {
+                          // Surface why the fit is low so the student can self-filter
+                          // rather than guess (student-audit #20).
+                          const weakest = [...breakdown.components].sort(
+                            (a, b) => a.value - b.value
+                          )[0];
+                          return weakest ? (
+                            <p className="mt-3 text-xs leading-relaxed text-[var(--color-ink-muted)]">
+                              <span className="font-medium text-[var(--color-ink)]">
+                                Low fit:
+                              </span>{" "}
+                              {weakest.hint} Try a category that matches your
+                              skills.
+                            </p>
+                          ) : null;
+                        })()}
                     </div>
                     <div className="shrink-0 text-right">
                       <Badge tone={breakdown.score >= 60 ? "sage" : breakdown.score >= 40 ? "yellow" : "neutral"}>

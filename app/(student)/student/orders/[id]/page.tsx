@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, MessageSquare, Users, CheckCircle2 } from "lucide-react";
+import { Clock, MessageSquare, Users, CheckCircle2, Bot } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,20 @@ export default async function StudentOrderDetail({
           </Button>
         </Card>
       )}
+
+      {(order.status === "submitted" || order.status === "in_ai_review") &&
+        !order.aiReview && (
+          <Card surface="flat" tint="sage" className="mt-6 flex items-center gap-3 text-sm">
+            <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-sage)] text-[var(--color-brown-900)]">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-sage)] opacity-60" />
+              <Bot className="relative h-4 w-4" />
+            </span>
+            <span className="text-[var(--color-sage-900)]" role="status" aria-live="polite">
+              AI is reviewing your work against the brief. The result usually
+              lands within a minute. Refresh to see the verdict.
+            </span>
+          </Card>
+        )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-6">

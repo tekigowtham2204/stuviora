@@ -2,10 +2,9 @@ import { Check, Sparkles } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input, Textarea, Label, Select } from "@/components/ui/input";
-import { Money } from "@/components/ui/money";
+import { Input, Textarea, Label } from "@/components/ui/input";
 import { completeStudentOnboarding } from "@/app/actions/onboarding";
-import { SERVICE_CATEGORIES } from "@/lib/constants";
+import { ServiceCategoryPricing } from "@/components/feature/service-category-pricing";
 
 export const metadata = { title: "Welcome to Stuviora" };
 
@@ -145,21 +144,7 @@ export default function StudentOnboardingPage() {
                 placeholder="e.g. Python automation scripts"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="serviceCategory">Category</Label>
-              <Select id="serviceCategory" name="serviceCategory">
-                {SERVICE_CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <p className="text-xs text-[var(--color-ink-faint)]">
-              Pricing tip: most starter services sit in the{" "}
-              <Money value={1500} compact /> to <Money value={6000} compact /> range
-              for the basic tier. You can edit anytime.
-            </p>
+            <ServiceCategoryPricing />
           </div>
         </Card>
 
