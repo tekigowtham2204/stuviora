@@ -6,7 +6,21 @@ import {
   type NotificationKind,
 } from "@/lib/notifications/log";
 import { getServiceSupabase } from "@/lib/supabase/server";
+import { getNotificationPreferences } from "@/lib/data/queries";
 import { services } from "@/lib/env";
+
+/**
+ * Opt-out-able email kinds and the preference flag that gates each. Kinds not
+ * listed (payout_settled, ai_gate_result, dispute_event, tier_upgraded) are
+ * transactional and always sent.
+ */
+const PREF_GATE: Partial<
+  Record<NotificationKind, "emailJobMatches" | "emailOrderUpdates" | "emailWeeklyDigest">
+> = {
+  match_email: "emailJobMatches",
+  order_update: "emailOrderUpdates",
+  weekly_digest: "emailWeeklyDigest",
+};
 
 /**
  * Order-lifecycle email dispatch (blueprint flow: "client notified" /
@@ -25,6 +39,15 @@ export async function dispatchUserEmail(
   relatedId?: string
 ): Promise<void> {
   try {
+    // Respect the recipient's email preferences for opt-out-able kinds. A
+    // missing prefs row defaults to sending (we never silently suppress
+    // without an explicit opt-out).
+    const gate = PREF_GATE[kind];
+    if (gate) {
+      const prefs = await getNotificationPreferences(userId);
+      if (prefs && prefs[gate] === false) return;
+    }
+
     let email: string | null = null;
     if (services.supabase) {
       const supabase = getServiceSupabase();

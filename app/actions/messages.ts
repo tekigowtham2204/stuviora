@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth/dal";
 import { validateUpload } from "@/lib/uploads/validate";
 import { trackEvent } from "@/lib/observability";
+import { rateLimit } from "@/lib/ratelimit";
 
 /**
  * Send a message with an optional attachment (audit #64). The attachment
@@ -15,6 +16,17 @@ import { trackEvent } from "@/lib/observability";
 export async function sendMessage(formData: FormData) {
   const session = await requireSession();
   const conversationId = (formData.get("conversationId") as string) || "";
+
+  // Spam guard: cap messages per sender (Upstash live, in-memory demo).
+  const limit = await rateLimit({
+    key: `sendMessage:${session.user.id}`,
+    max: 20,
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) {
+    redirect(`/messages/${conversationId}?sent=rate_limited`);
+  }
+
   const body = ((formData.get("body") as string) || "").trim();
   const file = formData.get("attachment") as File | null;
 

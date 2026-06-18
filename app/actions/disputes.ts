@@ -12,6 +12,7 @@ import {
 import { requireSession } from "@/lib/auth/dal";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { services } from "@/lib/env";
+import { trackEvent } from "@/lib/observability";
 import { appealedDisputeIds } from "@/lib/demo/state";
 
 /**
@@ -35,6 +36,7 @@ export async function openDispute(formData: FormData) {
   // schedule 48h escalation. Deadline below seeds the timer.
   void stageDeadline();
 
+  trackEvent("dispute_opened", { orderId });
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
   redirect(`/disputes?opened=1`);
@@ -48,6 +50,7 @@ export async function submitEvidence(formData: FormData) {
   void note;
 
   // Live: insert dispute_evidences row (+ optional file upload to Storage).
+  trackEvent("dispute_evidence_submitted", { disputeId });
   revalidatePath(`/disputes/${disputeId}`);
   redirect(`/disputes/${disputeId}?evidence=1`);
 }
@@ -65,6 +68,7 @@ export async function advanceDispute(formData: FormData) {
     void stageDeadline();
   }
 
+  trackEvent("dispute_advanced", { disputeId, to: to ?? dispute.status });
   revalidatePath(`/disputes/${disputeId}`);
   redirect(`/disputes/${disputeId}?advanced=1`);
 }
@@ -110,7 +114,7 @@ export async function appealDispute(formData: FormData) {
       .is("appealed_at", null);
   }
   appealedDisputeIds.add(disputeId);
-  void session;
+  trackEvent("dispute_appealed", { disputeId }, session.user.id);
   revalidatePath(`/disputes/${disputeId}`);
   redirect(`/disputes/${disputeId}?appeal=filed`);
 }

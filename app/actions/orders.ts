@@ -10,6 +10,7 @@ import { dispatchUserEmail } from "@/lib/email/dispatch";
 import { orderSubmittedEmail, payoutSettledEmail } from "@/lib/email/templates";
 import { getClientById } from "@/lib/data/queries";
 import { rateLimit } from "@/lib/ratelimit";
+import { trackEvent } from "@/lib/observability";
 import { dispatchPartnerWebhook } from "@/lib/partners/webhooks";
 import { getStudentById } from "@/lib/data/queries";
 import { getOrder } from "@/lib/data/queries";
@@ -78,6 +79,7 @@ export async function submitWork(formData: FormData) {
     orderId
   );
 
+  trackEvent("work_submitted", { orderId }, session.user.id);
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath(`/client/orders/${orderId}`);
   redirect(`/student/orders/${orderId}?submitted=1`);
@@ -145,6 +147,7 @@ export async function approveOrder(formData: FormData) {
     });
   }
 
+  trackEvent("order_approved", { orderId }, session.user.id);
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath("/client/orders");
@@ -158,9 +161,10 @@ export async function requestRevision(formData: FormData) {
   const order = await getOrder(orderId);
   if (!order || order.clientId !== session.user.id) redirect("/client/orders");
   void formData.get("revisionNotes");
+  await recordHumanOutcome(orderId, "revision_requested");
+  trackEvent("revision_requested", { orderId }, session.user.id);
   revalidatePath(`/client/orders/${orderId}`);
   revalidatePath(`/student/orders/${orderId}`);
-  await recordHumanOutcome(orderId, "revision_requested");
   redirect(`/client/orders/${orderId}?revisionRequested=1`);
 }
 
@@ -169,8 +173,9 @@ export async function leaveReview(formData: FormData) {
   const orderId = (formData.get("orderId") as string) || "";
   const order = await getOrder(orderId);
   if (!order || order.clientId !== session.user.id) redirect("/client/orders");
-  void formData.get("rating");
+  const rating = Number(formData.get("rating") || 0);
   void formData.get("comment");
+  trackEvent("order_reviewed", { orderId, rating }, session.user.id);
   revalidatePath(`/client/orders/${orderId}`);
   redirect(`/client/orders/${orderId}?reviewed=1`);
 }
