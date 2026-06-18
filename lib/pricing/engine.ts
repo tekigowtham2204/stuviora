@@ -32,6 +32,15 @@ const TIER_MULTIPLIER: Record<TrustTier, number> = {
   platinum: 1.12, // premium pricing
 };
 
+/**
+ * Per-category price floor (the anti-undercharge minimum). Exposed so UI
+ * surfaces (the onboarding pricing tip, service creation) source the same
+ * numbers as the bid engine instead of hardcoding their own.
+ */
+export function priceFloorFor(categorySlug: string): number {
+  return CATEGORY_FLOOR[categorySlug] ?? 1500;
+}
+
 export interface PricingSuggestion {
   low: number;
   suggested: number;
