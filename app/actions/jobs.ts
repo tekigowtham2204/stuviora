@@ -13,6 +13,7 @@ import * as demoState from "@/lib/demo/state";
 import { dispatchUserEmail } from "@/lib/email/dispatch";
 import { orderHiredEmail } from "@/lib/email/templates";
 import { getJob, listJobProposals, getStudentById } from "@/lib/data/queries";
+import { fireEvent, EVENTS } from "@/lib/inngest/client";
 
 /**
  * Demo Server Actions for jobs + proposals.
@@ -48,16 +49,27 @@ export async function postJob(formData: FormData) {
         .select("id")
         .eq("slug", category)
         .maybeSingle<{ id: string }>();
-      await supabase.from("jobs").insert({
-        client_id: session.user.id,
-        category_id: cat?.id ?? null,
-        title,
-        description,
-        budget_min: budgetMin,
-        budget_max: budgetMax,
-        deadline: new Date(Date.now() + deadlineDays * 86400_000).toISOString(),
-        status: "open",
-      });
+      const { data: created } = await supabase
+        .from("jobs")
+        .insert({
+          client_id: session.user.id,
+          category_id: cat?.id ?? null,
+          title,
+          description,
+          budget_min: budgetMin,
+          budget_max: budgetMax,
+          deadline: new Date(
+            Date.now() + deadlineDays * 86400_000
+          ).toISOString(),
+          status: "open",
+        })
+        .select("id")
+        .maybeSingle<{ id: string }>();
+      // Fan out match alerts to fit students (Inngest worker enforces the
+      // 3/day cap + per-student opt-out). Demo mode no-ops on the event.
+      if (created?.id) {
+        await fireEvent(EVENTS.MATCHING_NOTIFY, { jobId: created.id });
+      }
     }
   }
 
@@ -154,21 +166,28 @@ export async function hireProposal(formData: FormData) {
   const hired = proposals.find((p) => p.id === proposalId);
 
   // Live write: create the order in pending_payment; the payment page +
-  // webhook take it from there.
+  // webhook take it from there. Capture the new order id so the hire email
+  // links to the real order, not the proposal (student-audit P5 bug).
+  let createdOrderId = proposalId;
   if (services.supabase && job && hired) {
     const supabase = getServiceSupabase();
     if (supabase) {
-      await supabase.from("orders").insert({
-        job_id: job.id,
-        proposal_id: hired.id,
-        client_id: job.clientId,
-        student_id: hired.studentId,
-        amount: hired.bidAmount,
-        status: "pending_payment",
-        deadline: new Date(
-          Date.now() + (hired.deliveryDays || 7) * 86400_000
-        ).toISOString(),
-      });
+      const { data: created } = await supabase
+        .from("orders")
+        .insert({
+          job_id: job.id,
+          proposal_id: hired.id,
+          client_id: job.clientId,
+          student_id: hired.studentId,
+          amount: hired.bidAmount,
+          status: "pending_payment",
+          deadline: new Date(
+            Date.now() + (hired.deliveryDays || 7) * 86400_000
+          ).toISOString(),
+        })
+        .select("id")
+        .maybeSingle<{ id: string }>();
+      if (created?.id) createdOrderId = created.id;
       await supabase
         .from("proposals")
         .update({ status: "accepted" })
@@ -184,10 +203,10 @@ export async function hireProposal(formData: FormData) {
         studentName: hiredStudent?.fullName ?? "there",
         jobTitle: job.title,
         amount: hired.bidAmount,
-        orderId: proposalId,
+        orderId: createdOrderId,
       }),
       "order_update",
-      jobId
+      createdOrderId
     );
   }
   revalidatePath(`/client/jobs/${jobId}/proposals`);
