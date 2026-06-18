@@ -20,7 +20,7 @@ export default function GlobalError({
     <html>
       <body className="min-h-screen bg-[var(--color-background, #f8f2e3)] text-[var(--color-ink, #473c33)]">
         <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#fde0c2] text-[#a45a1f]">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-orange-100,#fde0c2)] text-[var(--color-orange-700,#a45a1f)]">
             <AlertTriangle className="h-6 w-6" />
           </span>
           <h1 className="mt-6 font-display text-3xl font-medium tracking-tight">
@@ -39,13 +39,13 @@ export default function GlobalError({
             <button
               type="button"
               onClick={() => reset()}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#fda769] px-5 py-3 text-sm font-medium text-[#2c241d] transition-colors hover:bg-[#e89253]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-orange,#fda769)] px-5 py-3 text-sm font-medium text-[var(--color-brown-900,#2c241d)] transition-colors hover:bg-[var(--color-orange-deep,#e89253)]"
             >
               <RotateCcw className="h-4 w-4" /> Try again
             </button>
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-full border border-[#473c33] px-5 py-3 text-sm font-medium text-[#473c33] transition-colors hover:bg-[#473c33] hover:text-[#f8f2e3]"
+              className="inline-flex items-center justify-center rounded-full border border-[var(--color-ink,#473c33)] px-5 py-3 text-sm font-medium text-[var(--color-ink,#473c33)] transition-colors hover:bg-[var(--color-ink,#473c33)] hover:text-[var(--color-cream,#f8f2e3)]"
             >
               Back to home
             </Link>

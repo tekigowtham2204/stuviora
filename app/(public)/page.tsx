@@ -670,7 +670,7 @@ function ClosingCta() {
     <Section spacing="generous">
       <Container>
         <Reveal>
-          <div className="relative overflow-hidden rounded-[36px] bg-[var(--color-brown)] px-8 py-20 text-[var(--color-cream)] sm:px-14 sm:py-24">
+          <div className="relative overflow-hidden rounded-[36px] bg-[var(--color-brown)] px-8 py-20 text-[var(--color-cream)] sm:px-14 sm:py-24 dark:border dark:border-white/10">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-80"

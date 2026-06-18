@@ -45,7 +45,7 @@ export default async function TrustPage() {
                   cy="50"
                   r="44"
                   fill="none"
-                  stroke="var(--color-surface-warm)"
+                  stroke="var(--color-line-strong)"
                   strokeWidth="8"
                 />
                 <circle
