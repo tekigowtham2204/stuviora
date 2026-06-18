@@ -1,12 +1,30 @@
 # 12 Student walkthrough audit
 
-> **Status update (2026-06-07):**
+> **Status update (2026-06-18):**
 > - Sprint 1 + 2 + 3 closed in commit `aabcc40` (PR #8).
-> - Sprint 4 closed in this PR (claude/audit-sprint-4):
+> - Sprint 4 closed (claude/audit-sprint-4):
 >   #41 pagination, #46 deadline sort, #50 quarterly tax + CSV, #51 GSTIN field,
 >   #53 payouts page, #57 mobile bottom nav.
-> - Remaining: Sprint 5 (polish + safety + power-user items needing
->   new schema). Tracked in build-checklist.md.
+> - Sprint 5 closed (PR #26): #16 onboarding pricing now sourced from the
+>   pricing engine, #20 low-fit "why" hint on the jobs list, #31 "AI is
+>   reviewing" order state. Re-audit confirmed the rest of Sprint 5 was
+>   already shipped by earlier build-outs (#5,#6,#7,#8,#9,#14,#19,#23,#24,
+>   #25,#26,#27,#28,#30,#32,#33,#34,#36,#54,#56,#57,#61,#62,#63,#64,#67,#68,
+>   #70,#71,#72).
+> - Sprint 5b closed: #40 saved jobs, #43 proposal templates, #56 block
+>   client were already live-wired (migration 0010); #55 (PR #27) now
+>   enforces the 7-day dispute appeal window with a tested engine helper.
+> - Adjacent hardening this cycle: fake-data audit (PR #24/#25 — real
+>   platform metrics + filtered reviews/trust in live mode; public pages
+>   de-fabricated), light/dark theme audit (PR #28), and P5/P6 wiring
+>   (PR #29 — match fan-out fires, orderHired email links the real order,
+>   email opt-outs honored, funnel events, sendMessage rate limit).
+> - Remaining (need live keys / heavier wiring): #4 college typeahead,
+>   #10 multi-step onboarding, #12 bio AI-assist, #13 headshot upload,
+>   #15 required portfolio sample, #35 first-withdrawal celebration,
+>   #58 PWA, #65 typing/read receipts. Live Meilisearch search hydration,
+>   per-recipient match/digest opt-out filters, getDispute live read, and
+>   Sentry init are tracked as P5/P6 follow-ups.
 
 
 > Two students sit down with Stuviora today. Diya has never freelanced
