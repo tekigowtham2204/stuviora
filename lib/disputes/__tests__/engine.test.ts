@@ -6,8 +6,11 @@ import {
   isEscalated,
   stageDeadline,
   resolveOutcome,
+  canAppealDispute,
+  appealWindowClosesAt,
   DISPUTE_FLOW,
   ESCALATION_HOURS,
+  APPEAL_WINDOW_DAYS,
 } from "@/lib/disputes/engine";
 
 describe("canTransition", () => {
@@ -111,5 +114,68 @@ describe("DISPUTE_FLOW", () => {
       "admin_review",
       "resolved",
     ]);
+  });
+});
+
+describe("canAppealDispute (#55 7-day window)", () => {
+  const now = new Date("2026-06-18T00:00:00Z");
+  const day = 24 * 3600_000;
+
+  it("allows an appeal on a resolved dispute within the window", () => {
+    const resolvedAtISO = new Date(now.getTime() - 2 * day).toISOString();
+    expect(
+      canAppealDispute(
+        { status: "resolved", resolvedAtISO, alreadyAppealed: false },
+        now,
+      ),
+    ).toBe(true);
+  });
+
+  it("blocks an appeal once the window has closed", () => {
+    const resolvedAtISO = new Date(
+      now.getTime() - (APPEAL_WINDOW_DAYS + 1) * day,
+    ).toISOString();
+    expect(
+      canAppealDispute(
+        { status: "resolved", resolvedAtISO, alreadyAppealed: false },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("blocks an appeal that was already filed", () => {
+    const resolvedAtISO = new Date(now.getTime() - 1 * day).toISOString();
+    expect(
+      canAppealDispute(
+        { status: "resolved", resolvedAtISO, alreadyAppealed: true },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("blocks an appeal on a dispute that is not resolved", () => {
+    const resolvedAtISO = new Date(now.getTime() - 1 * day).toISOString();
+    expect(
+      canAppealDispute(
+        { status: "admin_review", resolvedAtISO, alreadyAppealed: false },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("treats a missing resolved timestamp as not appealable", () => {
+    expect(
+      canAppealDispute(
+        { status: "resolved", resolvedAtISO: null, alreadyAppealed: false },
+        now,
+      ),
+    ).toBe(false);
+  });
+
+  it("closes the window exactly 7 days after resolution", () => {
+    const resolvedAtISO = "2026-06-01T00:00:00Z";
+    expect(appealWindowClosesAt(resolvedAtISO).toISOString()).toBe(
+      "2026-06-08T00:00:00.000Z",
+    );
   });
 });

@@ -3,7 +3,12 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDispute, getOrder } from "@/lib/data/queries";
-import { assertTransition, nextStatus, stageDeadline } from "@/lib/disputes/engine";
+import {
+  assertTransition,
+  nextStatus,
+  stageDeadline,
+  canAppealDispute,
+} from "@/lib/disputes/engine";
 import { requireSession } from "@/lib/auth/dal";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { services } from "@/lib/env";
@@ -78,8 +83,19 @@ export async function appealDispute(formData: FormData) {
   if (dispute!.status !== "resolved") {
     redirect(`/disputes/${disputeId}?appeal=not_resolved`);
   }
-  if (appealedDisputeIds.has(disputeId)) {
+  const alreadyAppealed = appealedDisputeIds.has(disputeId);
+  if (alreadyAppealed) {
     redirect(`/disputes/${disputeId}?appeal=already`);
+  }
+  // Enforce the 7-day window from resolution (#55).
+  if (
+    !canAppealDispute({
+      status: dispute!.status,
+      resolvedAtISO: dispute!.resolvedAtISO ?? null,
+      alreadyAppealed,
+    })
+  ) {
+    redirect(`/disputes/${disputeId}?appeal=window_closed`);
   }
 
   if (services.supabase) {
