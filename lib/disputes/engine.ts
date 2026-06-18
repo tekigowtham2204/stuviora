@@ -59,6 +59,38 @@ export function stageDeadline(now = new Date()): string {
   return new Date(now.getTime() + ESCALATION_HOURS * 3600_000).toISOString();
 }
 
+/** A resolved dispute may be appealed once, within this many days (#55). */
+export const APPEAL_WINDOW_DAYS = 7;
+
+export interface AppealEligibility {
+  status: DisputeStatus;
+  /** When the dispute was resolved; null if never resolved. */
+  resolvedAtISO: string | null;
+  /** Whether an appeal has already been filed. */
+  alreadyAppealed: boolean;
+}
+
+/**
+ * Whether a resolved dispute can still be appealed: it must be resolved,
+ * not already appealed, and within the 7-day window from resolution. A
+ * missing resolved timestamp is treated as not appealable (we cannot prove
+ * the window is open).
+ */
+export function canAppealDispute(
+  { status, resolvedAtISO, alreadyAppealed }: AppealEligibility,
+  now = new Date(),
+): boolean {
+  if (status !== "resolved" || alreadyAppealed || !resolvedAtISO) return false;
+  return now.getTime() <= appealWindowClosesAt(resolvedAtISO).getTime();
+}
+
+/** The instant the appeal window shuts (resolution + 7 days). */
+export function appealWindowClosesAt(resolvedAtISO: string): Date {
+  return new Date(
+    new Date(resolvedAtISO).getTime() + APPEAL_WINDOW_DAYS * 24 * 3600_000,
+  );
+}
+
 export interface DisputeOutcome {
   /** Share of escrow returned to the client (0..1). */
   clientRefundRatio: number;

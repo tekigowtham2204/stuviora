@@ -163,6 +163,8 @@ export interface Dispute {
   resolution: DisputeResolution;
   /** ISO timestamp the current stage escalates at (48h timer). */
   deadlineISO: string | null;
+  /** ISO timestamp the dispute was resolved; gates the 7-day appeal window. */
+  resolvedAtISO?: string | null;
   resolvedNote?: string;
   evidence: DisputeEvidence[];
   createdAgo: string;

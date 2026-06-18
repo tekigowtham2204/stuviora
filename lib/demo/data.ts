@@ -522,6 +522,8 @@ export const messages: Message[] = [
 
 const in18h = new Date(Date.now() + 18 * 3600_000).toISOString();
 const overdue = new Date(Date.now() - 5 * 3600_000).toISOString();
+// Resolved two days ago: still inside the 7-day appeal window (#55).
+const resolvedRecently = new Date(Date.now() - 2 * 24 * 3600_000).toISOString();
 
 export const disputes: Dispute[] = [
   {
@@ -605,6 +607,7 @@ export const disputes: Dispute[] = [
     status: "resolved",
     resolution: "partial",
     deadlineISO: null,
+    resolvedAtISO: resolvedRecently,
     resolvedNote:
       "Student delivered the vectors within 24h of the dispute. 80% released to student, 20% refunded for the delay.",
     createdAgo: "2w ago",

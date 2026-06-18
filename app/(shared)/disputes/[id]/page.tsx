@@ -10,7 +10,11 @@ import { getDispute } from "@/lib/data/queries";
 import { submitEvidence, appealDispute } from "@/app/actions/disputes";
 import { appealedDisputeIds } from "@/lib/demo/state";
 import { DISPUTE_STATUS_META, DISPUTE_RESOLUTION_META } from "@/lib/status";
-import { isEscalated, ESCALATION_HOURS } from "@/lib/disputes/engine";
+import {
+  isEscalated,
+  ESCALATION_HOURS,
+  canAppealDispute,
+} from "@/lib/disputes/engine";
 import { formatINR, cn } from "@/lib/utils";
 import { hoursLeft } from "@/lib/time";
 
@@ -24,13 +28,21 @@ const ROLE_TONE = {
 
 export default async function DisputeDetail({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ appeal?: string }>;
 }) {
   const { id } = await params;
+  const { appeal } = await searchParams;
   const dispute = await getDispute(id);
   if (!dispute) notFound();
   const appealed = appealedDisputeIds.has(id);
+  const canAppeal = canAppealDispute({
+    status: dispute.status,
+    resolvedAtISO: dispute.resolvedAtISO ?? null,
+    alreadyAppealed: appealed,
+  });
 
   const meta = DISPUTE_STATUS_META[dispute.status];
   const left = hoursLeft(dispute.deadlineISO);
@@ -53,7 +65,7 @@ export default async function DisputeDetail({
         </Card>
       )}
 
-      {dispute.status === "resolved" && !appealed && (
+      {dispute.status === "resolved" && !appealed && canAppeal && (
         <Card surface="flat" tint="warm" className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
           <span className="text-[var(--color-ink-muted)]">
             Disagree with this outcome? You can appeal once within 7 days of
@@ -65,6 +77,14 @@ export default async function DisputeDetail({
               Appeal this decision
             </Button>
           </form>
+        </Card>
+      )}
+
+      {dispute.status === "resolved" && !appealed && !canAppeal && (
+        <Card surface="flat" tint="warm" className="mb-6 text-sm text-[var(--color-ink-muted)]">
+          {appeal === "window_closed"
+            ? "The 7-day appeal window for this decision has closed, so it can no longer be appealed."
+            : "This decision is final. The 7-day appeal window has closed."}
         </Card>
       )}
 
