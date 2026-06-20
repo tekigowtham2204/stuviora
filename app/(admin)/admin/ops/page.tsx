@@ -81,12 +81,8 @@ export default async function AdminOpsPage() {
         <CardTitle>AI model</CardTitle>
         <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
           Powers the quality gate and AI assists. Provider:{" "}
-          {services.groq
-            ? "Groq"
-            : services.openrouter
-            ? "OpenRouter"
-            : "Demo (no key)"}
-          . Labels are tiers; the real model id is shown on each.
+          {services.groq ? "Groq" : "Demo (no key)"}. Labels are tiers; the
+          real model id is shown on each.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {LLM_TIERS.map((t) => {
