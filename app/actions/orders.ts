@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
 import { runQualityGate } from "@/lib/ai/quality-gate";
+import { resolveSubmissionOutcome } from "@/lib/orders/submission";
+import { MAX_REVISIONS } from "@/lib/constants";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
 import { dispatchUserEmail } from "@/lib/email/dispatch";
@@ -64,31 +66,99 @@ export async function submitWork(formData: FormData) {
     }
   }
 
-  // Live: upload files to Storage, fire Inngest 'ai/quality.check'.
-  // Demo: run gate synchronously so UI can show the result immediately.
-  await runQualityGate({
-    orderId,
-    jobBrief: { title: order.jobTitle, description: notes || "Submitted work for review." },
-    submissionText: notes,
-  });
-
-  // Blueprint flow: client notified that a delivery is ready.
-  const client = await getClientById(order!.clientId);
-  await dispatchUserEmail(
-    order!.clientId,
-    orderSubmittedEmail({
-      clientName: client?.fullName ?? "there",
-      jobTitle: order!.jobTitle,
-      orderId,
-    }),
-    "order_update",
-    orderId
+  // Which revision attempt is this (1-based, capped at MAX_REVISIONS).
+  const attempt = Math.min(
+    MAX_REVISIONS,
+    Math.max(1, Number(formData.get("attempt")) || 1)
   );
 
-  trackEvent("work_submitted", { orderId }, session.user.id);
+  // Run the AI gate. Files count as real work for the demo scorer (live
+  // extracts their text); fold their presence into the scored text.
+  const fileNote = files.length
+    ? `\n[Attached ${files.length} file(s): ${files.map((f) => f.name).join(", ")}]`
+    : "";
+  // Live: upload files to Storage, fire Inngest 'ai/quality.check'.
+  // Demo: run gate synchronously so the UI can show the result immediately.
+  const review = await runQualityGate({
+    orderId,
+    jobBrief: {
+      title: order.jobTitle,
+      description: notes || "Submitted work for review.",
+    },
+    submissionText: notes + fileNote,
+  });
+
+  // ENFORCE the verdict (this is the moat). PASS -> client review; FAIL ->
+  // back to the student with the issues; out of revisions -> escalate.
+  const outcome = resolveSubmissionOutcome({
+    verdict: review.verdict,
+    attempt,
+    maxAttempts: MAX_REVISIONS,
+  });
+
+  // Live: persist the review + the new order state. Demo: state is conveyed
+  // through the redirect (the order/submit pages reflect it).
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase.from("ai_reviews").insert({
+        order_id: orderId,
+        score: review.score,
+        verdict: review.verdict,
+        brief_alignment: review.briefAlignment,
+        completeness: review.completeness,
+        quality: review.quality,
+        originality: review.originality,
+        issues: review.issues,
+        suggestions: review.suggestions,
+        reviewer_note: review.reviewerNote,
+      });
+      await supabase
+        .from("orders")
+        .update({ status: outcome.status, revision_count: attempt })
+        .eq("id", orderId);
+      if (outcome.escalated) {
+        // Out of revisions: open a dispute for founder mediation/refund.
+        await supabase.from("dispute_cases").insert({
+          order_id: orderId,
+          raised_by: session.user.id,
+          reason: `AI gate failed after ${MAX_REVISIONS} attempts (last score ${review.score}/100).`,
+          status: "open",
+        });
+      }
+    }
+  }
+
+  trackEvent(
+    "work_submitted",
+    { orderId, verdict: review.verdict, attempt, status: outcome.status },
+    session.user.id
+  );
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath(`/client/orders/${orderId}`);
-  redirect(`/student/orders/${orderId}?submitted=1`);
+
+  if (review.verdict === "PASS") {
+    // Only now does the client hear about it: passing work reaches them.
+    const client = await getClientById(order!.clientId);
+    await dispatchUserEmail(
+      order!.clientId,
+      orderSubmittedEmail({
+        clientName: client?.fullName ?? "there",
+        jobTitle: order!.jobTitle,
+        orderId,
+      }),
+      "order_update",
+      orderId
+    );
+    redirect(`/student/orders/${orderId}?submitted=1`);
+  }
+
+  if (outcome.escalated) {
+    redirect(`/student/orders/${orderId}?escalated=1`);
+  }
+
+  // Failed but revisions remain: back to the resubmit form with the issues.
+  redirect(`/student/orders/${orderId}/submit?fail=1&attempt=${attempt + 1}`);
 }
 
 export async function approveOrder(formData: FormData) {
