@@ -44,12 +44,22 @@ function hash(s: string): number {
   return Math.abs(h);
 }
 
-/** Demo implementation: deterministic scored verdict per order id. */
+const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+/**
+ * Demo implementation: a deterministic verdict that actually responds to the
+ * submission. Thin/empty submissions score low and FAIL; substantial ones
+ * PASS - so the revision loop is demonstrable without live keys (a real
+ * submission and an empty one give different verdicts).
+ */
 function demoReview(input: QualityGateInput): QualityGateResult {
   const seed = hash(input.orderId);
-  const briefAlignment = 30 + (seed % 11);
-  const completeness = 22 + ((seed >> 3) % 9);
-  const quality = 21 + ((seed >> 5) % 10);
+  // Length of the submission stands in for "how much real work was sent".
+  const len = input.submissionText.trim().length;
+  const f = clamp(len / 220, 0, 1); // 0 (nothing) .. 1 (a full delivery)
+  const briefAlignment = clamp(Math.round(16 + f * 22 + (seed % 3)), 0, 40);
+  const completeness = clamp(Math.round(11 + f * 17 + ((seed >> 3) % 3)), 0, 30);
+  const quality = clamp(Math.round(12 + f * 16 + ((seed >> 5) % 3)), 0, 30);
   const originality = 88 + (seed % 12);
   const score = briefAlignment + completeness + quality;
   const verdict = score >= AI_GATE_PASS_THRESHOLD ? "PASS" : "FAIL";
