@@ -24,6 +24,7 @@ import {
   listPortfolio,
   listReviewsForStudent,
 } from "@/lib/data/queries";
+import { publicUserId } from "@/lib/identity/public-id";
 
 export async function generateMetadata({
   params,
@@ -105,6 +106,9 @@ export default async function FreelancerProfilePage({
                     <span className="inline-flex items-center gap-1.5">
                       <Star className="h-4 w-4 fill-[var(--color-yellow)] text-[var(--color-yellow-deep)]" />
                       {s.rating} ({s.reviewsCount} reviews)
+                    </span>
+                    <span className="font-mono text-xs text-[var(--color-ink-faint)]">
+                      {publicUserId("student", s.id)}
                     </span>
                   </div>
                 </div>

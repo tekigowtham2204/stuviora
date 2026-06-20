@@ -6,6 +6,7 @@ import { Money } from "@/components/ui/money";
 import { TrustTierBadge } from "@/components/ui/trust-tier-badge";
 import { listAdminUsers } from "@/lib/data/queries";
 import { toggleUserActive } from "@/app/actions/admin";
+import { publicUserId } from "@/lib/identity/public-id";
 
 export const metadata = { title: "Users" };
 
@@ -42,7 +43,8 @@ export default async function AdminUsersPage() {
                   {u.email}
                 </div>
                 <div className="text-xs text-[var(--color-ink-faint)]">
-                  Joined {u.joinedAgo}
+                  <span className="font-mono">{publicUserId(u.role, u.id)}</span> · Joined{" "}
+                  {u.joinedAgo}
                 </div>
               </div>
               <div className="flex items-center gap-2">
