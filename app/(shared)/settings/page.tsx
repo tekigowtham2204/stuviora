@@ -1,4 +1,4 @@
-import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck, Receipt, AlertTriangle, KeyRound, MonitorSmartphone } from "lucide-react";
+import { CheckCircle2, Bell, UserCircle2, Wallet, ShieldCheck, Receipt, AlertTriangle, KeyRound, MonitorSmartphone, UploadCloud } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,16 @@ import { saveNotificationPreferences } from "@/app/actions/notifications";
 import { saveBilling } from "@/app/actions/billing";
 import { enrollTotp, signOutOtherDevices } from "@/app/actions/security";
 import { publicUserId } from "@/lib/identity/public-id";
+import { toggleDestination, setAutoExport } from "@/app/actions/export";
+import { DESTINATION_VISIBILITY, type ExportDestination } from "@/lib/export/plan";
+import { connectedExportDestinations, autoExport } from "@/lib/demo/state";
+
+const EXPORT_DESTINATIONS: { key: ExportDestination; label: string }[] = [
+  { key: "github", label: "GitHub" },
+  { key: "drive", label: "Google Drive" },
+  { key: "notion", label: "Notion" },
+  { key: "portfolio", label: "Stuviora portfolio" },
+];
 
 export const metadata = { title: "Settings" };
 
@@ -98,6 +108,65 @@ export default async function SettingsPage({
             Edit profile
           </Button>
         </Card>
+
+        {!isClient && (
+          <Card>
+            <div className="flex items-center gap-2">
+              <UploadCloud className="h-4 w-4 text-[var(--color-ink-muted)]" />
+              <CardTitle>Auto-export your work</CardTitle>
+            </div>
+            <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
+              When an order completes, your delivered work is archived to the
+              places you connect. Raw files stay private; a client&apos;s work
+              only appears on a public destination if that client allows it on
+              the order.
+            </p>
+            <div className="mt-4 space-y-2">
+              {EXPORT_DESTINATIONS.map((d) => {
+                const connected = connectedExportDestinations.has(d.key);
+                return (
+                  <form
+                    key={d.key}
+                    action={toggleDestination}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] px-3 py-2.5"
+                  >
+                    <span className="text-sm text-[var(--color-ink)]">
+                      {d.label}
+                      <span className="ml-2 text-xs text-[var(--color-ink-faint)]">
+                        {DESTINATION_VISIBILITY[d.key]}
+                      </span>
+                    </span>
+                    <input type="hidden" name="destination" value={d.key} />
+                    <Button
+                      type="submit"
+                      variant={connected ? "sage" : "outline"}
+                      size="sm"
+                    >
+                      {connected ? "Connected" : "Connect"}
+                    </Button>
+                  </form>
+                );
+              })}
+            </div>
+            <form action={setAutoExport} className="mt-4 flex items-center justify-between gap-3">
+              <label htmlFor="autoExportEnabled" className="text-sm text-[var(--color-ink)]">
+                Auto-export on completion
+              </label>
+              <span className="flex items-center gap-2">
+                <input
+                  id="autoExportEnabled"
+                  type="checkbox"
+                  name="enabled"
+                  defaultChecked={autoExport.enabled}
+                  className="h-4 w-4 accent-[var(--color-sage-deep)]"
+                />
+                <Button type="submit" variant="outline" size="sm">
+                  Save
+                </Button>
+              </span>
+            </form>
+          </Card>
+        )}
 
         <Card>
           <div className="flex items-center gap-2">

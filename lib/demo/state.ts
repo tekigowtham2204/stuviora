@@ -6,6 +6,7 @@
  * dispute appeals. Live mode persists the same concepts to the tables in
  * migration 0010 and never touches these.
  */
+import type { ExportDestination } from "@/lib/export/plan";
 
 export interface ProposalTemplate {
   id: string;
@@ -55,3 +56,15 @@ export interface PortfolioDraft {
   source: "github" | "profile";
 }
 export const portfolioDrafts: PortfolioDraft[] = [];
+
+/**
+ * Auto-export of delivered work (features.md 2026-06-18). Destinations the
+ * student has connected, and the orders whose client granted a public
+ * portfolio license. Demo defaults: the on-platform portfolio is connected;
+ * no client has licensed raw public sharing yet.
+ */
+export const connectedExportDestinations = new Set<ExportDestination>(["portfolio"]);
+export const autoExport: { enabled: boolean } = { enabled: true };
+/** Order ids the client marked shareable (raw work may go public). */
+export const shareableOrderIds = new Set<string>();
+

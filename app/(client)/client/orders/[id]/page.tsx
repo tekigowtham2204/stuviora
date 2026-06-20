@@ -10,6 +10,8 @@ import { AiReviewPanel } from "@/components/feature/ai-review-panel";
 import { getOrder, getStudentById } from "@/lib/data/queries";
 import { approveOrder, requestRevision } from "@/app/actions/orders";
 import { openDispute } from "@/app/actions/disputes";
+import { setOrderShareable } from "@/app/actions/export";
+import { shareableOrderIds } from "@/lib/demo/state";
 import { ORDER_STATUS_META } from "@/lib/status";
 import { formatINR, computeSplit } from "@/lib/utils";
 import { computeOrderTax } from "@/lib/tax/engine";
@@ -84,6 +86,29 @@ export default async function ClientOrderDetail({
                   Auto-releases in ~{hoursRemaining}h if you don&apos;t respond.
                 </p>
               )}
+              <form
+                action={setOrderShareable}
+                className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] px-3 py-2.5"
+              >
+                <input type="hidden" name="orderId" value={order.id} />
+                <label htmlFor="shareable" className="text-xs text-[var(--color-ink-muted)]">
+                  Let {student?.fullName ?? "the student"} feature this work in
+                  their public portfolio. Off by default; you keep the work
+                  private otherwise.
+                </label>
+                <span className="flex shrink-0 items-center gap-2">
+                  <input
+                    id="shareable"
+                    type="checkbox"
+                    name="shareable"
+                    defaultChecked={shareableOrderIds.has(order.id)}
+                    className="h-4 w-4 accent-[var(--color-sage-deep)]"
+                  />
+                  <Button type="submit" variant="outline" size="sm">
+                    Save
+                  </Button>
+                </span>
+              </form>
             </Card>
           )}
         </div>

@@ -11,6 +11,12 @@ import { orderSubmittedEmail, payoutSettledEmail } from "@/lib/email/templates";
 import { getClientById } from "@/lib/data/queries";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
+import { runAutoExport } from "@/lib/export/dispatch";
+import {
+  connectedExportDestinations,
+  autoExport,
+  shareableOrderIds,
+} from "@/lib/demo/state";
 import { dispatchPartnerWebhook } from "@/lib/partners/webhooks";
 import { getStudentById } from "@/lib/data/queries";
 import { getOrder } from "@/lib/data/queries";
@@ -144,6 +150,20 @@ export async function approveOrder(formData: FormData) {
   if (student && student.jobsCompleted === 0) {
     await dispatchPartnerWebhook("student.completed_first_job", student.college, {
       username: student.username,
+    });
+  }
+
+  // Auto-export the delivered work to the student's connected destinations,
+  // now that the order is complete (AI-gate passed + approved + payout). The
+  // plan engine keeps raw client files private unless the client licensed
+  // public sharing for this order. Demo reads in-memory state; live will read
+  // export_destinations + orders.shareable (Phase 2, with OAuth keys).
+  if (autoExport.enabled) {
+    await runAutoExport({
+      orderId,
+      studentId: order!.studentId,
+      connected: [...connectedExportDestinations],
+      clientShareable: shareableOrderIds.has(orderId),
     });
   }
 
