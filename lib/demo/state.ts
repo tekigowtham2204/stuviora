@@ -7,6 +7,7 @@
  * migration 0010 and never touches these.
  */
 import type { ExportDestination } from "@/lib/export/plan";
+import { DEFAULT_TIER, type LlmTierId } from "@/lib/llm/models";
 
 export interface ProposalTemplate {
   id: string;
@@ -67,4 +68,7 @@ export const connectedExportDestinations = new Set<ExportDestination>(["portfoli
 export const autoExport: { enabled: boolean } = { enabled: true };
 /** Order ids the client marked shareable (raw work may go public). */
 export const shareableOrderIds = new Set<string>();
+
+/** Platform-wide LLM model tier (admin-selected). Live: a settings row. */
+export const platformModel: { tier: LlmTierId } = { tier: DEFAULT_TIER };
 

@@ -1,7 +1,7 @@
 /**
  * Centralized environment + runtime-mode configuration.
  *
- * Stuviora integrates several external services (Supabase, Razorpay, Claude,
+ * Stuviora integrates several external services (Supabase, Razorpay, Groq,
  * Resend, Inngest). To let the full product run locally before live keys exist,
  * each integration checks `isConfigured(...)`. When a service is not configured,
  * the app falls back to a deterministic DEMO implementation so the entire core
@@ -30,6 +30,15 @@ export const env = {
   razorpayWebhookSecret: read("RAZORPAY_WEBHOOK_SECRET"),
 
   anthropicApiKey: read("ANTHROPIC_API_KEY"),
+  // Groq is the primary LLM provider (OpenAI-compatible API, open-weight
+  // models). Per-tier model ids are env-overridable since Groq's catalogue
+  // changes; the defaults below are real Groq model ids at time of writing,
+  // but confirm against console.groq.com/docs/models before go-live.
+  groqApiKey: read("GROQ_API_KEY"),
+  groqModelFast: read("GROQ_MODEL_FAST") ?? "llama-3.1-8b-instant",
+  groqModelBalanced: read("GROQ_MODEL_BALANCED") ?? "llama-3.3-70b-versatile",
+  groqModelMax:
+    read("GROQ_MODEL_MAX") ?? "meta-llama/llama-4-maverick-17b-128e-instruct",
   openrouterApiKey: read("OPENROUTER_API_KEY"),
   openrouterModel: read("OPENROUTER_MODEL") ?? "anthropic/claude-sonnet-4.5",
   openrouterAppName: read("OPENROUTER_APP_NAME") ?? "Stuviora",
@@ -54,10 +63,12 @@ export const services = {
   supabase: Boolean(env.supabaseUrl && env.supabaseAnonKey),
   razorpay: Boolean(env.razorpayKeyId && env.razorpayKeySecret),
   anthropic: Boolean(env.anthropicApiKey),
-  /** OpenRouter is the primary LLM provider (per user decision). */
+  /** Groq is the primary LLM provider (open-weight models, OpenAI-compatible). */
+  groq: Boolean(env.groqApiKey),
+  /** OpenRouter kept as an alternate route (e.g. to reach Claude). */
   openrouter: Boolean(env.openrouterApiKey),
-  /** Any LLM is live: openrouter takes priority, anthropic as fallback. */
-  llm: Boolean(env.openrouterApiKey ?? env.anthropicApiKey),
+  /** Any LLM is live: Groq is primary, then OpenRouter, then Anthropic. */
+  llm: Boolean(env.groqApiKey ?? env.openrouterApiKey ?? env.anthropicApiKey),
   resend: Boolean(env.resendApiKey),
   inngest: Boolean(env.inngestEventKey),
   upstash: Boolean(env.upstashUrl && env.upstashToken),

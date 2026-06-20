@@ -363,7 +363,7 @@ function NewStudentDashboard({
             <CardTitle>What happens after your first hire</CardTitle>
             <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
               Client funds Razorpay escrow up front, so the money is locked the
-              moment you start. You deliver. Claude AI reviews the work
+              moment you start. You deliver. Our AI reviews the work
               against the brief, and only passing work reaches the client.
               When the client approves, 85% (Rs.8,500 on a Rs.10,000 job)
               lands in your wallet in under 5 minutes via UPI.
