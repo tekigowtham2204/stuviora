@@ -257,10 +257,10 @@ export async function tdsThresholdChecker() {
 
 // --- Event-driven jobs ------------------------------------------------------
 
-/** Async AI quality gate: file extraction + Claude scoring + Realtime push. */
+/** Async AI quality gate: file extraction + model scoring + Realtime push. */
 export async function aiQualityCheck(event: { orderId: string; storageKeys: string[] }) {
-  // Live: pull files from Storage, extract text (pdf-parse/mammoth/Claude
-  // Vision), call the gate, write the ai_reviews row, then push the
+  // Live: pull files from Storage, extract text (pdf-parse/mammoth/a vision
+  // model), call the gate, write the ai_reviews row, then push the
   // verdict over Realtime so the submit page updates without polling.
   // Demo submit runs the gate synchronously, so this worker only fires
   // in live mode.

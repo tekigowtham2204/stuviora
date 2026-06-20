@@ -2,9 +2,13 @@ import { Activity, CheckCircle2, Circle, Clock, Zap } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Stat } from "@/components/ui/stat";
 import { services } from "@/lib/env";
 import { reconcileCommissions } from "@/lib/payments/reconcile";
+import { LLM_TIERS } from "@/lib/llm/models";
+import { platformModel } from "@/lib/demo/state";
+import { setModelTier } from "@/app/actions/admin";
 
 export const metadata = { title: "Ops" };
 
@@ -72,6 +76,60 @@ export default async function AdminOpsPage() {
           icon={<Activity className="h-6 w-6" />}
         />
       </div>
+
+      <Card className="mt-6">
+        <CardTitle>AI model</CardTitle>
+        <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+          Powers the quality gate and AI assists. Provider:{" "}
+          {services.groq
+            ? "Groq"
+            : services.openrouter
+            ? "OpenRouter"
+            : "Demo (no key)"}
+          . Labels are tiers; the real model id is shown on each.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {LLM_TIERS.map((t) => {
+            const active = platformModel.tier === t.id;
+            return (
+              <form
+                key={t.id}
+                action={setModelTier}
+                className={
+                  "rounded-2xl border p-4 " +
+                  (active
+                    ? "border-[var(--color-sage-deep)] bg-[var(--color-sage-50)]"
+                    : "border-[var(--color-line)]")
+                }
+              >
+                <input type="hidden" name="tier" value={t.id} />
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-[var(--color-ink)]">
+                    {t.label}
+                  </span>
+                  {active && <Badge tone="sage">Active</Badge>}
+                </div>
+                <div className="mt-1 break-all font-mono text-xs text-[var(--color-ink-muted)]">
+                  {t.model}
+                </div>
+                <p className="mt-2 text-xs text-[var(--color-ink-faint)]">
+                  {t.note}
+                </p>
+                {!active && (
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 w-full"
+                  >
+                    Use
+                  </Button>
+                )}
+              </form>
+            );
+          })}
+        </div>
+      </Card>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>

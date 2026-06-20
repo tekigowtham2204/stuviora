@@ -6,6 +6,20 @@ import { requireRole } from "@/lib/auth/dal";
 import { getDispute } from "@/lib/data/queries";
 import { assertTransition, resolveOutcome } from "@/lib/disputes/engine";
 import type { DisputeResolution } from "@/lib/types";
+import { platformModel } from "@/lib/demo/state";
+import { LLM_TIERS, type LlmTierId } from "@/lib/llm/models";
+
+/** Admin: pick the platform-wide LLM model tier (powers the gate + assists). */
+export async function setModelTier(formData: FormData) {
+  await requireRole("admin");
+  const tier = (formData.get("tier") as string) || "";
+  if (LLM_TIERS.some((t) => t.id === tier)) {
+    platformModel.tier = tier as LlmTierId;
+    // Live: persist to a platform_settings row instead of in-memory state.
+  }
+  revalidatePath("/admin/ops");
+  redirect("/admin/ops?model=set");
+}
 
 /**
  * Admin (founder) Server Actions. Every privileged action writes an immutable

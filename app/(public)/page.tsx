@@ -105,7 +105,7 @@ function Hero() {
               </h1>
 
               <p className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-ink-muted)]">
-                Every deliverable passes a Claude AI quality check before it
+                Every deliverable passes an AI quality check before it
                 reaches you. Escrow-protected. College-verified. Built so
                 first-time clients can hire first-time students with confidence.
               </p>
@@ -127,7 +127,7 @@ function Hero() {
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-ink-muted)]">
                 {[
                   "Razorpay escrow",
-                  "Claude AI quality gate",
+                  "AI quality gate",
                   "72h auto-release",
                   "College-verified students",
                 ].map((t) => (
@@ -358,7 +358,7 @@ function Moat() {
             <SectionEyebrow>The moat</SectionEyebrow>
             <SectionTitle>An AI quality gate on every delivery.</SectionTitle>
             <SectionLede>
-              Student talent has always been a gamble. We remove it: Claude
+              Student talent has always been a gamble. We remove it: our AI
               reviews every submission for completeness, brief alignment, and
               originality before the client sees it. Only work that clears the
               bar is delivered.
@@ -470,7 +470,7 @@ function Loop() {
       n: "02",
       icon: Bot,
       title: "Build and AI-review",
-      body: "Verified student delivers. Claude scores the work against the brief. Only passing work reaches the client.",
+      body: "Verified student delivers. Our AI scores the work against the brief. Only passing work reaches the client.",
       accent: "yellow" as const,
     },
     {

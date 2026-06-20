@@ -19,7 +19,7 @@ import { captureError } from "@/lib/observability";
  *   submit  ->  upload files to Storage (fast, <10s)
  *           ->  fire Inngest event 'ai/quality.check'   (live path)
  *           ->  worker extracts files (PDF / DOCX / images / code / ZIP)
- *           ->  calls OpenRouter (Claude Sonnet 4.5) with structured JSON
+ *           ->  calls the LLM (Groq, open-weight model) with structured JSON
  *           ->  writes ai_reviews row
  *           ->  pushes result via Supabase Realtime
  *

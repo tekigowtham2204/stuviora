@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { JsonChatValidationError } from "@/lib/llm/client";
 
-// chat() and chatJson() require a real OpenRouter key to exercise.
+// chat() and chatJson() require a real Groq key to exercise.
 // Their unit tests pin the contract; live integration runs are
-// captured in the build-checklist as T2 (live OpenRouter probe).
+// captured in the build-checklist as T2 (live Groq probe).
 
 describe("JsonChatValidationError", () => {
   it("carries the raw model output for debugging", () => {
