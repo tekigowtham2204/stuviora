@@ -10,6 +10,7 @@ import { getNotificationPreferences } from "@/lib/data/queries";
 import { saveNotificationPreferences } from "@/app/actions/notifications";
 import { saveBilling } from "@/app/actions/billing";
 import { enrollTotp, signOutOtherDevices } from "@/app/actions/security";
+import { publicUserId } from "@/lib/identity/public-id";
 
 export const metadata = { title: "Settings" };
 
@@ -81,6 +82,15 @@ export default async function SettingsPage({
                   : `${(me as ReturnType<typeof currentStudent>).stream} · ${
                       (me as ReturnType<typeof currentStudent>).college
                     }`}
+              </div>
+              <div className="mt-1 text-xs text-[var(--color-ink-faint)]">
+                Stuviora ID:{" "}
+                <span className="font-mono text-[var(--color-ink-muted)]">
+                  {publicUserId(
+                    session?.role ?? (isClient ? "client" : "student"),
+                    session?.id ?? me.id
+                  )}
+                </span>
               </div>
             </div>
           </div>

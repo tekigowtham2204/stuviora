@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Money } from "@/components/ui/money";
 import { currentStudent } from "@/lib/auth/session";
 import { savePan } from "@/app/actions/tax";
+import { publicUserId } from "@/lib/identity/public-id";
 import {
   buildForm16A,
   financialYear,
@@ -59,7 +60,10 @@ export default async function TaxPage({
       <PageHeader
         eyebrow="Compliance"
         title="Tax and TDS."
-        subtitle={`Your India tax position for FY ${fy}. We handle GST and TDS so you do not have to.`}
+        subtitle={`Your India tax position for FY ${fy}, Stuviora ID ${publicUserId(
+          "student",
+          me.id
+        )}. We handle GST and TDS so you do not have to.`}
       />
 
       {pan === "saved" && (
