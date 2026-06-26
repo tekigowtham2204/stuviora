@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, MessageSquare, Users, CheckCircle2, Bot } from "lucide-react";
+import {
+  Clock,
+  MessageSquare,
+  Users,
+  CheckCircle2,
+  Bot,
+  ShieldCheck,
+} from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,6 +92,10 @@ export default async function StudentOrderDetail({
           </Card>
 
           {order.aiReview && <AiReviewPanel review={order.aiReview} />}
+
+          {order.aiReview?.verdict === "PASS" &&
+            (order.status === "awaiting_approval" ||
+              order.status === "completed") && <ReceiptCallout orderId={order.id} />}
 
           {(order.status === "active" || order.status === "revision_requested") && (
             <Card>
@@ -181,6 +192,32 @@ export default async function StudentOrderDetail({
         </aside>
       </div>
     </>
+  );
+}
+
+function ReceiptCallout({ orderId }: { orderId: string }) {
+  // The receipt id mirrors the order id so the artifact is stable and the
+  // student can share the same URL forever. Live: read ai_reviews.public_id.
+  const receiptId = `STV-${orderId.toUpperCase()}`;
+  const href = `/v/${receiptId}`;
+  return (
+    <Card surface="raised" tint="sage" className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-sage-deep)] text-[var(--color-cream)]">
+          <ShieldCheck className="h-5 w-5" />
+        </span>
+        <div>
+          <CardTitle>Your verdict receipt is live</CardTitle>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--color-sage-900)]">
+            Share this link in a portfolio, on a referral, or with the next
+            client. It is signed by the platform and cannot be edited.
+          </p>
+        </div>
+      </div>
+      <Button href={href} variant="sage" size="sm">
+        View receipt
+      </Button>
+    </Card>
   );
 }
 
