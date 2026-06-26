@@ -32,6 +32,27 @@ export const COST_ASSUMPTIONS = {
   payoutFeePerOrder: 3,
 } as const;
 
+/**
+ * Thresholds for the advisory fraud-risk signals shown to admins. These never
+ * auto-block anyone: a tripped threshold raises a flag for a human to look at,
+ * nothing more (principle: do not punish honest users; enforcement is a human
+ * decision). Tune from observed abuse, not guesswork, once there is volume.
+ */
+export const FRAUD_THRESHOLDS = {
+  /** Orders placed in a rolling hour above which velocity looks automated. */
+  ordersPerHour: 5,
+  /** Orders placed in a rolling day above which velocity looks abnormal. */
+  ordersPerDay: 15,
+  /** An account younger than this (hours) is "new" for the high-value check. */
+  newAccountHours: 24,
+  /** A new account spending at least this (rupees) on one order is notable. */
+  newAccountHighValue: 25000,
+  /** Disputes opened in 30 days above which a party looks abusive. */
+  disputesPer30d: 3,
+  /** Accounts sharing a contact detail (email/phone/device) that looks linked. */
+  sharedContactAccounts: 3,
+} as const;
+
 /** Service categories, mapped from "anything" to student streams. */
 export const SERVICE_CATEGORIES = [
   {

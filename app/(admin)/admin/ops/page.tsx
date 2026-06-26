@@ -10,7 +10,9 @@ import { LLM_TIERS } from "@/lib/llm/models";
 import { platformModel } from "@/lib/demo/state";
 import { setModelTier } from "@/app/actions/admin";
 import { getCalibrationStats } from "@/lib/ai/calibration";
+import { getRiskFlags } from "@/lib/data/queries";
 import { GatePrecisionPanel } from "@/components/feature/gate-precision-panel";
+import { RiskSignalsPanel } from "@/components/feature/risk-signals-panel";
 
 export const metadata = { title: "Ops" };
 
@@ -40,6 +42,7 @@ const JOBS: { name: string; trigger: string; kind: "cron" | "event" }[] = [
 export default async function AdminOpsPage() {
   const liveCount = INTEGRATIONS.filter((i) => services[i.key]).length;
   const gateStats = await getCalibrationStats();
+  const riskFlags = await getRiskFlags();
 
   // Demo reconciliation over a small clean fixture so the panel shows real
   // numbers; live mode reports against commission_events.
@@ -131,6 +134,8 @@ export default async function AdminOpsPage() {
       </Card>
 
       <GatePrecisionPanel stats={gateStats} className="mt-6" />
+
+      <RiskSignalsPanel flags={riskFlags} className="mt-6" />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>

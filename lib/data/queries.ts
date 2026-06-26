@@ -28,6 +28,11 @@ import {
   type ClientOrderRow,
 } from "@/lib/metrics/business";
 import { getCalibrationStats } from "@/lib/ai/calibration";
+import {
+  assessAccounts,
+  type AccountActivity,
+  type RiskAssessment,
+} from "@/lib/fraud/signals";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   studentFromRow,
@@ -1117,6 +1122,123 @@ export async function getBusinessMetrics(): Promise<BusinessMetrics> {
       daysToFirstOrder: [],
       gatePrecision,
     });
+  }
+}
+
+/**
+ * Advisory fraud-risk flags for the admin ops view. Computes each client's
+ * recent activity and runs the pure signal engine. Advisory only: nothing is
+ * blocked or held here. Demo derives what it honestly can from demo orders and
+ * disputes (no real timestamps, so velocity stays zero); live reads the real
+ * windows. Failures degrade to an empty list, never a hidden error.
+ */
+export async function getRiskFlags(): Promise<RiskAssessment[]> {
+  if (!(await liveOn())) {
+    // Map demo disputes to the client who owns the disputed order.
+    const clientByOrder = new Map(demo.orders.map((o) => [o.id, o.clientId]));
+    const disputesByClient = new Map<string, number>();
+    for (const d of demo.disputes) {
+      if (d.raisedByRole !== "client") continue;
+      const clientId = clientByOrder.get(d.orderId);
+      if (clientId) {
+        disputesByClient.set(clientId, (disputesByClient.get(clientId) ?? 0) + 1);
+      }
+    }
+    const byClient = new Map<string, number>(); // clientId -> largest order
+    for (const o of demo.orders) {
+      byClient.set(o.clientId, Math.max(byClient.get(o.clientId) ?? 0, o.amount));
+    }
+    const nameById = new Map(demo.clients.map((c) => [c.id, c.fullName]));
+    const activities: AccountActivity[] = [...byClient].map(
+      ([clientId, largest]) => ({
+        accountId: clientId,
+        label: nameById.get(clientId) ?? clientId,
+        accountAgeHours: 24 * 365, // unknown in demo; not a new account
+        ordersLast1h: 0,
+        ordersLast24h: 0,
+        largestOrderValue: largest,
+        disputesLast30d: disputesByClient.get(clientId) ?? 0,
+        sharedContactAccounts: 0,
+      })
+    );
+    return assessAccounts(activities);
+  }
+
+  try {
+    const supabase = await getServerSupabase();
+    if (!supabase) return [];
+
+    const now = Date.now();
+    const HOUR = 3_600_000;
+    const DAY = 86_400_000;
+    const THIRTY_DAYS = 30 * DAY;
+
+    const [ordersRes, clientsRes, disputesRes] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("client_id, amount, created_at, status")
+        .not("status", "in", "(pending_payment,cancelled)"),
+      supabase.from("client_profiles").select("user_id, full_name, created_at"),
+      supabase
+        .from("dispute_cases")
+        .select("raised_by, created_at")
+        .gte("created_at", new Date(now - THIRTY_DAYS).toISOString()),
+    ]);
+
+    const orders = (ordersRes.data ?? []) as {
+      client_id: string;
+      amount: number | null;
+      created_at: string;
+    }[];
+    const clients = (clientsRes.data ?? []) as {
+      user_id: string;
+      full_name: string | null;
+      created_at: string;
+    }[];
+    const disputes = (disputesRes.data ?? []) as {
+      raised_by: string;
+      created_at: string;
+    }[];
+
+    const disputesByClient = new Map<string, number>();
+    for (const d of disputes) {
+      disputesByClient.set(
+        d.raised_by,
+        (disputesByClient.get(d.raised_by) ?? 0) + 1
+      );
+    }
+
+    const agg = new Map<
+      string,
+      { last1h: number; last24h: number; largest: number }
+    >();
+    for (const o of orders) {
+      const t = Date.parse(o.created_at);
+      const cur = agg.get(o.client_id) ?? { last1h: 0, last24h: 0, largest: 0 };
+      if (now - t <= HOUR) cur.last1h += 1;
+      if (now - t <= DAY) cur.last24h += 1;
+      cur.largest = Math.max(cur.largest, Number(o.amount ?? 0));
+      agg.set(o.client_id, cur);
+    }
+
+    const activities: AccountActivity[] = clients.map((c) => {
+      const a = agg.get(c.user_id) ?? { last1h: 0, last24h: 0, largest: 0 };
+      return {
+        accountId: c.user_id,
+        label: c.full_name ?? c.user_id,
+        accountAgeHours: (now - Date.parse(c.created_at)) / HOUR,
+        ordersLast1h: a.last1h,
+        ordersLast24h: a.last24h,
+        largestOrderValue: a.largest,
+        disputesLast30d: disputesByClient.get(c.user_id) ?? 0,
+        // Shared-contact linkage is not wired yet; left at 0 until the
+        // identity vault exposes it. Documented, not silently dropped.
+        sharedContactAccounts: 0,
+      };
+    });
+    return assessAccounts(activities);
+  } catch {
+    return [];
   }
 }
 
