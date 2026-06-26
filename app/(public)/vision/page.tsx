@@ -29,6 +29,7 @@ import {
 import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
 import { JsonLd } from "@/components/seo/json-ld";
+import { TryTheGate } from "@/components/feature/try-the-gate";
 import {
   AI_GATE_PASS_THRESHOLD,
   COMMISSION_RATE,
@@ -59,12 +60,36 @@ export default function VisionPage() {
       <NoHumansLoop />
       <WhyNow />
       <Wedge />
+      <TryGateSection />
       <Horizons />
       <DataMoat />
       <UnitEconomics />
       <NorthStar />
       <Ask />
     </>
+  );
+}
+
+function TryGateSection() {
+  return (
+    <Section spacing="generous">
+      <Container>
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>Try the gate</SectionEyebrow>
+          <SectionTitle>
+            The moat is a button. Paste a brief, paste a draft, watch it score.
+          </SectionTitle>
+          <SectionLede>
+            Same shape, same threshold as the production gate. This is the
+            primitive that lets us promise a first-time client can hire a
+            first-time student and the platform stands behind the result.
+          </SectionLede>
+        </Reveal>
+        <Reveal index={1} className="mt-10">
+          <TryTheGate />
+        </Reveal>
+      </Container>
+    </Section>
   );
 }
 

@@ -13,17 +13,21 @@ export type Tone =
   | "orange"
   | "dark";
 
-/** Display metadata for each order status. */
+/**
+ * Display metadata for each order status. Labels reflect the autonomous
+ * loop (auth-and-capture): the held authorisation is the resting state,
+ * AI verdict drives capture / void, and the dispute window auto-settles.
+ */
 export const ORDER_STATUS_META: Record<OrderStatus, { label: string; tone: Tone }> = {
-  pending_payment: { label: "Awaiting payment", tone: "yellow" },
-  active: { label: "In progress", tone: "info" },
-  submitted: { label: "Submitted", tone: "info" },
+  pending_payment: { label: "Awaiting authorisation", tone: "yellow" },
+  active: { label: "Funds on hold, in progress", tone: "info" },
+  submitted: { label: "Submitted, gate scoring", tone: "info" },
   in_ai_review: { label: "AI reviewing", tone: "sage" },
-  awaiting_approval: { label: "Awaiting approval", tone: "orange" },
+  awaiting_approval: { label: "AI-verified, dispute window open", tone: "orange" },
   revision_requested: { label: "Revision requested", tone: "orange" },
-  completed: { label: "Completed", tone: "sage" },
+  completed: { label: "Settled", tone: "sage" },
   disputed: { label: "Disputed", tone: "danger" },
-  refunded: { label: "Refunded", tone: "neutral" },
+  refunded: { label: "Auto-refunded", tone: "neutral" },
   cancelled: { label: "Cancelled", tone: "neutral" },
 };
 
