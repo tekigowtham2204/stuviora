@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, MessageSquare, Check, RotateCcw, AlertTriangle } from "lucide-react";
+import { Clock, MessageSquare, Check, RotateCcw, AlertTriangle, Repeat } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/feature/order-timeline";
 import { AiReviewPanel } from "@/components/feature/ai-review-panel";
 import { getOrder, getStudentById } from "@/lib/data/queries";
-import { approveOrder, requestRevision } from "@/app/actions/orders";
+import { approveOrder, requestRevision, reorder } from "@/app/actions/orders";
 import { openDispute } from "@/app/actions/disputes";
 import { setOrderShareable } from "@/app/actions/export";
 import { shareableOrderIds } from "@/lib/demo/state";
@@ -108,6 +108,23 @@ export default async function ClientOrderDetail({
                     Save
                   </Button>
                 </span>
+              </form>
+            </Card>
+          )}
+
+          {order.status === "completed" && (
+            <Card>
+              <CardTitle>Work with {student?.fullName ?? "this student"} again</CardTitle>
+              <p className="mt-2 text-sm text-muted">
+                Start a new order for the same brief and student. No reposting or
+                proposals: you go straight to funding escrow, with the same
+                quality gate and protections.
+              </p>
+              <form action={reorder} className="mt-4">
+                <input type="hidden" name="orderId" value={order.id} />
+                <Button type="submit" variant="primary">
+                  <Repeat className="h-4 w-4" /> Order again ({formatINR(order.amount)})
+                </Button>
               </form>
             </Card>
           )}

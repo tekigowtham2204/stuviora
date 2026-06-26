@@ -9,7 +9,11 @@ import { MAX_REVISIONS } from "@/lib/constants";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
 import { dispatchUserEmail } from "@/lib/email/dispatch";
-import { orderSubmittedEmail, payoutSettledEmail } from "@/lib/email/templates";
+import {
+  orderSubmittedEmail,
+  payoutSettledEmail,
+  orderHiredEmail,
+} from "@/lib/email/templates";
 import { getClientById } from "@/lib/data/queries";
 import { rateLimit } from "@/lib/ratelimit";
 import { trackEvent } from "@/lib/observability";
@@ -268,4 +272,78 @@ export async function leaveReview(formData: FormData) {
   trackEvent("order_reviewed", { orderId, rating }, session.user.id);
   revalidatePath(`/client/orders/${orderId}`);
   redirect(`/client/orders/${orderId}?reviewed=1`);
+}
+
+/**
+ * Repeat-order shortcut (#10): rehire the same student for the same brief from
+ * a completed order. Skips the post-job + proposal cycle entirely - the whole
+ * point of a repeat order is that the relationship already exists. Creates a
+ * fresh order in pending_payment against the original job + student and sends
+ * the client to fund escrow, exactly like a first hire.
+ */
+export async function reorder(formData: FormData) {
+  const session = await requireRole("client");
+  const orderId = (formData.get("orderId") as string) || "";
+  const order = await getOrder(orderId);
+  // Only the client who owns a COMPLETED order may reorder from it.
+  if (
+    !order ||
+    order.clientId !== session.user.id ||
+    order.status !== "completed"
+  ) {
+    redirect("/client/orders");
+  }
+
+  // Rate limit repeat-order creation so it cannot be used to spam orders.
+  const limit = await rateLimit({
+    key: `reorder:${session.user.id}`,
+    max: 10,
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) redirect(`/client/orders/${orderId}?error=rate_limited`);
+
+  let newOrderId = orderId;
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const { data: created } = await supabase
+        .from("orders")
+        .insert({
+          job_id: order!.jobId,
+          client_id: order!.clientId,
+          student_id: order!.studentId,
+          amount: order!.amount,
+          status: "pending_payment",
+          deadline: new Date(
+            Date.now() + (order!.deadlineDays || 7) * 86400_000
+          ).toISOString(),
+        })
+        .select("id")
+        .maybeSingle<{ id: string }>();
+      if (created?.id) newOrderId = created.id;
+    }
+  }
+
+  // Tell the student they have been rehired (payment lands in escrow first).
+  const student = await getStudentById(order!.studentId);
+  await dispatchUserEmail(
+    order!.studentId,
+    orderHiredEmail({
+      studentName: student?.fullName ?? "there",
+      jobTitle: order!.jobTitle,
+      amount: order!.amount,
+      orderId: newOrderId,
+    }),
+    "order_update",
+    newOrderId
+  );
+
+  trackEvent(
+    "order_reordered",
+    { fromOrderId: orderId, newOrderId },
+    session.user.id
+  );
+  revalidatePath("/client/orders");
+  // Fund the new escrow, same as a first hire.
+  redirect(`/client/payment/${newOrderId}`);
 }
