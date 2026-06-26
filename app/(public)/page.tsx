@@ -347,7 +347,7 @@ function Moat() {
     },
     {
       icon: Bot,
-      text: "Work that looks off-brief is routed to a person, never auto-rejected for writing style",
+      text: "Scored on the quality of the work against the brief, never on whether the writing looks AI-made",
     },
   ];
 

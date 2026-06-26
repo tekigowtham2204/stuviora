@@ -169,7 +169,7 @@ export default async function SubmitWorkPage({
               </li>
               <li className="flex items-start gap-2">
                 <FileText className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-sage-deep)]" />
-                <span>Is it original (not plagiarised or unedited AI output)?</span>
+                <span>Is it genuinely produced for this brief (not copied wholesale)?</span>
               </li>
             </ul>
             <p className="mt-4 text-xs text-[var(--color-ink-faint)]">

@@ -1,4 +1,4 @@
-import { Bot, ShieldCheck, Eye } from "lucide-react";
+import { Bot, ShieldCheck } from "lucide-react";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { AiReview } from "@/lib/types";
@@ -61,17 +61,6 @@ export function AiReviewPanel({ review }: { review: AiReview }) {
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {review.flaggedForReview && (
-        <div className="mt-4 flex items-start gap-2 rounded-lg bg-warning-bg px-3 py-2 text-xs text-warning">
-          <Eye className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>
-            Routed to a human reviewer as a precaution. The AI does not reject
-            work for writing style or suspected AI authorship, so a person
-            confirms this one. Your score and verdict are unchanged.
-          </span>
         </div>
       )}
 

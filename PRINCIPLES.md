@@ -24,19 +24,24 @@ product imply something false by omission.
 - **No fake scarcity or fake social proof.** No countdown timers that reset, no
   "3 people viewing", no invented testimonials.
 
-## 2. The quality gate judges work, not people
+## 2. The quality gate judges the work, not the writer
 
 The AI gate exists to check whether a delivery does the job the brief asked
-for. It must never become a filter on who the student is or how they write.
+for. It is fully automated: it is the only check before the work reaches the
+client, with no human reviewer or mentor behind it. Work scoring 70 or above
+is delivered; below 70 goes back to the student to fix and resubmit, up to
+three attempts. It must never become a filter on who the student is or how
+they write.
 
-- It scores against the brief: completeness, alignment, usability.
+- It scores the quality of the work against the brief: completeness,
+  alignment, usability.
 - It never penalises simple or non-native English, and never docks points for
-  "reading like AI". AI-detection is unreliable and biased against students who
-  write English as a second or third language.
-- When authorship is genuinely unclear, the work is routed to a human, never
-  auto-rejected on suspicion. The human-review flag is advisory and never
-  changes the PASS/FAIL verdict. (See `lib/ai/prompts.ts`,
-  `lib/ai/review-flag.ts`.)
+  "reading like AI". This is about the quality of the work, not its
+  authorship; AI-detection is unreliable and biased against students who write
+  English as a second or third language.
+- "Originality" means the work was genuinely produced for this brief (not
+  copied wholesale), not how "human" the prose sounds. (See
+  `lib/ai/prompts.ts`, `lib/ai/quality-gate.ts`.)
 
 ## 3. The student owns their work and their data
 
