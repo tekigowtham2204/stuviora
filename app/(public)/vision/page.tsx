@@ -1,9 +1,11 @@
 import {
   ArrowRight,
   Bot,
+  CheckCircle2,
   CircleDashed,
   Compass,
   Database,
+  FileBadge,
   GraduationCap,
   LineChart,
   Lock,
@@ -62,6 +64,7 @@ export default function VisionPage() {
       <Wedge />
       <TryGateSection />
       <Horizons />
+      <Receipts />
       <DataMoat />
       <UnitEconomics />
       <NorthStar />
@@ -536,6 +539,73 @@ function Horizons() {
               </Card>
             </Reveal>
           ))}
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+// 5b. Verdict receipts (horizon-3, shipping today) ============================
+
+function Receipts() {
+  return (
+    <Section spacing="generous">
+      <Container>
+        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr]">
+          <Reveal>
+            <SectionEyebrow>Horizon three, shipping today</SectionEyebrow>
+            <SectionTitle>
+              Every passing deliverable becomes a portable, verifiable receipt.
+            </SectionTitle>
+            <SectionLede>
+              When the AI gate clears a deliverable, the platform issues a
+              public receipt. Students share the link in a portfolio. Clients
+              verify a referral. Adjacent platforms read the verdict to gate
+              access. This is the first step of the trust protocol, live now.
+            </SectionLede>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Button href="/v/STV-2026-DEMO-OK7" variant="primary">
+                See a sample receipt <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button href="/v/STV-2026-DEMO-9AC" variant="secondary">
+                Try another id
+              </Button>
+            </div>
+            <p className="mt-5 text-xs text-[var(--color-ink-faint)]">
+              Receipts are immutable: tied to the deliverable, not the
+              student. Demo receipts use a deterministic seed; live receipts
+              read from the ai_reviews ledger.
+            </p>
+          </Reveal>
+
+          <Reveal index={1}>
+            <Card surface="glow" className="p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--color-sage)] text-[var(--color-brown-900)]">
+                  <FileBadge className="h-5 w-5" />
+                </span>
+                <div>
+                  <CardTitle>What a receipt proves</CardTitle>
+                  <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                    Issued once, verifiable forever.
+                  </p>
+                </div>
+              </div>
+              <ul className="mt-6 space-y-3 text-sm leading-relaxed text-[var(--color-ink)]">
+                {[
+                  "The deliverable cleared the AI gate at the published threshold.",
+                  "The per-dimension score (brief, completeness, quality) is on the receipt.",
+                  "Originality and AI-content checks ran before issue.",
+                  "The platform ledger holds the brief, the digest, and the verdict, immutably.",
+                ].map((line) => (
+                  <li key={line} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-sage-deep)]" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </Reveal>
         </div>
       </Container>
     </Section>

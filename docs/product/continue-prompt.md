@@ -5,10 +5,49 @@
 > off. This doc itself is the long-form explanation; the prompt at
 > the bottom is the short, self-contained handoff.
 
-**Last touched:** 2026-06-18. See the **Session update (2026-06-18)**
-block immediately below for the current true state; the older sections
+**Last touched:** 2026-06-26. See the **Session update (2026-06-26)**
+block immediately below for the current true state; older sections
 further down are historical context. If you return after later commits,
 re-skim to confirm the snapshot still holds.
+
+---
+
+## Session update (2026-06-26)
+
+Two interlocked changes landed this session:
+
+1. **Autonomous order loop.** No humans in the loop on healthy or
+   terminal-failure orders. New engines + Razorpay verbs:
+   - `lib/orders/submission.ts` -> `resolveSubmissionOutcome` returns
+     `authAction: capture | void | noop`. PASS captures the held auth;
+     3x FAIL voids the auth and refunds. Old `escalated` flag and
+     auto-opened dispute case are gone.
+   - `lib/orders/submission.ts` -> new `resolveClientDispute` for
+     client-initiated disputes during the awaiting_approval window:
+     refund + revision_requested if attempts remain, else terminal
+     refund. No staff queue.
+   - `lib/razorpay/auth-capture.ts` (new) -> `authorisePayment`
+     (`payment_capture: 0`), `capturePayment`, `voidPayment`,
+     `refundPayment`, with demo-safe shims.
+   - `app/actions/orders.ts` -> `submitWork` runs the engine's auth
+     action; new `disputeOnReview` server action.
+   - `lib/status.ts` order labels rewritten for the new flow
+     ("Funds on hold, in progress", "AI-verified, dispute window open",
+     "Auto-refunded", "Settled").
+
+2. **Investor-ready surface.** New `/vision` public route with
+   six-step autonomous loop, why-now, wedge, **interactive "Try the
+   gate" widget** (pure `lib/ai/demo-scorer.ts` mirror of the demo
+   gate), three horizons, data moat, unit econ, CPO/w north star, ask.
+   `docs/product/vision-10x.md` long-form narrative. Header nav and
+   footer cross-link.
+
+**Live verification status:** still blocked here (egress to Razorpay
+and Supabase blocked in the remote container). Engines are unit-
+tested; the live wiring runs from the Codespace/local with real keys.
+
+**Bottleneck:** unchanged from the prior session. Phase V live
+verification is the next thing to do once keys are available.
 
 ---
 

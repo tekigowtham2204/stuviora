@@ -76,6 +76,41 @@ Anthropic Claude (quality gate, proposals, pricing) · Inngest + Vercel Cron
 - UI primitives in `components/ui/`; portal chrome via
   `components/layout/portal-shell.tsx`.
 
+## 4b. Autonomous loop (post-/goal session)
+
+The order machine now runs with **zero humans in the loop**. State is
+driven by Razorpay auth-and-capture plus the inline AI gate. Manual
+"approve" is not a required step; clients can shortcut the dispute
+window if they want to, but silence settles automatically.
+
+| State | What happens | Auth verb |
+|---|---|---|
+| `pending_payment` | Awaiting authorisation. | none |
+| `active` | Funds on hold, student working. | held |
+| `submitted` -> `in_ai_review` | AI gate scores the work. | held |
+| `awaiting_approval` | PASS: auto-captured, 72h dispute window open. | capture |
+| `revision_requested` | FAIL with revisions left, student retries. | held |
+| `refunded` | 3x FAIL or client dispute terminal. No charge. | void / refund |
+| `completed` | 72h silence -> payout settles to student. | none |
+
+Engines live in `lib/orders/submission.ts`:
+- `resolveSubmissionOutcome` -> `authAction: capture | void | noop`
+- `resolveClientDispute` -> forces refund + revision_requested (or
+  terminal refunded).
+
+Verbs live in `lib/razorpay/auth-capture.ts`:
+- `authorisePayment` (Razorpay order with `payment_capture: 0`)
+- `capturePayment`, `voidPayment`, `refundPayment`.
+
+Server action wiring in `app/actions/orders.ts`:
+- `submitWork` runs the auth action the engine returns.
+- `disputeOnReview` is the client's dispute-during-window action.
+
+Investor surfaces added: `/vision` (page + JSON-LD), `/vision`'s
+"Try the gate" interactive widget (`components/feature/try-the-gate.tsx`,
+demo scorer `lib/ai/demo-scorer.ts`), `docs/product/vision-10x.md`.
+Header nav and footer cross-link to `/vision`.
+
 ## 5. NEXT UP: M5 — Intelligence & growth
 
 From the master plan (see `docs/STUVIORA_MASTER_PLAN.md` §4):
