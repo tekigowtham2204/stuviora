@@ -48,10 +48,16 @@ app/
   (university)/  University B2B partner portal
   api/           Route handlers (payments webhook, AI, uploads)
 components/       ui/ primitives + layout + feature components
-lib/              env, constants, supabase/, claude/, razorpay/, inngest/, auth/
+lib/              env, constants, supabase/, llm/, ai/, razorpay/, inngest/, auth/
 supabase/         SQL migrations (37 tables + RLS)
 proxy.ts          Auth + role-based routing (Next 16 middleware)
 ```
+
+## Operating principles
+
+Stuviora sells trust, so what we are allowed to build is constrained: honest
+labelling, a quality gate that judges work and not people, student data
+ownership, escrow integrity, and no dark patterns. See [`PRINCIPLES.md`](./PRINCIPLES.md).
 
 ## Build milestones
 
