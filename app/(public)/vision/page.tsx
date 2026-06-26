@@ -32,6 +32,7 @@ import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
 import { JsonLd } from "@/components/seo/json-ld";
 import { TryTheGate } from "@/components/feature/try-the-gate";
+import { ArrSimulator } from "@/components/feature/arr-simulator";
 import {
   AI_GATE_PASS_THRESHOLD,
   COMMISSION_RATE,
@@ -67,6 +68,7 @@ export default function VisionPage() {
       <Receipts />
       <DataMoat />
       <UnitEconomics />
+      <Simulator />
       <NorthStar />
       <Ask />
     </>
@@ -792,6 +794,31 @@ function UnitStat({
         </p>
       </Card>
     </Reveal>
+  );
+}
+
+// 7b. Investor simulator ======================================================
+
+function Simulator() {
+  return (
+    <Section spacing="generous" tone="warm">
+      <Container>
+        <Reveal className="max-w-3xl">
+          <SectionEyebrow>The model, your assumptions</SectionEyebrow>
+          <SectionTitle>
+            Pick a CPO/w and a median order value. Watch the ARR move.
+          </SectionTitle>
+          <SectionLede>
+            No tricks, no fabricated traction. The take rate and tax
+            treatment are pinned; the loop is asset-light, so the only
+            inputs are how fast it spins and how big each order is.
+          </SectionLede>
+        </Reveal>
+        <Reveal index={1} className="mt-10">
+          <ArrSimulator />
+        </Reveal>
+      </Container>
+    </Section>
   );
 }
 
