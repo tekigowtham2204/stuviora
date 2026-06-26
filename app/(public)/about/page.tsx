@@ -1,5 +1,7 @@
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Section, SectionEyebrow, SectionTitle, SectionLede } from "@/components/ui/section";
 import { Reveal } from "@/components/motion/reveal";
 import { Logomark } from "@/components/brand/logomark";
@@ -78,6 +80,15 @@ export default function AboutPage() {
                   Built in India, for India. College-verified students,
                   escrow-protected payments, AI-reviewed delivery.
                 </p>
+                <div className="mt-7 flex justify-center">
+                  <Button
+                    href="/vision"
+                    variant="ghost"
+                    className="text-[var(--color-cream)] hover:bg-white/10"
+                  >
+                    Read the 10x vision <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </Reveal>

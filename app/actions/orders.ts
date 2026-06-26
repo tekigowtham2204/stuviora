@@ -4,9 +4,17 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/dal";
 import { runQualityGate } from "@/lib/ai/quality-gate";
-import { resolveSubmissionOutcome } from "@/lib/orders/submission";
+import {
+  resolveSubmissionOutcome,
+  resolveClientDispute,
+} from "@/lib/orders/submission";
 import { MAX_REVISIONS } from "@/lib/constants";
 import { releaseEscrow } from "@/lib/razorpay/escrow";
+import {
+  capturePayment,
+  refundPayment,
+  voidPayment,
+} from "@/lib/razorpay/auth-capture";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
 import { dispatchUserEmail } from "@/lib/email/dispatch";
 import { orderSubmittedEmail, payoutSettledEmail } from "@/lib/email/templates";
@@ -96,6 +104,16 @@ export async function submitWork(formData: FormData) {
     maxAttempts: MAX_REVISIONS,
   });
 
+  // Execute the auth-action the engine decided. This is the load-bearing
+  // moat step: PASS auto-captures the held auth (client charged on verified
+  // delivery), and 3x FAIL voids the auth (client never charged). Both run
+  // without any human in the loop. Demo paths short-circuit cleanly.
+  if (outcome.authAction === "capture") {
+    await capturePayment({ orderId, amount: order!.amount });
+  } else if (outcome.authAction === "void") {
+    await voidPayment({ orderId });
+  }
+
   // Live: persist the review + the new order state. Demo: state is conveyed
   // through the redirect (the order/submit pages reflect it).
   if (services.supabase) {
@@ -113,32 +131,38 @@ export async function submitWork(formData: FormData) {
         suggestions: review.suggestions,
         reviewer_note: review.reviewerNote,
       });
-      await supabase
-        .from("orders")
-        .update({ status: outcome.status, revision_count: attempt })
-        .eq("id", orderId);
-      if (outcome.escalated) {
-        // Out of revisions: open a dispute for founder mediation/refund.
-        await supabase.from("dispute_cases").insert({
-          order_id: orderId,
-          raised_by: session.user.id,
-          reason: `AI gate failed after ${MAX_REVISIONS} attempts (last score ${review.score}/100).`,
-          status: "open",
-        });
+      const orderUpdate: Record<string, unknown> = {
+        status: outcome.status,
+        revision_count: attempt,
+      };
+      if (outcome.status === "awaiting_approval") {
+        // approved_at marks the start of the silent dispute window; the
+        // 72h auto-release cron uses it as the cutoff.
+        orderUpdate.approved_at = new Date().toISOString();
       }
+      if (outcome.status === "refunded") {
+        orderUpdate.completed_at = new Date().toISOString();
+      }
+      await supabase.from("orders").update(orderUpdate).eq("id", orderId);
     }
   }
 
   trackEvent(
     "work_submitted",
-    { orderId, verdict: review.verdict, attempt, status: outcome.status },
+    {
+      orderId,
+      verdict: review.verdict,
+      attempt,
+      status: outcome.status,
+      authAction: outcome.authAction,
+    },
     session.user.id
   );
   revalidatePath(`/student/orders/${orderId}`);
   revalidatePath(`/client/orders/${orderId}`);
 
   if (review.verdict === "PASS") {
-    // Only now does the client hear about it: passing work reaches them.
+    // Capture is done; deliver to the client and start the dispute window.
     const client = await getClientById(order!.clientId);
     await dispatchUserEmail(
       order!.clientId,
@@ -153,12 +177,78 @@ export async function submitWork(formData: FormData) {
     redirect(`/student/orders/${orderId}?submitted=1`);
   }
 
-  if (outcome.escalated) {
-    redirect(`/student/orders/${orderId}?escalated=1`);
+  if (outcome.terminallyFailed) {
+    // 3x FAIL: the auth was voided above, the client is never charged, no
+    // human dispute case is opened. The order ends here.
+    redirect(`/student/orders/${orderId}?refunded=1`);
   }
 
   // Failed but revisions remain: back to the resubmit form with the issues.
   redirect(`/student/orders/${orderId}/submit?fail=1&attempt=${attempt + 1}`);
+}
+
+/**
+ * Client-initiated dispute inside the awaiting_approval window. Forces an
+ * AI-gate re-run if revisions remain (refund + revision_requested) or a
+ * terminal refund if not. No staff in the loop.
+ */
+export async function disputeOnReview(formData: FormData) {
+  const session = await requireRole("client");
+  const orderId = (formData.get("orderId") as string) || "";
+  const order = await getOrder(orderId);
+  if (!order || order.clientId !== session.user.id) redirect("/client/orders");
+
+  // The engine reads how many submissions were used and decides whether the
+  // dispute resets the loop (revision_requested) or terminates it (refunded).
+  let attemptsUsed = 1;
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const { data } = await supabase
+        .from("orders")
+        .select("revision_count")
+        .eq("id", orderId)
+        .maybeSingle<{ revision_count: number | null }>();
+      attemptsUsed = Math.max(1, Number(data?.revision_count ?? 1));
+    }
+  }
+
+  const outcome = resolveClientDispute({
+    attemptsUsed,
+    maxAttempts: MAX_REVISIONS,
+  });
+
+  // Refund the capture (the auth was captured at PASS). No human reviewer.
+  await refundPayment({ orderId, amount: order!.amount });
+
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const update: Record<string, unknown> = { status: outcome.status };
+      if (outcome.status === "refunded") {
+        update.completed_at = new Date().toISOString();
+      }
+      await supabase.from("orders").update(update).eq("id", orderId);
+    }
+  }
+
+  trackEvent(
+    "client_dispute_raised",
+    {
+      orderId,
+      status: outcome.status,
+      attemptsLeft: outcome.attemptsLeft,
+      terminallyFailed: outcome.terminallyFailed,
+    },
+    session.user.id
+  );
+  revalidatePath(`/client/orders/${orderId}`);
+  revalidatePath(`/student/orders/${orderId}`);
+
+  if (outcome.terminallyFailed) {
+    redirect(`/client/orders/${orderId}?disputeRefunded=1`);
+  }
+  redirect(`/client/orders/${orderId}?disputeReset=1`);
 }
 
 export async function approveOrder(formData: FormData) {
