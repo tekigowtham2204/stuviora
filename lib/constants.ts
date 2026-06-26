@@ -15,6 +15,14 @@ export const AI_GATE_PASS_THRESHOLD = 70;
 export const ESCROW_AUTO_RELEASE_HOURS = 72;
 export const MAX_REVISIONS = 3;
 
+/**
+ * Originality below this routes the delivery to a human reviewer instead of
+ * auto-rejecting it. The gate must never fail work for "looking AI-written":
+ * AI-detection is unreliable and biased against non-native English writers,
+ * so a low originality reading is a flag for a person to look, not a verdict.
+ */
+export const ORIGINALITY_REVIEW_THRESHOLD = 50;
+
 /** Service categories, mapped from "anything" to student streams. */
 export const SERVICE_CATEGORIES = [
   {

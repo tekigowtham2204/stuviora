@@ -109,6 +109,7 @@ export async function submitWork(formData: FormData) {
         completeness: review.completeness,
         quality: review.quality,
         originality: review.originality,
+        flagged_for_review: review.flaggedForReview ?? false,
         issues: review.issues,
         suggestions: review.suggestions,
         reviewer_note: review.reviewerNote,

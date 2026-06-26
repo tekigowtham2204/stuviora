@@ -5,6 +5,7 @@ import { AI_GATE_PASS_THRESHOLD } from "@/lib/constants";
 import { services } from "@/lib/env";
 import { chatJson } from "@/lib/llm/client";
 import { QUALITY_GATE_PROMPT } from "@/lib/ai/prompts";
+import { shouldFlagForReview } from "@/lib/ai/review-flag";
 import { recordGateDecision } from "@/lib/ai/calibration";
 import { captureError } from "@/lib/observability";
 
@@ -72,6 +73,7 @@ function demoReview(input: QualityGateInput): QualityGateResult {
     completeness,
     quality,
     originality,
+    flaggedForReview: shouldFlagForReview({ originality }),
     issues:
       verdict === "PASS"
         ? ["Minor: one section could be tightened by a sentence."]
@@ -97,6 +99,7 @@ const GateResultSchema = z.object({
   completeness: z.number().min(0).max(30),
   quality: z.number().min(0).max(30),
   originality: z.number().min(0).max(100),
+  flaggedForReview: z.boolean().optional(),
   issues: z.array(z.string()),
   suggestions: z.array(z.string()),
   reviewerNote: z.string(),
@@ -127,6 +130,7 @@ export async function runQualityGate(input: QualityGateInput): Promise<QualityGa
           verdict,
           promptVersion: QUALITY_GATE_PROMPT.version,
         });
+        const originality = Math.round(live.originality);
         return {
           orderId: input.orderId,
           score: Math.round(live.score),
@@ -134,7 +138,11 @@ export async function runQualityGate(input: QualityGateInput): Promise<QualityGa
           briefAlignment: Math.round(live.briefAlignment),
           completeness: Math.round(live.completeness),
           quality: Math.round(live.quality),
-          originality: Math.round(live.originality),
+          originality,
+          flaggedForReview: shouldFlagForReview({
+            originality,
+            modelFlagged: live.flaggedForReview,
+          }),
           issues: live.issues,
           suggestions: live.suggestions,
           reviewerNote: live.reviewerNote,

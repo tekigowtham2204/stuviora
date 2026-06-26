@@ -102,6 +102,12 @@ export interface AiReview {
   completeness: number; // /30
   quality: number; // /30
   originality: number; // /100
+  /**
+   * Advisory only: routes the delivery to a human reviewer. Never changes the
+   * PASS/FAIL verdict. Set when originality reads low or the model is unsure
+   * about authorship - the gate never auto-rejects work for "looking AI".
+   */
+  flaggedForReview?: boolean;
   issues: string[];
   suggestions: string[];
   reviewerNote: string;
