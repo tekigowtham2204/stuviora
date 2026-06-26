@@ -43,7 +43,7 @@ export default function HomePage() {
           name: "Stuviora",
           url: "https://stuviora.com",
           description:
-            "India's AI-powered student freelancing marketplace. Every deliverable passes an AI quality check before it reaches the client.",
+            "India's trust-first student freelancing marketplace. Escrow-protected payments, college-verified students, and an AI quality check on every delivery.",
           areaServed: "IN",
           knowsAbout: [
             "student freelancing",
@@ -86,7 +86,7 @@ function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-sage)] opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-sage-deep)]" />
                 </span>
-                India&apos;s first AI-verified student marketplace
+                India&apos;s trust-first student marketplace
               </div>
 
               <h1 className="mt-7 font-display text-balance text-5xl font-medium leading-[1.02] tracking-tight text-[var(--color-ink)] sm:text-6xl lg:text-[80px]">
@@ -105,9 +105,10 @@ function Hero() {
               </h1>
 
               <p className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-ink-muted)]">
-                Every deliverable passes an AI quality check before it
-                reaches you. Escrow-protected. College-verified. Built so
-                first-time clients can hire first-time students with confidence.
+                Your payment sits in escrow until you approve the work. Every
+                student is college-verified, and an AI quality check backs every
+                delivery. Built so first-time clients can hire first-time
+                students with confidence.
               </p>
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -127,9 +128,9 @@ function Hero() {
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-ink-muted)]">
                 {[
                   "Razorpay escrow",
-                  "AI quality gate",
-                  "72h auto-release",
                   "College-verified students",
+                  "72h auto-release",
+                  "AI quality gate",
                 ].map((t) => (
                   <span key={t} className="inline-flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-sage-deep)]" />
@@ -346,7 +347,7 @@ function Moat() {
     },
     {
       icon: Bot,
-      text: "Originality and AI-content detection keep the work genuinely the student's",
+      text: "Work that looks off-brief is routed to a person, never auto-rejected for writing style",
     },
   ];
 
@@ -355,13 +356,14 @@ function Moat() {
       <Container>
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr]">
           <Reveal>
-            <SectionEyebrow>The moat</SectionEyebrow>
-            <SectionTitle>An AI quality gate on every delivery.</SectionTitle>
+            <SectionEyebrow>Quality, checked</SectionEyebrow>
+            <SectionTitle>You only pay for work that clears the bar.</SectionTitle>
             <SectionLede>
-              Student talent has always been a gamble. We remove it: our AI
-              reviews every submission for completeness, brief alignment, and
-              originality before the client sees it. Only work that clears the
-              bar is delivered.
+              Escrow and verification make a hire safe; this is what makes it
+              good. An AI quality check scores every submission against the brief
+              before the client sees it, so weak work goes back for fixes instead
+              of landing on your desk. It supports the trust rail, it does not
+              replace your judgement.
             </SectionLede>
 
             <ul className="mt-8 space-y-4">

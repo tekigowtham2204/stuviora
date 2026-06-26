@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s · Stuviora",
   },
   description:
-    "India's first AI-powered student freelancing platform. Every deliverable passes an AI quality check before it reaches the client, making student talent safe to hire.",
+    "India's trust-first student freelancing platform. Escrow holds the payment until you approve, students are college-verified, and an AI quality check backs every delivery, making student talent safe to hire.",
   keywords: [
     "student freelancing",
     "hire students India",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Stuviora: Hire students. Trust the platform.",
     description:
-      "AI-reviewed student freelancing for India. Escrow-protected, quality-gated, college-verified.",
+      "Trust-first student freelancing for India. Escrow-protected, college-verified, quality-checked.",
     url: "https://stuviora.com",
     siteName: "Stuviora",
     type: "website",

@@ -5,7 +5,7 @@ export const BRAND = {
   meaning: "Stu(dent) + Viora: through students, brilliance emerges",
   tagline: "Hire students. Trust the platform.",
   positioning:
-    "India's first AI-powered student freelancing platform where every deliverable passes an AI quality check before reaching the client.",
+    "India's trust-first student freelancing platform: escrow-protected payments, college-verified students, and an AI quality check backing every delivery.",
   domain: "stuviora.com",
   handle: "@stuviora",
 } as const;

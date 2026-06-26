@@ -47,10 +47,11 @@ export default function AboutPage() {
                   Our wedge
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-[var(--color-ink)]">
-                  An AI quality gate on every delivery. Before any work reaches a
-                  client, our AI reviews it for completeness, coherence, and
-                  originality. Clients stop gambling on student talent. The platform&apos;s
-                  only job is to keep that trust honest.
+                  A trust rail that makes the hire safe end to end. Escrow holds
+                  the payment until the client approves, every student is
+                  college-verified, and an AI quality check backs each delivery
+                  before it lands. Clients stop gambling on student talent. The
+                  platform&apos;s only job is to keep that trust honest.
                 </p>
               </Card>
             </Reveal>
