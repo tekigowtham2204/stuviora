@@ -9,6 +9,8 @@ import { reconcileCommissions } from "@/lib/payments/reconcile";
 import { LLM_TIERS } from "@/lib/llm/models";
 import { platformModel } from "@/lib/demo/state";
 import { setModelTier } from "@/app/actions/admin";
+import { getCalibrationStats } from "@/lib/ai/calibration";
+import { GatePrecisionPanel } from "@/components/feature/gate-precision-panel";
 
 export const metadata = { title: "Ops" };
 
@@ -37,6 +39,7 @@ const JOBS: { name: string; trigger: string; kind: "cron" | "event" }[] = [
 
 export default async function AdminOpsPage() {
   const liveCount = INTEGRATIONS.filter((i) => services[i.key]).length;
+  const gateStats = await getCalibrationStats();
 
   // Demo reconciliation over a small clean fixture so the panel shows real
   // numbers; live mode reports against commission_events.
@@ -126,6 +129,8 @@ export default async function AdminOpsPage() {
           })}
         </div>
       </Card>
+
+      <GatePrecisionPanel stats={gateStats} className="mt-6" />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card>

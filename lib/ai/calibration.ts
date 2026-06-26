@@ -86,6 +86,34 @@ export interface CalibrationStats {
   /** PASS decisions later approved without dispute = gate agreed with humans. */
   agreementRate: number | null;
   passRate: number | null;
+  /** Labeled PASS decisions (the denominator for precision). */
+  passLabeled: number;
+  /**
+   * Gate precision vs human approval: of the PASS decisions a human later
+   * judged, the fraction the human agreed with (approved, or won the dispute
+   * as the student). This is the headline "is the gate right when it says
+   * ship it" number.
+   */
+  passPrecision: number | null;
+  /** Labeled FAIL decisions (the denominator for catch rate). */
+  failLabeled: number;
+  /**
+   * Of the FAIL decisions a human later judged, the fraction the gate was
+   * right to hold back (revision requested, or the client won the dispute).
+   */
+  failCatchRate: number | null;
+}
+
+/** A PASS the human agreed with (good work shipped). */
+function passAgreed(r: CalibrationRow): boolean {
+  return r.outcome === "approved" || r.outcome === "dispute_student_favour";
+}
+
+/** A FAIL the human agreed with (bad work correctly held back). */
+function failAgreed(r: CalibrationRow): boolean {
+  return (
+    r.outcome === "revision_requested" || r.outcome === "dispute_client_favour"
+  );
 }
 
 /** Aggregate stats for the ops dashboard + public trust page. */
@@ -93,24 +121,59 @@ export function calibrationStatsFrom(rows: CalibrationRow[]): CalibrationStats {
   const decisions = rows.length;
   const labeled = rows.filter((r) => r.outcome).length;
   const passes = rows.filter((r) => r.verdict === "PASS").length;
-  const agreeing = rows.filter(
-    (r) =>
-      r.outcome &&
-      ((r.verdict === "PASS" &&
-        (r.outcome === "approved" || r.outcome === "dispute_student_favour")) ||
-        (r.verdict === "FAIL" &&
-          (r.outcome === "revision_requested" ||
-            r.outcome === "dispute_client_favour")))
-  ).length;
+
+  const passLabeledRows = rows.filter((r) => r.outcome && r.verdict === "PASS");
+  const failLabeledRows = rows.filter((r) => r.outcome && r.verdict === "FAIL");
+  const agreeing =
+    passLabeledRows.filter(passAgreed).length +
+    failLabeledRows.filter(failAgreed).length;
+
   return {
     decisions,
     labeled,
     agreementRate: labeled ? agreeing / labeled : null,
     passRate: decisions ? passes / decisions : null,
+    passLabeled: passLabeledRows.length,
+    passPrecision: passLabeledRows.length
+      ? passLabeledRows.filter(passAgreed).length / passLabeledRows.length
+      : null,
+    failLabeled: failLabeledRows.length,
+    failCatchRate: failLabeledRows.length
+      ? failLabeledRows.filter(failAgreed).length / failLabeledRows.length
+      : null,
   };
 }
 
 /** Demo-path stats accessor (live reads the table and reuses the fold). */
 export function demoCalibrationStats(): CalibrationStats {
+  return calibrationStatsFrom(demoLog);
+}
+
+/**
+ * Live-aware stats accessor for the ops dashboard. Reads ai_calibration_log
+ * when Supabase is configured, otherwise folds the in-memory demo ring. Both
+ * paths reuse calibrationStatsFrom so the numbers are computed identically.
+ */
+export async function getCalibrationStats(): Promise<CalibrationStats> {
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      const { data } = await supabase
+        .from("ai_calibration_log")
+        .select("order_id, score, verdict, prompt_version, outcome, outcome_at")
+        .order("created_at", { ascending: false })
+        .limit(DEMO_CAP);
+      const rows: CalibrationRow[] = (data ?? []).map((r) => ({
+        orderId: r.order_id as string,
+        score: r.score as number,
+        verdict: r.verdict as "PASS" | "FAIL",
+        promptVersion: (r.prompt_version as string) ?? "",
+        decidedAt: 0,
+        outcome: (r.outcome as HumanOutcome | null) ?? undefined,
+        outcomeAt: r.outcome_at ? Date.parse(r.outcome_at as string) : undefined,
+      }));
+      return calibrationStatsFrom(rows);
+    }
+  }
   return calibrationStatsFrom(demoLog);
 }
