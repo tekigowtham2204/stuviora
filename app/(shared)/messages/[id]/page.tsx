@@ -139,6 +139,24 @@ export default async function MessageThreadPage({
             Contact info beyond this thread is hidden until the order is active. This is to protect both sides.
           </p>
         </Card>
+
+        <Card tint="warm">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-[var(--color-sage-deep)]" />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted">
+              Keep it on Stuviora
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-subtle">
+            Escrow, the quality gate, dispute mediation, and the money-back
+            guarantee only cover work paid for through the platform. Move a deal
+            off-platform and you give all of that up, on both sides.
+          </p>
+          <p className="mt-2 text-xs text-subtle">
+            Already know each other from before? That is fine. These protections
+            just stop applying to anything settled outside Stuviora.
+          </p>
+        </Card>
       </aside>
     </div>
   );
