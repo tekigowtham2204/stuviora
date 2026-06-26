@@ -21,6 +21,13 @@ import { blockedClientIds } from "@/lib/demo/state";
 import { marketSignals, type MarketSignal } from "@/lib/jobs/market";
 import { buildRoster, type RosterEntry } from "@/lib/university/roster";
 import { services } from "@/lib/env";
+import { COMMISSION_RATE } from "@/lib/constants";
+import {
+  computeBusinessMetrics,
+  type BusinessMetrics,
+  type ClientOrderRow,
+} from "@/lib/metrics/business";
+import { getCalibrationStats } from "@/lib/ai/calibration";
 import { getServerSupabase } from "@/lib/supabase/server";
 import {
   studentFromRow,
@@ -1004,6 +1011,112 @@ export async function getPlatformMetrics(): Promise<PlatformMetrics> {
   } catch {
     // Live but failed: honest zeros, never demo traction.
     return empty;
+  }
+}
+
+/**
+ * Investor-grade unit economics for the founder dashboard. Measured metrics
+ * come from real rows (demo: derived consistently from demo orders); the
+ * contribution margin is modeled from stated cost assumptions. Live failures
+ * degrade each field to null rather than show a wrong number.
+ */
+export async function getBusinessMetrics(): Promise<BusinessMetrics> {
+  const gate = await getCalibrationStats();
+  const gatePrecision = gate.passPrecision;
+
+  if (!(await liveOn())) {
+    // Demo: compute everything from the same demo orders so the panel is
+    // internally consistent. No signup timestamps in demo, so time-to-first
+    // order is honestly null.
+    const cleared = demo.orders.filter(
+      (o) => o.status !== "pending_payment" && o.status !== "cancelled"
+    );
+    const gmv = cleared.reduce((s, o) => s + o.amount, 0);
+    const completed = demo.orders.filter((o) => o.status === "completed");
+    const clientOrders: ClientOrderRow[] = demo.orders.map((o) => ({
+      clientId: o.clientId,
+      completed: o.status === "completed",
+    }));
+    return computeBusinessMetrics({
+      gmv,
+      revenueNet: gmv * COMMISSION_RATE,
+      completedOrderCount: completed.length,
+      clientOrders,
+      daysToFirstOrder: [],
+      gatePrecision,
+    });
+  }
+
+  try {
+    const supabase = await getServerSupabase();
+    if (!supabase) throw new Error("no client");
+
+    // Reuse the audited revenue + GMV computation.
+    const base = await getPlatformMetrics();
+
+    const { data: orderRows } = await supabase
+      .from("orders")
+      .select("client_id, amount, status, created_at")
+      .not("status", "in", "(pending_payment,cancelled)");
+    const orders = (orderRows ?? []) as {
+      client_id: string;
+      amount: number | null;
+      status: string;
+      created_at: string;
+    }[];
+
+    const clientOrders: ClientOrderRow[] = orders.map((o) => ({
+      clientId: o.client_id,
+      completed: o.status === "completed",
+    }));
+    const completedOrderCount = orders.filter(
+      (o) => o.status === "completed"
+    ).length;
+
+    // Time to first order: days from each client's signup to their earliest
+    // order. Join client signup dates to their first order.
+    const { data: clientRows } = await supabase
+      .from("client_profiles")
+      .select("user_id, created_at");
+    const signupAt = new Map<string, number>();
+    for (const c of (clientRows ?? []) as {
+      user_id: string;
+      created_at: string;
+    }[]) {
+      signupAt.set(c.user_id, Date.parse(c.created_at));
+    }
+    const firstOrderAt = new Map<string, number>();
+    for (const o of orders) {
+      const t = Date.parse(o.created_at);
+      const prev = firstOrderAt.get(o.client_id);
+      if (prev == null || t < prev) firstOrderAt.set(o.client_id, t);
+    }
+    const daysToFirstOrder: number[] = [];
+    for (const [clientId, firstAt] of firstOrderAt) {
+      const signed = signupAt.get(clientId);
+      if (signed != null && firstAt >= signed) {
+        daysToFirstOrder.push((firstAt - signed) / 86_400_000);
+      }
+    }
+
+    return computeBusinessMetrics({
+      gmv: base.gmv,
+      revenueNet: base.revenueNet,
+      completedOrderCount,
+      clientOrders,
+      daysToFirstOrder,
+      gatePrecision,
+    });
+  } catch {
+    // Live but failed: honest empties, never demo traction.
+    return computeBusinessMetrics({
+      gmv: 0,
+      revenueNet: 0,
+      completedOrderCount: 0,
+      clientOrders: [],
+      daysToFirstOrder: [],
+      gatePrecision,
+    });
   }
 }
 

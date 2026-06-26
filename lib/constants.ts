@@ -23,6 +23,23 @@ export const MAX_REVISIONS = 3;
  */
 export const ORIGINALITY_REVIEW_THRESHOLD = 50;
 
+/**
+ * Variable-cost assumptions for the MODELED contribution margin shown on the
+ * founder dashboard. These are estimates, not measured costs: the dashboard
+ * labels the margin as modeled and prints these rates inline so the figure is
+ * transparent rather than fabricated. Replace with measured costs once a real
+ * cost ledger exists (principle: real numbers or an honest model, never a
+ * number dressed up as measured when it is not).
+ */
+export const COST_ASSUMPTIONS = {
+  /** Payment-gateway MDR on the full transaction amount (Razorpay estimate). */
+  paymentProcessingRate: 0.02,
+  /** LLM quality-gate cost per delivery, in rupees (estimate). */
+  gateCostPerOrder: 2,
+  /** Payout transfer fee per completed order, in rupees (estimate). */
+  payoutFeePerOrder: 3,
+} as const;
+
 /** Service categories, mapped from "anything" to student streams. */
 export const SERVICE_CATEGORIES = [
   {

@@ -15,13 +15,19 @@ import { Stat } from "@/components/ui/stat";
 import { Badge } from "@/components/ui/badge";
 import { Money } from "@/components/ui/money";
 import { DisputeStatusPill } from "@/components/ui/status-pill";
-import { getPlatformMetrics, listDisputeQueue } from "@/lib/data/queries";
+import {
+  getPlatformMetrics,
+  getBusinessMetrics,
+  listDisputeQueue,
+} from "@/lib/data/queries";
 import { isEscalated } from "@/lib/disputes/engine";
+import { UnitEconomicsPanel } from "@/components/feature/unit-economics-panel";
 
 export const metadata = { title: "Admin overview" };
 
 export default async function AdminDashboard() {
   const m = await getPlatformMetrics();
+  const biz = await getBusinessMetrics();
   const queue = await listDisputeQueue();
   const maxRev = Math.max(...m.dailyRevenue.map((d) => d.amount));
 
@@ -88,6 +94,8 @@ export default async function AdminDashboard() {
           sub={`${m.students} students · ${m.clients} clients`}
         />
       </div>
+
+      <UnitEconomicsPanel metrics={biz} className="mt-6" />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
         {/* Daily revenue */}
