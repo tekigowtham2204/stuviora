@@ -156,8 +156,9 @@ export default function PostJobPage() {
               <CardTitle>How payment works</CardTitle>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-              When you hire, you fund Razorpay escrow upfront. The student is paid only
-              on your approval, with 72-hour auto-release if you do not respond.
+              When you hire, you authorize payment with Razorpay (a hold, no charge).
+              You are charged only when the AI gate passes the work, and never for work
+              that fails the bar.
             </p>
           </Card>
         </aside>

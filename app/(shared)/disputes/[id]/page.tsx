@@ -171,7 +171,7 @@ export default async function DisputeDetail({
             <div className="mt-3 space-y-2 text-sm">
               <Row label="Stage" value={meta.label} />
               <Row label="Resolution" value={DISPUTE_RESOLUTION_META[dispute.resolution].label} />
-              <Row label="In escrow (held)" value={formatINR(dispute.amount)} strong />
+              <Row label="Authorized (held)" value={formatINR(dispute.amount)} strong />
             </div>
             {dispute.status !== "resolved" && left !== null && (
               <p

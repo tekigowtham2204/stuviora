@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, MessageSquare, Check, RotateCcw, AlertTriangle, Repeat } from "lucide-react";
+import { Clock, MessageSquare, Check, RotateCcw, Repeat } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { OrderTimeline } from "@/components/feature/order-timeline";
 import { AiReviewPanel } from "@/components/feature/ai-review-panel";
 import { getOrder, getStudentById } from "@/lib/data/queries";
 import { approveOrder, requestRevision, reorder } from "@/app/actions/orders";
-import { openDispute } from "@/app/actions/disputes";
 import { setOrderShareable } from "@/app/actions/export";
 import { shareableOrderIds } from "@/lib/demo/state";
 import { ORDER_STATUS_META } from "@/lib/status";
@@ -56,34 +55,32 @@ export default async function ClientOrderDetail({
 
           {canAct && (
             <Card>
-              <CardTitle>Review the delivery</CardTitle>
+              <CardTitle>Delivered: your dispute window is open</CardTitle>
               <p className="mt-2 text-sm text-muted">
-                Take a look at the files. If everything checks out, approve to release the payout. If something is off, request a revision or open a dispute.
+                This passed the AI quality bar, so you were charged on delivery.
+                Take a look. If it is right, release the payout now. If something
+                is off, request a fix at no extra cost, you are refunded while
+                the student reworks it.
               </p>
-              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <form action={approveOrder}>
                   <input type="hidden" name="orderId" value={order.id} />
                   <Button type="submit" variant="trust" className="w-full">
-                    <Check className="h-4 w-4" /> Approve & pay
+                    <Check className="h-4 w-4" /> Release payout now
                   </Button>
                 </form>
                 <form action={requestRevision}>
                   <input type="hidden" name="orderId" value={order.id} />
                   <Button type="submit" variant="outline" className="w-full">
-                    <RotateCcw className="h-4 w-4" /> Request revision
-                  </Button>
-                </form>
-                <form action={openDispute}>
-                  <input type="hidden" name="orderId" value={order.id} />
-                  <Button type="submit" variant="ghost" className="w-full">
-                    <AlertTriangle className="h-4 w-4" /> Open dispute
+                    <RotateCcw className="h-4 w-4" /> Request a fix (refunds you)
                   </Button>
                 </form>
               </div>
               {hoursRemaining > 0 && (
                 <p className="mt-4 rounded-lg bg-warning-bg p-3 text-xs text-warning">
                   <Clock className="mr-1 inline h-3.5 w-3.5" />
-                  Auto-releases in ~{hoursRemaining}h if you don&apos;t respond.
+                  Auto-settles to the student in ~{hoursRemaining}h if you do
+                  nothing.
                 </p>
               )}
               <form
@@ -117,8 +114,8 @@ export default async function ClientOrderDetail({
               <CardTitle>Work with {student?.fullName ?? "this student"} again</CardTitle>
               <p className="mt-2 text-sm text-muted">
                 Start a new order for the same brief and student. No reposting or
-                proposals: you go straight to funding escrow, with the same
-                quality gate and protections.
+                proposals: you go straight to authorizing payment, with the same
+                quality gate and pay-on-delivery protection.
               </p>
               <form action={reorder} className="mt-4">
                 <input type="hidden" name="orderId" value={order.id} />
@@ -138,9 +135,9 @@ export default async function ClientOrderDetail({
               <Row label="Student payout (85%)" value={formatINR(split.studentPayout)} muted />
               <Row label="Platform fee (15%)" value={formatINR(split.commission)} muted />
               <div className="my-2 border-t border-border" />
-              <Row label="In escrow" value={formatINR(order.amount)} strong />
+              <Row label="Authorized" value={formatINR(order.amount)} strong />
             </div>
-            <Badge tone="trust" className="mt-3">Razorpay escrow</Badge>
+            <Badge tone="trust" className="mt-3">Pay on delivery</Badge>
           </Card>
 
           {showInvoice && (

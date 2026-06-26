@@ -179,8 +179,9 @@ export default async function StudentJobDetail({
               <CardTitle>How payment works</CardTitle>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-[var(--color-ink-muted)]">
-              When the client hires you they fund Razorpay escrow upfront. You get paid
-              85% on approval, with 72-hour auto-release if they do not respond.
+              When the client hires you they authorize payment up front (a hold, no
+              charge). They are charged when your work passes the AI gate, and you get
+              85%, settled after a 72-hour dispute window.
             </p>
             <p className="mt-2 text-xs text-[var(--color-ink-faint)]">
               You can withdraw to your bank or UPI once the balance clears. The

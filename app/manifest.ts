@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Stuviora",
     short_name: "Stuviora",
     description:
-      "India's student freelancing platform. AI-checked quality, escrow-protected pay.",
+      "India's student freelancing platform. AI-checked quality, pay on delivery.",
     start_url: "/",
     display: "standalone",
     background_color: "#F8F2E3",

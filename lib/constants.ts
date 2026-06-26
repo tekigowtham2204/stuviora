@@ -5,7 +5,7 @@ export const BRAND = {
   meaning: "Stu(dent) + Viora: through students, brilliance emerges",
   tagline: "Hire students. Trust the platform.",
   positioning:
-    "India's trust-first student freelancing platform: escrow-protected payments, college-verified students, and an AI quality check backing every delivery.",
+    "India's trust-first student freelancing platform: pay-on-delivery payments, college-verified students, and an AI quality check backing every delivery.",
   domain: "stuviora.com",
   handle: "@stuviora",
 } as const;
@@ -125,7 +125,7 @@ export const TRUST_LAYERS: readonly TrustLayer[] = [
     n: 3,
     title: "Payment trust",
     q: "Will I get paid / not get scammed?",
-    desc: "Razorpay escrow: client pays into escrow, student is paid only after approval. 72-hour auto-release if no dispute.",
+    desc: "Pay-on-delivery via Razorpay: the client's payment is authorized up front and charged only when the AI gate passes the work. The student is guaranteed funds; the client never pays for work that fails the bar.",
   },
   {
     n: 4,

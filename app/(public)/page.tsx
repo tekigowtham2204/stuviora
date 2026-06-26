@@ -43,12 +43,12 @@ export default function HomePage() {
           name: "Stuviora",
           url: "https://stuviora.com",
           description:
-            "India's trust-first student freelancing marketplace. Escrow-protected payments, college-verified students, and an AI quality check on every delivery.",
+            "India's trust-first student freelancing marketplace. Pay-on-delivery payments, college-verified students, and an AI quality check on every delivery.",
           areaServed: "IN",
           knowsAbout: [
             "student freelancing",
             "AI quality review",
-            "escrow payments",
+            "pay-on-delivery payments",
           ],
         }}
       />
@@ -105,10 +105,11 @@ function Hero() {
               </h1>
 
               <p className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-[var(--color-ink-muted)]">
-                Your payment sits in escrow until you approve the work. Every
-                student is college-verified, and an AI quality check backs every
-                delivery. Built so first-time clients can hire first-time
-                students with confidence.
+                Your payment is authorized up front and charged only when
+                quality-checked work is delivered. Every student is
+                college-verified, and an AI quality check backs every delivery.
+                Built so first-time clients can hire first-time students with
+                confidence.
               </p>
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -127,9 +128,9 @@ function Hero() {
               {/* Inline reassurance row */}
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[var(--color-ink-muted)]">
                 {[
-                  "Razorpay escrow",
+                  "Pay on delivery",
                   "College-verified students",
-                  "72h auto-release",
+                  "Charged only on AI pass",
                   "AI quality gate",
                 ].map((t) => (
                   <span key={t} className="inline-flex items-center gap-1.5">
@@ -163,8 +164,8 @@ function DealFlowCard() {
     {
       icon: ShieldCheck,
       accent: "sage",
-      title: "Client funds escrow",
-      body: "Razorpay holds the full amount upfront, before any work begins.",
+      title: "Client authorizes payment",
+      body: "Razorpay places a hold, no charge yet, so the student can start knowing the funds are real.",
     },
     {
       icon: GraduationCap,
@@ -181,8 +182,8 @@ function DealFlowCard() {
     {
       icon: Wallet,
       accent: "sage",
-      title: "Paid on approval",
-      body: `${studentSharePct}% releases to the student on approval, or after ${ESCROW_AUTO_RELEASE_HOURS}h auto-release.`,
+      title: "Charged on delivery, paid out",
+      body: `On a pass, the hold is captured and ${studentSharePct}% settles to the student after a ${ESCROW_AUTO_RELEASE_HOURS}h dispute window.`,
     },
   ];
 
@@ -251,7 +252,7 @@ function DealFlowCard() {
         </div>
       </div>
 
-      {/* Floating: escrow pill */}
+      {/* Floating: pay-on-delivery pill */}
       <div className="absolute -bottom-6 -left-6 z-20 -rotate-[3deg]">
         <Card surface="raised" className="px-4 py-3" tint="white">
           <div className="flex items-center gap-2">
@@ -260,10 +261,10 @@ function DealFlowCard() {
             </span>
             <div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-[var(--color-ink-muted)]">
-                Razorpay escrow
+                Razorpay
               </div>
               <div className="font-display text-base font-medium text-[var(--color-ink)]">
-                Paid on approval
+                Pay on delivery
               </div>
             </div>
           </div>
@@ -286,7 +287,7 @@ async function ProofStrip() {
 
   const realStats: { value: string; label: string }[] = services.supabase
     ? [
-        m.gmv > 0 ? { value: compactINR(m.gmv), label: "processed in escrow" } : null,
+        m.gmv > 0 ? { value: compactINR(m.gmv), label: "processed on delivery" } : null,
         m.students > 0
           ? { value: m.students.toLocaleString("en-IN"), label: "students verified" }
           : null,
@@ -302,9 +303,9 @@ async function ProofStrip() {
   // True statements about the model: shown until real metrics exist.
   const guarantees = [
     { value: `${studentSharePct}%`, label: "goes to the student" },
-    { value: "100%", label: "escrow-protected" },
+    { value: "0", label: "paid until work is delivered" },
     { value: "AI", label: "checked before delivery" },
-    { value: "72h", label: "auto-release safety net" },
+    { value: "72h", label: "dispute window safety net" },
   ];
 
   const stats = realStats.length >= 2 ? realStats.slice(0, 4) : guarantees;
@@ -359,11 +360,11 @@ function Moat() {
             <SectionEyebrow>Quality, checked</SectionEyebrow>
             <SectionTitle>You only pay for work that clears the bar.</SectionTitle>
             <SectionLede>
-              Escrow and verification make a hire safe; this is what makes it
-              good. An AI quality check scores every submission against the brief
-              before the client sees it, so weak work goes back for fixes instead
-              of landing on your desk. It supports the trust rail, it does not
-              replace your judgement.
+              Pay-on-delivery and verification make a hire safe; this is what
+              makes it good. An AI quality check scores every submission against
+              the brief before the client sees it, so weak work goes back for
+              fixes instead of landing on your desk, and you are only ever
+              charged for work that clears the bar.
             </SectionLede>
 
             <ul className="mt-8 space-y-4">
@@ -464,8 +465,8 @@ function Loop() {
     {
       n: "01",
       icon: ShieldCheck,
-      title: "Post and fund",
-      body: "Client posts a job, funds Razorpay escrow upfront. Funds are locked. Safe to proceed.",
+      title: "Post and authorize",
+      body: "Client posts a job and authorizes payment with Razorpay. A hold, no charge, so the student can start safely.",
       accent: "sage" as const,
     },
     {
@@ -478,8 +479,8 @@ function Loop() {
     {
       n: "03",
       icon: Wallet,
-      title: "Approve and split",
-      body: "Client approves, or auto-release after 72 hours. Split settles instantly: 85% student, 15% platform.",
+      title: "Charge on delivery, split",
+      body: "On a pass the client is charged and the split settles: 85% student, 15% platform, after a 72h dispute window.",
       accent: "orange" as const,
     },
   ];
@@ -490,8 +491,8 @@ function Loop() {
           <SectionEyebrow>The loop</SectionEyebrow>
           <SectionTitle>One safe loop. Every time. No exceptions.</SectionTitle>
           <SectionLede className="mx-auto">
-            Clients pay into escrow. Students do the work. AI verifies it before
-            delivery. Money releases on approval.
+            Clients authorize payment. Students do the work. AI verifies it
+            before delivery. The client is charged on delivery, never before.
           </SectionLede>
         </Reveal>
 
@@ -546,14 +547,14 @@ function RealWins() {
     {
       icon: ShieldCheck,
       accent: "yellow" as const,
-      title: "Backed by funded escrow",
-      body: "The client funds Razorpay escrow the moment they hire. The student starts knowing the money is already there, so nobody gets ghosted.",
+      title: "Backed by an authorized hold",
+      body: "The client authorizes payment the moment they hire. The student starts knowing the funds are guaranteed, so nobody gets ghosted.",
     },
     {
       icon: Wallet,
       accent: "orange" as const,
-      title: "Released on approval",
-      body: "The student gets 85% on client approval, with a 72-hour auto-release safety net so payment never stalls if the client goes quiet.",
+      title: "Charged on delivery, paid out",
+      body: "On an AI pass the client is charged and the student gets 85%, with a 72-hour dispute window safety net before payout settles.",
     },
   ];
 

@@ -44,7 +44,7 @@ import {
 } from "@/lib/search/client";
 import * as demo from "@/lib/demo/data";
 
-/** Hours an order may sit in awaiting_approval before auto-release fires. */
+/** Hours the post-delivery dispute window stays open before payout settles. */
 const AUTO_RELEASE_HOURS = 72;
 
 /**
@@ -71,10 +71,11 @@ async function resolveUserEmail(userId: string): Promise<string | null> {
 // --- Cron jobs --------------------------------------------------------------
 
 /**
- * Every 30 minutes: release escrow for orders past the 72h approval
- * window. Live: select orders.status='awaiting_approval' AND
- * approved_at < now() - 72h, then call Razorpay releaseEscrow + mark
- * the order completed. Demo: no-op.
+ * Every 30 minutes: settle the student payout for delivered orders whose
+ * dispute window has elapsed with no dispute. The client was already charged
+ * when the gate passed the work; this releases the 85% to the student. Live:
+ * select orders.status='awaiting_approval' AND approved_at (window start) <
+ * now() - 72h, then releaseEscrow + mark completed. Demo: no-op. No human.
  */
 export async function escrowAutoRelease() {
   let released = 0;

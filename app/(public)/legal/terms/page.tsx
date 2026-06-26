@@ -17,12 +17,12 @@ export default function TermsPage() {
 
       <h2>2. The platform&apos;s role</h2>
       <p>
-        Stuviora is a marketplace and escrow facilitator. We are not an employer of students and not a party to the work agreement itself. We do, however, hold funds in escrow, run automated quality checks on deliverables, and mediate disputes in good faith.
+        Stuviora is a marketplace and payment facilitator. We are not an employer of students and not a party to the work agreement itself. We do, however, authorize and capture payments, run automated quality checks on deliverables, and resolve disputes through automated policy. Stuviora operates without manual reviewers or mediators.
       </p>
 
-      <h2>3. Payments, fees, and escrow</h2>
+      <h2>3. Payments, fees, and the pay-on-delivery model</h2>
       <p>
-        Clients pay the full job amount into Razorpay-managed escrow at the time of hire. On approval (or 72 hours after the AI gate passes a delivery, whichever is sooner), the funds split as follows:
+        At the time of hire, the client authorizes the full job amount through Razorpay as a hold; nothing is charged yet. The charge (capture) happens automatically when the AI quality gate passes a delivery, so the client pays on receipt of quality-checked work. If the work cannot pass the gate after its revision attempts, the authorization is voided and the client is not charged. Once captured, the funds split as follows:
       </p>
       <ul>
         <li><strong>85%</strong> to the student, via their linked UPI or bank account.</li>
@@ -32,17 +32,17 @@ export default function TermsPage() {
 
       <h2>4. The AI quality gate</h2>
       <p>
-        Every delivery is reviewed by an AI quality gate before the client sees it. The gate scores work for completeness, alignment to the brief, and originality. Submissions that fail are returned to the student with specific fixes. The AI is a tool to protect both sides; it is not an arbiter of taste, and the client retains final say on acceptance.
+        Every delivery is reviewed by an AI quality gate before the client sees it. The gate scores the quality of the work for completeness, alignment to the brief, and originality, and is the automated acceptance step: passing work is delivered and charged, failing work is returned to the student with specific fixes. There is no human reviewer.
       </p>
 
       <h2>5. Disputes</h2>
       <p>
-        If a client and student cannot agree on acceptance, either party may open a dispute within the order. Stuviora&apos;s admin team reviews evidence from both sides within 48 hours and resolves the matter. Commission is held until resolution and may be partially or fully reversed.
+        After delivery the client has a 72-hour window. Within it, the client may request a fix: the capture is refunded and the student reworks the delivery through the gate, with the client charged again only if it passes. Work that fails the gate past its final revision is refunded automatically. Resolution is by automated policy, not staff mediation.
       </p>
 
       <h2>6. Prohibited use</h2>
       <ul>
-        <li>Off-platform payments or attempts to bypass Stuviora&apos;s escrow and commission.</li>
+        <li>Off-platform payments or attempts to bypass Stuviora&apos;s payment flow and commission.</li>
         <li>Plagiarised or fully AI-generated work passed off as the student&apos;s own.</li>
         <li>Misrepresentation of identity, college, or skills.</li>
         <li>Any use that violates Indian law or third-party rights.</li>

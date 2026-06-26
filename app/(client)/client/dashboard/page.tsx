@@ -67,9 +67,9 @@ export default async function ClientDashboard() {
         />
         <Stat
           icon={<ShieldCheck className="h-3.5 w-3.5" />}
-          label="In escrow"
+          label="Authorized"
           value={`Rs.${escrowTotal.toLocaleString("en-IN")}`}
-          sub="protected funds"
+          sub="held, charged on delivery"
           accent="sage"
         />
         <Stat

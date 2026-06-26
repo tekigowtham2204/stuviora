@@ -6,22 +6,24 @@ import { computeSplit } from "@/lib/utils";
 import { computeOrderTax } from "@/lib/tax/engine";
 
 /**
- * Razorpay Route escrow + atomic 85/15 split.
+ * Razorpay Route pay-on-delivery + atomic 85/15 split.
  *
- * Live path (master plan section 3, P3 of the production plan):
- *   1. createEscrowOrder      Razorpay Orders API with Route transfer
- *                              config baked in so the platform never
- *                              has to call Transfers separately.
- *   2. client pays            'payment.captured' webhook (HMAC-SHA256
- *                              verified, idempotency-guarded via
- *                              webhook_events).
- *   3. lockEscrow             payments.status = 'escrowed', ledger row.
- *   4. releaseEscrow          Razorpay Transfers API in one call:
- *                              85% -> student linked account
- *                              15% -> platform account
- *   5. 'transfer.settled'     finalize commission_events + tax_events
- *                              + fire Inngest (trust recalc, portfolio
- *                              draft).
+ * The client is never charged upfront. Their payment is authorized (a hold)
+ * at hire and captured only when the AI gate passes the work, so they pay on
+ * receipt of quality-checked work. The whole flow runs with no human in it.
+ *
+ * Live path:
+ *   1. createEscrowOrder      Razorpay Orders API (payment_capture: 0) so the
+ *                              client's payment is an authorization, plus the
+ *                              Route transfer config for the eventual split.
+ *   2. client authorizes      'payment.authorized' webhook -> hold placed,
+ *                              work begins (HMAC-SHA256 verified, idempotent).
+ *   3. AI gate PASS           capturePayment -> client charged on delivery.
+ *                              3x FAIL -> voidAuthorization, never charged.
+ *   4. dispute window         client may dispute (refundCapture) or it elapses.
+ *   5. releaseEscrow          on window expiry / early confirm: Route transfer
+ *                              85% -> student, 15% -> platform.
+ *   6. 'transfer.settled'     finalize commission_events + tax_events.
  *
  * Demo path: returns deterministic results using computeSplit so the
  * UX is fully exercisable without keys.
@@ -31,7 +33,13 @@ export interface EscrowOrder {
   id: string;
   orderId: string;
   amount: number;
-  status: "pending" | "escrowed" | "released" | "refunded" | "failed";
+  status:
+    | "pending"
+    | "authorized"
+    | "captured"
+    | "released"
+    | "refunded"
+    | "failed";
   razorpayOrderId?: string;
   /** Public key id for Checkout. */
   keyId?: string;
@@ -81,10 +89,14 @@ export async function createEscrowOrder(input: CreateEscrowInput): Promise<Escro
 
       // The Razorpay SDK's order types don't model the Route transfers
       // block cleanly, so we use a structured cast at the boundary.
+      // payment_capture: 0 makes this an AUTHORIZATION (a hold), not a
+      // charge: pay-on-delivery means the client is only captured when the
+      // AI gate passes the work. See capturePayment / voidAuthorization.
       const orderPayload = {
         amount: totalPaise,
         currency: "INR",
         receipt: input.orderId,
+        payment_capture: 0,
         notes: { order_id: input.orderId, client_id: input.clientId, ...input.notes },
         transfers: transfers.length ? transfers : undefined,
       } as unknown as Parameters<typeof rzp.orders.create>[0];
@@ -193,6 +205,96 @@ export async function releaseEscrow(input: ReleaseEscrowInput): Promise<ReleaseR
     gst: split.gst,
     platformNet: split.platformNet,
   };
+}
+
+/**
+ * Capture the held authorization. Called the moment the AI gate PASSES a
+ * delivery: the client is charged on receipt of quality-checked work, never
+ * before. Idempotent at the ledger level. Demo returns deterministically.
+ */
+export async function capturePayment(input: {
+  orderId: string;
+  amount: number;
+}): Promise<{ captured: number; razorpayPaymentId?: string }> {
+  if (services.razorpay) {
+    const rzp = razorpay();
+    const supabase = getServiceSupabase();
+    if (rzp && supabase) {
+      const { data } = await supabase
+        .from("payments")
+        .select("razorpay_payment_id")
+        .eq("order_id", input.orderId)
+        .maybeSingle<{ razorpay_payment_id: string | null }>();
+      const paymentId = data?.razorpay_payment_id ?? undefined;
+      if (paymentId) {
+        await rzp.payments.capture(
+          paymentId,
+          Math.round(input.amount * 100),
+          "INR"
+        );
+        await supabase
+          .from("payments")
+          .update({ status: "captured", captured_at: new Date().toISOString() })
+          .eq("order_id", input.orderId);
+        return { captured: input.amount, razorpayPaymentId: paymentId };
+      }
+    }
+  }
+  return { captured: input.amount };
+}
+
+/**
+ * Void a held authorization without charging anything. Called when the gate
+ * fails the work past its last revision: an uncaptured authorization is simply
+ * never captured (Razorpay lets it expire), so the client pays nothing. We
+ * record the void in our ledger. No human, no refund processing fee.
+ */
+export async function voidAuthorization(input: {
+  orderId: string;
+}): Promise<{ voided: true }> {
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase
+        .from("payments")
+        .update({ status: "voided" })
+        .eq("order_id", input.orderId);
+    }
+  }
+  return { voided: true };
+}
+
+/**
+ * Refund a payment that was already captured. Used when a client disputes
+ * inside the post-delivery window. Demo returns deterministically.
+ */
+export async function refundCapture(input: {
+  orderId: string;
+  amount: number;
+}): Promise<{ refunded: number }> {
+  if (services.razorpay) {
+    const rzp = razorpay();
+    const supabase = getServiceSupabase();
+    if (rzp && supabase) {
+      const { data } = await supabase
+        .from("payments")
+        .select("razorpay_payment_id")
+        .eq("order_id", input.orderId)
+        .maybeSingle<{ razorpay_payment_id: string | null }>();
+      const paymentId = data?.razorpay_payment_id ?? undefined;
+      if (paymentId) {
+        await rzp.payments.refund(paymentId, {
+          amount: Math.round(input.amount * 100),
+          notes: { order_id: input.orderId, kind: "dispute_refund" },
+        });
+        await supabase
+          .from("payments")
+          .update({ status: "refunded" })
+          .eq("order_id", input.orderId);
+      }
+    }
+  }
+  return { refunded: input.amount };
 }
 
 /**

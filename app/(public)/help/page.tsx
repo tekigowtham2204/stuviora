@@ -59,11 +59,11 @@ const SECTIONS: { heading: string; items: QA[] }[] = [
     items: [
       {
         q: "How do payments work?",
-        a: "When a client hires you, they fund a Razorpay escrow upfront. The money is held safely until you deliver. On approval you receive 85% of the order value; Stuviora keeps 15%.",
+        a: "When a client hires you, they authorize payment with Razorpay (a hold, no charge). They are charged the moment your work passes the AI gate, and you receive 85% of the order value; Stuviora keeps 15%.",
       },
       {
         q: "When do I get paid?",
-        a: "As soon as the client approves your delivery. If they do not respond within 72 hours of a passing submission, the payment auto-releases to you so you are never left waiting.",
+        a: "The client is charged automatically when your work passes the gate. Your payout settles after a 72-hour dispute window, or sooner if the client releases it, so you are never left waiting.",
       },
       {
         q: "How do I withdraw my earnings?",
@@ -84,7 +84,7 @@ const SECTIONS: { heading: string; items: QA[] }[] = [
       },
       {
         q: "What if a client and I disagree on a delivery?",
-        a: "Open a dispute from the order. Both sides submit evidence and our team reviews it against the brief and the AI score. Funds stay in escrow until the dispute is resolved.",
+        a: "The AI gate is the quality arbiter, so disputes resolve by policy, not staff. If a client requests a fix in the dispute window, they are refunded and you rework the delivery through the gate; you are paid when the new delivery passes.",
       },
       {
         q: "What if I miss a deadline?",
@@ -101,7 +101,7 @@ const SECTIONS: { heading: string; items: QA[] }[] = [
     items: [
       {
         q: "Why hire students through Stuviora?",
-        a: "You get motivated, verified college talent at fair rates, with every deliverable passing an AI quality check before it reaches you and your payment protected in escrow until you approve.",
+        a: "You get motivated, verified college talent at fair rates, with every deliverable passing an AI quality check before it reaches you and your payment charged only on delivery of work that passes the bar.",
       },
       {
         q: "What if the work is not good enough?",

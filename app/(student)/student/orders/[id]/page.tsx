@@ -109,7 +109,9 @@ export default async function StudentOrderDetail({
               <Row label="You receive" value={formatINR(split.studentPayout)} strong />
             </div>
             <p className="mt-3 text-xs text-subtle">
-              Released to your wallet on client approval or 72-hour auto-release.
+              The client is charged when your work passes the gate. Your payout
+              settles after the 72-hour dispute window, or sooner if the client
+              releases it.
             </p>
           </Card>
 

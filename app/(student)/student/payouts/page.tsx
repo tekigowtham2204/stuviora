@@ -155,7 +155,7 @@ export default async function PayoutsPage({
             <CardTitle>What is in your wallet</CardTitle>
             <div className="mt-4 space-y-2.5 text-sm">
               <Row label="Available now" value={<Money value={wallet.available} />} />
-              <Row label="Pending in escrow" value={<Money value={wallet.pending} />} />
+              <Row label="Pending payout" value={<Money value={wallet.pending} />} />
               <Row label="Lifetime earned" value={<Money value={wallet.lifetime} />} />
             </div>
             <div className="mt-5">

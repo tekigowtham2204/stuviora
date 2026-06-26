@@ -56,7 +56,7 @@ export function ClientTrustPanel({ client, history }: ClientTrustPanelProps) {
             </div>
             {history.inEscrow > 0 && (
               <div className="rounded-2xl bg-[var(--color-surface-warm)] p-3">
-                <dt className="text-xs text-[var(--color-ink-muted)]">In escrow now</dt>
+                <dt className="text-xs text-[var(--color-ink-muted)]">Authorized now</dt>
                 <dd className="mt-0.5 font-display text-xl font-medium tabular-nums text-[var(--color-ink)]">
                   <Money value={history.inEscrow} compact />
                 </dd>

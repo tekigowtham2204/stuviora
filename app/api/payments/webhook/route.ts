@@ -98,9 +98,33 @@ export async function POST(req: NextRequest) {
   const supabase = services.supabase ? getServiceSupabase() : null;
 
   switch (event.event) {
+    case "payment.authorized": {
+      // Pay-on-delivery: the client authorized a HOLD (no charge yet). Record
+      // the authorization and let work begin. The actual charge happens later,
+      // when the AI gate passes the work (capturePayment -> payment.captured).
+      if (supabase && orderId) {
+        await supabase
+          .from("orders")
+          .update({ status: "active" })
+          .eq("id", orderId);
+        await supabase
+          .from("payments")
+          .upsert(
+            {
+              order_id: orderId,
+              razorpay_payment_id: event.payload?.payment?.entity?.id ?? null,
+              status: "authorized",
+              amount: (event.payload?.payment?.entity?.amount ?? 0) / 100,
+            },
+            { onConflict: "order_id" }
+          );
+      }
+      break;
+    }
+
     case "payment.captured": {
-      // P9.1 featured-listing purchase: a captured payment whose notes
-      // carry featured_days + featured_job_id promotes the job.
+      // P9.1 featured-listing purchase: a one-shot captured payment whose
+      // notes carry featured_days + featured_job_id promotes the job.
       const notes = event.payload?.payment?.entity?.notes;
       const featuredDays = Number(notes?.featured_days ?? 0);
       const featuredJobId = notes?.featured_job_id;
@@ -115,20 +139,17 @@ export async function POST(req: NextRequest) {
           .eq("id", featuredJobId);
       }
 
-      // Lock escrow on the order. Update the orders row from
-      // pending_payment -> active so the student dashboard surfaces it.
+      // Order capture: this fires when we capture the held authorization on an
+      // AI-gate PASS. The order status is already set by submitWork; here we
+      // only record that the client has now been charged.
       if (supabase && orderId) {
-        await supabase
-          .from("orders")
-          .update({ status: "active" })
-          .eq("id", orderId);
         await supabase
           .from("payments")
           .upsert(
             {
               order_id: orderId,
               razorpay_payment_id: event.payload?.payment?.entity?.id ?? null,
-              status: "escrowed",
+              status: "captured",
               amount:
                 (event.payload?.payment?.entity?.amount ?? 0) / 100,
               captured_at: new Date().toISOString(),

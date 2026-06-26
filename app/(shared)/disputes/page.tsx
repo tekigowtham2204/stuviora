@@ -23,7 +23,7 @@ export default async function DisputesPage() {
       <PageHeader
         eyebrow="Dispute resolution"
         title="Disputes."
-        subtitle="When an order goes wrong, escrow is frozen and both sides get a fair hearing."
+        subtitle="When a delivery is contested, resolution runs on automated policy: a refund and a gate re-run, never a staff verdict."
       />
 
       {disputes.length === 0 ? (
@@ -61,7 +61,7 @@ export default async function DisputesPage() {
                         {d.reason}
                       </p>
                       <div className="mt-2 text-xs text-[var(--color-ink-faint)]">
-                        Order #{d.orderId} · <Money value={d.amount} compact /> in escrow ·
+                        Order #{d.orderId} · <Money value={d.amount} compact /> authorized ·
                         raised by {d.raisedByName} · {d.createdAgo}
                       </div>
                     </div>

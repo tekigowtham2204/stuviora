@@ -6,7 +6,12 @@ import { requireRole } from "@/lib/auth/dal";
 import { runQualityGate } from "@/lib/ai/quality-gate";
 import { resolveSubmissionOutcome } from "@/lib/orders/submission";
 import { MAX_REVISIONS } from "@/lib/constants";
-import { releaseEscrow } from "@/lib/razorpay/escrow";
+import {
+  releaseEscrow,
+  capturePayment,
+  voidAuthorization,
+  refundCapture,
+} from "@/lib/razorpay/escrow";
 import { recordHumanOutcome } from "@/lib/ai/calibration";
 import { dispatchUserEmail } from "@/lib/email/dispatch";
 import {
@@ -92,13 +97,24 @@ export async function submitWork(formData: FormData) {
     submissionText: notes + fileNote,
   });
 
-  // ENFORCE the verdict (this is the moat). PASS -> client review; FAIL ->
-  // back to the student with the issues; out of revisions -> escalate.
+  // ENFORCE the verdict (this is the moat, and it runs with no human in the
+  // loop). PASS -> capture payment + deliver; FAIL with revisions -> back to
+  // the student; FAIL out of revisions -> void the hold, client pays nothing.
   const outcome = resolveSubmissionOutcome({
     verdict: review.verdict,
     attempt,
     maxAttempts: MAX_REVISIONS,
   });
+
+  // Money follows the verdict automatically. PASS captures the held
+  // authorization (client charged on receipt of quality-checked work);
+  // auto-refund voids the hold so nothing is ever charged for work that
+  // could not pass.
+  if (review.verdict === "PASS") {
+    await capturePayment({ orderId, amount: order!.amount });
+  } else if (outcome.autoRefunded) {
+    await voidAuthorization({ orderId });
+  }
 
   // Live: persist the review + the new order state. Demo: state is conveyed
   // through the redirect (the order/submit pages reflect it).
@@ -119,17 +135,17 @@ export async function submitWork(formData: FormData) {
       });
       await supabase
         .from("orders")
-        .update({ status: outcome.status, revision_count: attempt })
+        .update({
+          status: outcome.status,
+          revision_count: attempt,
+          // On PASS the work is delivered now; stamp the dispute-window start
+          // so the auto-settle cron knows when 72h is up. (Reusing approved_at
+          // as the window-open timestamp avoids a schema change.)
+          ...(review.verdict === "PASS"
+            ? { approved_at: new Date().toISOString() }
+            : {}),
+        })
         .eq("id", orderId);
-      if (outcome.escalated) {
-        // Out of revisions: open a dispute for founder mediation/refund.
-        await supabase.from("dispute_cases").insert({
-          order_id: orderId,
-          raised_by: session.user.id,
-          reason: `AI gate failed after ${MAX_REVISIONS} attempts (last score ${review.score}/100).`,
-          status: "open",
-        });
-      }
     }
   }
 
@@ -142,7 +158,8 @@ export async function submitWork(formData: FormData) {
   revalidatePath(`/client/orders/${orderId}`);
 
   if (review.verdict === "PASS") {
-    // Only now does the client hear about it: passing work reaches them.
+    // Captured + delivered: the client receives the work and the dispute
+    // window opens. They are notified it is ready.
     const client = await getClientById(order!.clientId);
     await dispatchUserEmail(
       order!.clientId,
@@ -157,8 +174,9 @@ export async function submitWork(formData: FormData) {
     redirect(`/student/orders/${orderId}?submitted=1`);
   }
 
-  if (outcome.escalated) {
-    redirect(`/student/orders/${orderId}?escalated=1`);
+  if (outcome.autoRefunded) {
+    // Could not pass after the last attempt: hold voided, client refunded.
+    redirect(`/student/orders/${orderId}?refunded=1`);
   }
 
   // Failed but revisions remain: back to the resubmit form with the issues.
@@ -169,7 +187,10 @@ export async function approveOrder(formData: FormData) {
   const session = await requireRole("client");
   const orderId = (formData.get("orderId") as string) || "";
   const order = await getOrder(orderId);
-  // Only the client who funded the order may approve it and release escrow.
+  // The client was already charged when the AI gate passed the work. This is
+  // the optional "all good, release now" action that settles the student's
+  // payout immediately instead of waiting out the dispute window. Only the
+  // client on the order may trigger it.
   if (!order || order.clientId !== session.user.id) redirect("/client/orders");
 
   // Look up the student's linked Route account (set when student first
@@ -255,6 +276,23 @@ export async function requestRevision(formData: FormData) {
   const order = await getOrder(orderId);
   if (!order || order.clientId !== session.user.id) redirect("/client/orders");
   void formData.get("revisionNotes");
+
+  // In-window dispute, resolved automatically with no staff: the capture is
+  // refunded and the order goes back to the student to fix and re-run through
+  // the gate. When the new delivery passes, the client is charged again. The
+  // client is never out of pocket while waiting for the fix.
+  await refundCapture({ orderId, amount: order!.amount });
+  if (services.supabase) {
+    const supabase = getServiceSupabase();
+    if (supabase) {
+      await supabase
+        .from("orders")
+        .update({ status: "revision_requested" })
+        .eq("id", orderId);
+    }
+  }
+
+  // Data moat: the client's call labels the gate's decision.
   await recordHumanOutcome(orderId, "revision_requested");
   trackEvent("revision_requested", { orderId }, session.user.id);
   revalidatePath(`/client/orders/${orderId}`);
@@ -279,7 +317,7 @@ export async function leaveReview(formData: FormData) {
  * a completed order. Skips the post-job + proposal cycle entirely - the whole
  * point of a repeat order is that the relationship already exists. Creates a
  * fresh order in pending_payment against the original job + student and sends
- * the client to fund escrow, exactly like a first hire.
+ * the client to authorize payment, exactly like a first hire.
  */
 export async function reorder(formData: FormData) {
   const session = await requireRole("client");
@@ -324,7 +362,7 @@ export async function reorder(formData: FormData) {
     }
   }
 
-  // Tell the student they have been rehired (payment lands in escrow first).
+  // Tell the student they have been rehired (payment authorized as a hold).
   const student = await getStudentById(order!.studentId);
   await dispatchUserEmail(
     order!.studentId,

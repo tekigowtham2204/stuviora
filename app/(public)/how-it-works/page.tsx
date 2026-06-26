@@ -24,7 +24,7 @@ import { TRUST_LAYERS } from "@/lib/constants";
 export const metadata = {
   title: "How it works",
   description:
-    "A guided walkthrough of how Stuviora works for students and clients, from signup to AI-reviewed delivery and escrow-protected payout.",
+    "A guided walkthrough of how Stuviora works for students and clients, from signup to AI-reviewed delivery and pay-on-delivery payout.",
 };
 
 interface Step {
@@ -52,7 +52,7 @@ const STUDENT_STEPS: Step[] = [
   {
     icon: Wallet,
     title: "Deliver, get paid",
-    body: "Submit work, the AI gate reviews it, the client approves, and the 85% split lands in your wallet. Withdraw to UPI or bank when ready.",
+    body: "Submit work, the AI gate reviews it, and on a pass the client is charged automatically and the 85% split lands in your wallet. Withdraw to UPI or bank when ready.",
   },
 ];
 
@@ -64,8 +64,8 @@ const CLIENT_STEPS: Step[] = [
   },
   {
     icon: ShieldCheck,
-    title: "Hire and fund escrow",
-    body: "Review proposals ranked by trust and fit. Pick the student you like, fund Razorpay escrow, and work begins. Funds are locked, safe.",
+    title: "Hire and authorize payment",
+    body: "Review proposals ranked by trust and fit. Pick the student you like, authorize payment (a hold, no charge), and work begins. Funds are guaranteed, not yet spent.",
   },
   {
     icon: Bot,
@@ -74,8 +74,8 @@ const CLIENT_STEPS: Step[] = [
   },
   {
     icon: BadgeCheck,
-    title: "Approve, or 72-hour auto-release",
-    body: "Approve to release payment to the student. Do not respond? Auto-release after 72 hours. Have a problem? Open a dispute, we mediate.",
+    title: "Charged on delivery, 72-hour window",
+    body: "When the gate passes the work, you are charged and it is delivered, no approval click. Not right? Request a fix and you are refunded while it is reworked. It auto-settles to the student after 72 hours.",
   },
 ];
 
@@ -90,8 +90,8 @@ export default function HowItWorksPage() {
               One safe loop, from signup to settled payout.
             </SectionTitle>
             <SectionLede className="mx-auto">
-              Two sides, same loop. Both protected by escrow, both held to the same
-              AI-reviewed quality standard.
+              Two sides, same loop. Both protected by pay-on-delivery, both held
+              to the same AI-reviewed quality standard.
             </SectionLede>
           </Reveal>
         </Container>
@@ -112,7 +112,7 @@ export default function HowItWorksPage() {
         accent="orange"
         eyebrow="For clients"
         title="Hire student talent without rolling the dice."
-        body="Every deliverable passes an AI quality check before it reaches you. Pay only on approval, with a first-job money-back guarantee."
+        body="Every deliverable passes an AI quality check before it reaches you. Pay only on delivery, with a first-job money-back guarantee."
         cta={{ href: "/auth/signup/client", label: "Hire talent" }}
         steps={CLIENT_STEPS}
         tone="warm"

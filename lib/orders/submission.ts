@@ -3,35 +3,39 @@ import type { OrderStatus } from "@/lib/types";
 /**
  * Submission outcome engine: turns an AI-gate verdict + the attempt count
  * into what actually happens to the order. This is what makes the moat
- * load-bearing - the verdict is enforced, not just displayed.
+ * load-bearing - the verdict is enforced, not just displayed. There is no
+ * human in this loop: the gate decides, and money follows automatically.
  *
- *   PASS                         -> awaiting_approval, client notified.
+ *   PASS                         -> awaiting_approval (delivered, dispute
+ *                                   window open); client charged on receipt.
  *   FAIL with revisions left     -> revision_requested, client NOT notified
  *                                   (failing work never reaches the client).
- *   FAIL with no revisions left  -> disputed (founder mediation / refund).
+ *   FAIL with no revisions left  -> refunded: the held authorization is voided
+ *                                   and the client pays nothing. No mediation,
+ *                                   no staff - unpassable work is never charged.
  */
 
 export type SubmissionStatus = Extract<
   OrderStatus,
-  "awaiting_approval" | "revision_requested" | "disputed"
+  "awaiting_approval" | "revision_requested" | "refunded"
 >;
 
 export interface SubmissionOutcomeInput {
   verdict: "PASS" | "FAIL";
   /** This submission's attempt number, 1-based (1 = first try). */
   attempt: number;
-  /** Attempts allowed before escalation (MAX_REVISIONS). */
+  /** Attempts allowed before auto-refund (MAX_REVISIONS). */
   maxAttempts: number;
 }
 
 export interface SubmissionOutcome {
   status: SubmissionStatus;
-  /** Whether the client should be notified that work is ready. */
+  /** Whether the client should be notified (work ready, or order refunded). */
   notifyClient: boolean;
   /** Revision attempts still available after this one. */
   attemptsLeft: number;
-  /** Out of revisions and still failing -> escalated to mediation. */
-  escalated: boolean;
+  /** Out of revisions and still failing -> authorization voided, auto-refund. */
+  autoRefunded: boolean;
 }
 
 export function resolveSubmissionOutcome({
@@ -46,24 +50,26 @@ export function resolveSubmissionOutcome({
       status: "awaiting_approval",
       notifyClient: true,
       attemptsLeft,
-      escalated: false,
+      autoRefunded: false,
     };
   }
 
   // FAIL: only ship a revision request while attempts remain; otherwise the
-  // order can never auto-deliver, so escalate for founder mediation/refund.
+  // order can never pass the gate, so the held authorization is voided and the
+  // client is refunded automatically. Nobody mediates - unpassable work is
+  // simply never paid for.
   if (attemptsLeft <= 0) {
     return {
-      status: "disputed",
+      status: "refunded",
       notifyClient: true,
       attemptsLeft: 0,
-      escalated: true,
+      autoRefunded: true,
     };
   }
   return {
     status: "revision_requested",
     notifyClient: false,
     attemptsLeft,
-    escalated: false,
+    autoRefunded: false,
   };
 }

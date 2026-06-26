@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { computeSplit, formatINR } from "@/lib/utils";
 
-export const metadata = { title: "Fund escrow" };
+export const metadata = { title: "Authorize payment" };
 
 const METHODS = [
   { id: "upi", icon: Smartphone, label: "UPI", sub: "GPay, PhonePe, Paytm. Instant." },
@@ -27,7 +27,7 @@ export default async function PaymentPage({
   return (
     <>
       <PageHeader
-        title="Fund escrow"
+        title="Authorize payment"
         subtitle={`Hire confirmation · proposal #${id}`}
       />
 
@@ -54,7 +54,7 @@ export default async function PaymentPage({
             </div>
             <form action="/client/orders" className="mt-6">
               <Button type="submit" variant="trust" size="lg" className="w-full">
-                <Lock className="h-4 w-4" /> Pay {formatINR(amount)} into escrow
+                <Lock className="h-4 w-4" /> Authorize {formatINR(amount)} (charged on delivery)
               </Button>
               <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-subtle">
                 <ShieldCheck className="h-3.5 w-3.5" /> Payments are processed by Razorpay. Stuviora never sees your card details.
@@ -63,12 +63,12 @@ export default async function PaymentPage({
           </Card>
 
           <Card>
-            <CardTitle>How escrow protects you</CardTitle>
+            <CardTitle>You pay only on delivery</CardTitle>
             <ol className="mt-3 space-y-3 text-sm">
-              <Step n={1} t="Your money is locked" d="The full amount sits in Razorpay escrow until the work is delivered. No one can touch it." />
-              <Step n={2} t="Work happens, AI reviews it" d="The student delivers; our AI gate scores it for completeness and originality before you see it." />
-              <Step n={3} t="You approve, money releases" d="One click splits 85% to the student and 15% to Stuviora. Don't respond? Auto-release after 72 hours." />
-              <Step n={4} t="Don't like it? Dispute" d="Open a dispute and we mediate within 48 hours. Funds are held until resolved." />
+              <Step n={1} t="We place a hold, no charge yet" d="Authorizing confirms the funds exist so the student can start, but nothing leaves your account." />
+              <Step n={2} t="Work happens, AI reviews it" d="The student delivers; our AI gate scores it against your brief and only passing work reaches you." />
+              <Step n={3} t="Passes the bar, you are charged" d="The moment quality-checked work is delivered, the hold is captured. No approval click needed." />
+              <Step n={4} t="Not right? Request a fix" d="You are refunded while the student reworks it through the gate. Fails the gate for good? You are never charged. No staff, no waiting on a mediator." />
             </ol>
           </Card>
         </div>
@@ -81,11 +81,12 @@ export default async function PaymentPage({
               <Row label="Goes to student (85%)" value={formatINR(split.studentPayout)} muted />
               <Row label="Stuviora platform fee (15%)" value={formatINR(split.commission)} muted />
               <div className="my-2 border-t border-border" />
-              <Row label="Pay today" value={formatINR(amount)} strong />
+              <Row label="Authorized today" value={formatINR(amount)} strong />
+              <Row label="Charged" value="On delivery" muted />
               <p className="text-xs text-subtle">All taxes included. Refund policy applies.</p>
             </div>
             <Badge tone="trust" className="mt-4">
-              <ShieldCheck className="h-3.5 w-3.5" /> Escrow-protected
+              <ShieldCheck className="h-3.5 w-3.5" /> Pay on delivery
             </Badge>
             <Link
               href="/legal/refund"

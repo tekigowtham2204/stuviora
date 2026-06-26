@@ -77,7 +77,7 @@ export default function AboutPage() {
                 </h3>
                 <p className="mx-auto mt-4 max-w-xl text-[var(--color-cream)]/80">
                   Built in India, for India. College-verified students,
-                  escrow-protected payments, AI-reviewed delivery.
+                  pay-on-delivery payments, AI-reviewed delivery.
                 </p>
               </div>
             </div>

@@ -84,7 +84,7 @@ export default async function AdminDashboard() {
         />
         <MiniStat
           icon={<ShieldCheck className="h-4 w-4" />}
-          label="Escrow held"
+          label="Authorized in-flight"
           value={`Rs.${(m.escrowHeld / 1000).toFixed(1)}k`}
         />
         <MiniStat

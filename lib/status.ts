@@ -15,11 +15,11 @@ export type Tone =
 
 /** Display metadata for each order status. */
 export const ORDER_STATUS_META: Record<OrderStatus, { label: string; tone: Tone }> = {
-  pending_payment: { label: "Awaiting payment", tone: "yellow" },
+  pending_payment: { label: "Awaiting authorization", tone: "yellow" },
   active: { label: "In progress", tone: "info" },
   submitted: { label: "Submitted", tone: "info" },
   in_ai_review: { label: "AI reviewing", tone: "sage" },
-  awaiting_approval: { label: "Awaiting approval", tone: "orange" },
+  awaiting_approval: { label: "Delivered, dispute window", tone: "orange" },
   revision_requested: { label: "Revision requested", tone: "orange" },
   completed: { label: "Completed", tone: "sage" },
   disputed: { label: "Disputed", tone: "danger" },

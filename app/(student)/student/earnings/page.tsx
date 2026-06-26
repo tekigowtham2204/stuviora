@@ -45,7 +45,7 @@ export default async function EarningsPage({
       <PageHeader
         eyebrow="Wallet"
         title="Earnings."
-        subtitle="Your wallet, what is in escrow, and the lifetime view."
+        subtitle="Your wallet, what is pending in the dispute window, and the lifetime view."
       />
 
       {withdrawn && Number(withdrawn) > 0 && (
@@ -126,7 +126,7 @@ export default async function EarningsPage({
           icon={<ShieldCheck className="h-3.5 w-3.5" />}
           label="Pending"
           value={`Rs.${w.pending.toLocaleString("en-IN")}`}
-          sub="releases on client approval"
+          sub="settles after the dispute window"
           accent="yellow"
         />
         <Stat

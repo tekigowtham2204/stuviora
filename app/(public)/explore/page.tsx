@@ -44,7 +44,7 @@ export default async function ExplorePage({
           </h1>
           <p className="mt-4 text-pretty text-base leading-relaxed text-[var(--color-ink-muted)]">
             Verified college students across India. Every delivery is AI-reviewed
-            and escrow-protected.
+            and you pay only on delivery.
           </p>
         </div>
 

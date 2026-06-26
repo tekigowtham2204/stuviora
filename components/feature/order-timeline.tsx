@@ -8,10 +8,10 @@ interface Step {
 }
 
 const TIMELINE: Step[] = [
-  { key: ["pending_payment"], label: "Escrow funded" },
+  { key: ["pending_payment"], label: "Payment authorized" },
   { key: ["active"], label: "In progress" },
   { key: ["submitted", "in_ai_review", "revision_requested"], label: "AI review" },
-  { key: ["awaiting_approval"], label: "Awaiting approval" },
+  { key: ["awaiting_approval"], label: "Delivered, charged" },
   { key: ["completed"], label: "Paid out" },
 ];
 

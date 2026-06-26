@@ -53,7 +53,7 @@ export default function OpengraphImage() {
             marginTop: 28,
           }}
         >
-          AI-reviewed, escrow-protected student freelancing for India.
+          AI-reviewed, pay-on-delivery student freelancing for India.
         </div>
       </div>
     ),

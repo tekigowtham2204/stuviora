@@ -114,8 +114,8 @@ export function orderHiredEmail(p: {
   orderId: string;
 }): EmailMessage {
   const subject = `You are hired: ${oneLine(p.jobTitle)}`;
-  const bodyHtml = `Hi ${escapeHtml(p.studentName)},<br><br>A client just hired you for "${escapeHtml(p.jobTitle)}". The payment of ${inr(p.amount)} is held in escrow, so you can start with confidence. You keep 85% on approval.`;
-  const text = `Hi ${p.studentName},\n\nA client just hired you for "${p.jobTitle}". The payment of ${inr(p.amount)} is held in escrow, so you can start with confidence. You keep 85% on approval.\n\nOpen the order: ${APP}/student/orders/${encodeURIComponent(p.orderId)}`;
+  const bodyHtml = `Hi ${escapeHtml(p.studentName)},<br><br>A client just hired you for "${escapeHtml(p.jobTitle)}". Their payment of ${inr(p.amount)} is authorized and guaranteed, so you can start with confidence. You keep 85%, charged to the client and settled to you once your work passes the AI gate.`;
+  const text = `Hi ${p.studentName},\n\nA client just hired you for "${p.jobTitle}". Their payment of ${inr(p.amount)} is authorized and guaranteed, so you can start with confidence. You keep 85%, charged to the client and settled to you once your work passes the AI gate.\n\nOpen the order: ${APP}/student/orders/${encodeURIComponent(p.orderId)}`;
   return {
     subject,
     text,
@@ -133,9 +133,9 @@ export function orderSubmittedEmail(p: {
   jobTitle: string;
   orderId: string;
 }): EmailMessage {
-  const subject = `Delivery ready for review: ${oneLine(p.jobTitle)}`;
-  const bodyHtml = `Hi ${escapeHtml(p.clientName)},<br><br>Your freelancer submitted the delivery for "${escapeHtml(p.jobTitle)}". It passed our AI quality check. Review and approve to release payment, or request a revision. If you do not respond within 72 hours, payment auto-releases.`;
-  const text = `Hi ${p.clientName},\n\nYour freelancer submitted the delivery for "${p.jobTitle}". It passed our AI quality check. Review and approve to release payment, or request a revision. If you do not respond within 72 hours, payment auto-releases.\n\nReview the delivery: ${APP}/client/orders/${encodeURIComponent(p.orderId)}`;
+  const subject = `Delivery ready: ${oneLine(p.jobTitle)}`;
+  const bodyHtml = `Hi ${escapeHtml(p.clientName)},<br><br>Your freelancer's delivery for "${escapeHtml(p.jobTitle)}" passed our AI quality check, so it has been delivered and your authorized payment was captured. If anything is off, request a fix within 72 hours and you are refunded while it is reworked. Otherwise it settles to the student automatically.`;
+  const text = `Hi ${p.clientName},\n\nYour freelancer's delivery for "${p.jobTitle}" passed our AI quality check, so it has been delivered and your authorized payment was captured. If anything is off, request a fix within 72 hours and you are refunded while it is reworked. Otherwise it settles to the student automatically.\n\nReview the delivery: ${APP}/client/orders/${encodeURIComponent(p.orderId)}`;
   return {
     subject,
     text,

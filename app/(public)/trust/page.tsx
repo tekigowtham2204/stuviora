@@ -16,7 +16,7 @@ import { AI_GATE_PASS_THRESHOLD } from "@/lib/constants";
 export const metadata = {
   title: "Trust, in numbers",
   description:
-    "How Stuviora keeps both sides safe: escrow-protected payments, an AI quality gate on every delivery, and verified students. The numbers we hold ourselves to.",
+    "How Stuviora keeps both sides safe: pay-on-delivery payments, an AI quality gate on every delivery, and verified students. The numbers we hold ourselves to.",
 };
 
 export default async function TrustPage() {
@@ -27,7 +27,7 @@ export default async function TrustPage() {
   // the page is never padded with invented metrics.
   const realStats: { label: string; value: string }[] = services.supabase
     ? [
-        m.gmv > 0 ? { label: "Processed in escrow", value: compactINR(m.gmv) } : null,
+        m.gmv > 0 ? { label: "Processed on delivery", value: compactINR(m.gmv) } : null,
         m.students > 0
           ? { label: "Students verified", value: m.students.toLocaleString("en-IN") }
           : null,
@@ -39,8 +39,8 @@ export default async function TrustPage() {
 
   const guarantees = [
     { label: "AI-gate minimum score", value: `${AI_GATE_PASS_THRESHOLD}` },
-    { label: "Student share on approval", value: "85%" },
-    { label: "Auto-release window", value: "72h" },
+    { label: "Student share of every order", value: "85%" },
+    { label: "Dispute window", value: "72h" },
     { label: "Double payouts, ever", value: "0" },
   ];
 
@@ -59,13 +59,13 @@ export default async function TrustPage() {
     },
     {
       icon: Wallet,
-      title: "Escrow-protected money",
-      body: "Clients fund escrow before work starts, so students cannot be ghosted. Students are paid 85% on approval, with automatic release in 72 hours if the client goes quiet.",
+      title: "Pay on delivery",
+      body: "Clients authorize payment up front as a hold, so students cannot be ghosted, but are only charged when the AI gate passes the work. Students get 85%, settled after a 72-hour dispute window.",
     },
     {
       icon: Scale,
-      title: "Fair disputes",
-      body: "If the two sides disagree, funds stay locked while both submit evidence. Decisions can be appealed within 7 days. Our daily reconciler guards a hard rule: zero double payouts, ever.",
+      title: "Automated, fair resolution",
+      body: "Work that fails the gate is never charged for. A client who disputes inside the window is refunded while the student reworks it. No staff mediator, and our daily reconciler guards a hard rule: zero double payouts, ever.",
     },
   ];
 

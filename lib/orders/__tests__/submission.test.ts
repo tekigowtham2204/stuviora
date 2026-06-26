@@ -10,7 +10,7 @@ describe("resolveSubmissionOutcome", () => {
     ).toMatchObject({
       status: "awaiting_approval",
       notifyClient: true,
-      escalated: false,
+      autoRefunded: false,
     });
   });
 
@@ -19,7 +19,7 @@ describe("resolveSubmissionOutcome", () => {
     expect(o.status).toBe("revision_requested");
     expect(o.notifyClient).toBe(false);
     expect(o.attemptsLeft).toBe(2);
-    expect(o.escalated).toBe(false);
+    expect(o.autoRefunded).toBe(false);
   });
 
   it("FAIL on the second attempt still allows one more", () => {
@@ -28,16 +28,17 @@ describe("resolveSubmissionOutcome", () => {
     expect(o.attemptsLeft).toBe(1);
   });
 
-  it("FAIL on the final attempt escalates to a dispute", () => {
+  it("FAIL on the final attempt auto-refunds the client (no human dispute)", () => {
     const o = resolveSubmissionOutcome({ verdict: "FAIL", attempt: 3, maxAttempts: MAX });
-    expect(o.status).toBe("disputed");
-    expect(o.escalated).toBe(true);
+    expect(o.status).toBe("refunded");
+    expect(o.autoRefunded).toBe(true);
+    expect(o.notifyClient).toBe(true);
     expect(o.attemptsLeft).toBe(0);
   });
 
   it("never reaches negative attempts left", () => {
     const o = resolveSubmissionOutcome({ verdict: "FAIL", attempt: 9, maxAttempts: MAX });
     expect(o.attemptsLeft).toBe(0);
-    expect(o.escalated).toBe(true);
+    expect(o.autoRefunded).toBe(true);
   });
 });
