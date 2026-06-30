@@ -120,7 +120,8 @@ export default async function VerdictReceiptPage({
               <div className="flex flex-col gap-6 border-b border-[var(--color-line)] p-7 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
                   <Logomark
-                    className="h-11 w-11 text-[var(--color-ink)]"
+                    variant="stamp"
+                    className="h-12 w-12 text-[var(--color-ink)]"
                     accent="var(--color-sage)"
                   />
                   <div>

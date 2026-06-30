@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Stuviora mark, inverse">
+  <path d="M28 13 V19 A9 9 0 0 1 19 28 H13 A9 9 0 0 1 4 19 V13 A9 9 0 0 1 13 4 H18" fill="none" stroke="#f8f2e3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M11.4 16.8 L15 20.4 L25 8" fill="none" stroke="#f8f2e3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M26 3.4 C26 5.6 26.4 6 28.6 6 C26.4 6 26 6.4 26 8.6 C26 6.4 25.6 6 23.4 6 C25.6 6 26 5.6 26 3.4 Z" fill="#fec868"/>
+</svg>

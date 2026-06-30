@@ -1,15 +1,49 @@
 import * as React from "react";
 
 interface LogomarkProps extends React.SVGProps<SVGSVGElement> {
-  /** Optional duotone. When set, the leaf fill uses this accent. */
+  /** Seal-ring color. Existing call sites pass the sage token; defaults to
+   *  currentColor so the mark still renders as one color when omitted. */
   accent?: string;
+  /** Spark color. Defaults to the warm orange token; ignored when `mono`. */
+  spark?: string;
+  /** Collapse to a single color (seal + spark follow currentColor). Use for
+   *  favicons, embossing, and one-color print. */
+  mono?: boolean;
+  /**
+   * - `full`  seal + check + spark (default; the brand mark).
+   * - `mark`  seal + check only, no spark (cleanest at favicon sizes).
+   * - `stamp` adds the outer "official stamp" ring; for the receipt PASS seal.
+   */
+  variant?: "full" | "mark" | "stamp";
 }
 
 /**
- * Stuviora logomark. A stylized leaf-and-arc - the student (leaf) growing
- * inside the platform's protective curve (arc). Two-tone friendly.
+ * Stuviora logomark: "The Gate Seal".
+ *
+ * A protective seal (trust, escrow) with a deliberate gate-opening at the
+ * top-right through which a verified check passes, resolving in a spark.
+ * The mark encodes the moat in one glyph: the seal is "Trust the platform",
+ * the gap is the AI quality gate, the check is PASS, the spark is the
+ * student's brilliance emerging ("Viora").
+ *
+ * Two-tone by default (seal = `accent`, check = currentColor, spark =
+ * `spark`); degrades cleanly to one color via `mono`. The check reads as
+ * "approved" down to 16px, and the `stamp` variant doubles as the PASS
+ * seal on verdict receipts.
  */
-export function Logomark({ accent = "currentColor", className, ...props }: LogomarkProps) {
+export function Logomark({
+  accent = "currentColor",
+  spark = "var(--color-orange)",
+  mono = false,
+  variant = "full",
+  className,
+  ...props
+}: LogomarkProps) {
+  const sealColor = mono ? "currentColor" : accent;
+  const sparkColor = mono ? "currentColor" : spark;
+  const showSpark = variant !== "mark";
+  const showStampRing = variant === "stamp";
+
   return (
     <svg
       viewBox="0 0 32 32"
@@ -18,20 +52,41 @@ export function Logomark({ accent = "currentColor", className, ...props }: Logom
       aria-hidden="true"
       {...props}
     >
+      {/* Optional outer ring: the "official stamp" double edge. */}
+      {showStampRing && (
+        <path
+          d="M30.5 11 V21 A10.5 10.5 0 0 1 21 30.5 H11 A10.5 10.5 0 0 1 1.5 21 V11 A10.5 10.5 0 0 1 11 1.5 H21 A10.5 10.5 0 0 1 30.5 11 Z"
+          stroke={sealColor}
+          strokeWidth="1"
+          opacity="0.55"
+        />
+      )}
+
+      {/* The seal: a rounded-square ring left open at the top-right (the gate). */}
       <path
-        d="M4 16C4 9.373 9.373 4 16 4c5.523 0 10 4.477 10 10v14"
-        stroke="currentColor"
+        d="M28 13 V19 A9 9 0 0 1 19 28 H13 A9 9 0 0 1 4 19 V13 A9 9 0 0 1 13 4 H18"
+        stroke={sealColor}
         strokeWidth="2.5"
         strokeLinecap="round"
-      />
-      <path
-        d="M16 22c0-4 2.5-7 6-7-1 3.5-3.5 6-6 7Z"
-        fill={accent}
-        stroke="currentColor"
-        strokeWidth="1.6"
         strokeLinejoin="round"
       />
-      <circle cx="22" cy="22" r="1.6" fill="currentColor" />
+
+      {/* The verified check, its long arm passing out through the gate. */}
+      <path
+        d="M11.4 16.8 L15 20.4 L25 8"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* The spark: brilliance emerging where the check clears the gate. */}
+      {showSpark && (
+        <path
+          d="M26 3.4 C26 5.6 26.4 6 28.6 6 C26.4 6 26 6.4 26 8.6 C26 6.4 25.6 6 23.4 6 C25.6 6 26 5.6 26 3.4 Z"
+          fill={sparkColor}
+        />
+      )}
     </svg>
   );
 }

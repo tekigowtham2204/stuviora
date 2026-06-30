@@ -2,8 +2,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { BRAND } from "@/lib/constants";
-import { Logomark } from "@/components/brand/logomark";
+import { LogoLockup } from "@/components/brand/logo-lockup";
 
 const NAV = [
   { href: "/explore", label: "Browse talent" },
@@ -19,11 +18,8 @@ export function SiteHeader() {
       style={{ backgroundColor: "color-mix(in oklab, var(--color-background) 86%, transparent)" }}
     >
       <Container className="flex h-18 items-center justify-between py-3">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Logomark className="h-8 w-8 text-[var(--color-ink)]" accent="var(--color-sage)" />
-          <span className="font-display text-xl font-medium tracking-tight text-[var(--color-ink)]">
-            {BRAND.name}
-          </span>
+        <Link href="/" className="text-[var(--color-ink)]" aria-label="Stuviora home">
+          <LogoLockup wordClassName="text-xl" />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
