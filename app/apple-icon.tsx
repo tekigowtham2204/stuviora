@@ -30,9 +30,16 @@ export default function AppleIcon() {
             strokeLinejoin="round"
           />
           <path
-            d="M11.4 16.8 L15 20.4 L25 8"
+            d="M12 9 C12 6 6 6 6 11 C6 15 12 15 12 19 C12 23 6 23 6 21"
             stroke="#473c33"
-            strokeWidth="2.6"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M15 9 L20.5 23 L26 7"
+            stroke="#473c33"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

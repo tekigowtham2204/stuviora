@@ -71,11 +71,19 @@ export function Logomark({
         strokeLinejoin="round"
       />
 
-      {/* The verified check, its long arm passing out through the gate. */}
+      {/* S — left letter of the SV monogram. */}
       <path
-        d="M11.4 16.8 L15 20.4 L25 8"
+        d="M12 9 C12 6 6 6 6 11 C6 15 12 15 12 19 C12 23 6 23 6 21"
         stroke="currentColor"
-        strokeWidth="2.6"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* V — right letter; arm exits through the gate notch. */}
+      <path
+        d="M15 9 L20.5 23 L26 7"
+        stroke="currentColor"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
