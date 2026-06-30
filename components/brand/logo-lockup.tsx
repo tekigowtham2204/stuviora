@@ -6,7 +6,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 interface LogoLockupProps {
   /** `horizontal` (mark beside word) or `stacked` (mark above word). */
   orientation?: "horizontal" | "stacked";
-  /** Seal color passed through to the mark; defaults to the sage token. */
+  /** Outer-band color passed through to the mark; defaults to the sage token. */
   accent?: string;
   /** Force a single color across mark + word. */
   mono?: boolean;
@@ -18,14 +18,14 @@ interface LogoLockupProps {
 }
 
 /**
- * The primary Stuviora logo lockup: the Gate Seal mark composed with the
+ * The primary Stuviora logo lockup: the Aurora mark composed with the
  * Fraunces wordmark. Clear space is baked in as the gap so the two never
  * crowd. Use `horizontal` in headers/footers and `stacked` for auth,
  * narrow, and receipt-header contexts.
  *
- * Color follows currentColor for the wordmark and `accent` for the seal,
- * so dropping the lockup onto a brown block (text-cream) or a cream block
- * (text-ink) just works.
+ * Color follows currentColor for the wordmark and the horizon, and `accent`
+ * for the outer band, so dropping the lockup onto a brown block (text-cream)
+ * or a cream block (text-ink) just works.
  */
 export function LogoLockup({
   orientation = "horizontal",

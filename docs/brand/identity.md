@@ -4,39 +4,46 @@
 > (logo, icons, social cards, decks). The mark is code-native: it lives in
 > `components/brand/`, so the source of truth is the repo, not a design file.
 >
-> **Last touched:** 2026-06-26.
+> **Last touched:** 2026-06-30.
 
 ---
 
 ## 1. The idea
 
-Stuviora is a trust platform. The whole moat is verification: the AI
-quality gate, the autonomous escrow loop, and portable verdict receipts.
-The mark has to say "verified, trusted" at a glance, while staying warm
-and human, not cold and corporate.
+Stuviora elevates students. The name carries the concept: **Stu + viora ->
+aurora**, the dawn. An aurora is a warm field of light, a radiant aura. That
+is exactly what the brand is about: the dawn of a student's career, and the
+glow ("aura") around verified student work.
 
-## 2. The mark: "The Gate Seal"
+This replaces the earlier "Gate Seal" mark. A badge with a check inside read
+as generic verification, like every other trust badge. The Aurora is
+ownable, it ties straight to the name, and it stays warm and human rather
+than cold and corporate.
 
-A protective seal with a deliberate gate-opening at the top-right, through
-which a verified check passes, resolving in a spark.
+## 2. The mark: "The Aurora"
+
+A sunrise of warm light rising over a steady horizon. Bands of sage, gold,
+and amber lift off a brown ground line.
 
 | Element | Meaning |
 |---|---|
-| The seal (rounded-square ring) | Trust, escrow, "Trust the platform." |
-| The gap at the top-right | The AI quality gate; work passes through it. |
-| The check | Verification. PASS. |
-| The spark | "Viora, brilliance emerges." The student's outcome. |
+| The rising bands | The dawn of a career; the student's aura. |
+| The warm gradient (sage -> gold -> amber) | Light, energy, brilliance emerging. |
+| The horizon line | The steady trust anchor the platform provides. |
 
-It is deliberately not a generic check-in-a-circle. The gate-notch and the
-spark make it ownable and tie it to the product. It must read as "approved"
-down to 16px, and it doubles as the PASS stamp on verdict receipts.
+The bands are analogous warm-earth hues, so they read as one glow, not a
+rainbow. On a dark surface the same mark becomes an aurora at night: the warm
+bands sit beautifully on brown.
 
 Source: `components/brand/logomark.tsx`. Variants via props:
-- `variant="full"` (default): seal + check + spark. The brand mark.
-- `variant="mark"`: seal + check, no spark. Cleanest at favicon sizes.
-- `variant="stamp"`: adds the outer "official stamp" ring. Used on the
-  `/v/[id]` verdict receipt.
+- `variant="full"` (default): three bands + horizon. The brand mark.
+- `variant="mark"`: two bands + horizon. Cleanest at favicon sizes.
+- `variant="stamp"`: adds the outer seal ring (a roundel). Used on the
+  `/v/[id]` verdict receipt, where the dawn-in-a-circle reads as an official
+  seal.
 - `mono`: collapse to a single color (favicon, embossing, one-color print).
+
+There is no spark and no enclosing badge. The aura is the whole statement.
 
 ## 3. Wordmark
 
@@ -57,22 +64,23 @@ use the literal hexes below because those files cannot read tokens.
 
 | Role | Token | Hex |
 |---|---|---|
-| Seal | `--color-sage` | `#abc270` |
-| Check / ink | `--color-brown` | `#473c33` |
-| Spark | `--color-orange` | `#fda769` |
-| Spark (on dark) | `--color-yellow` | `#fec868` |
+| Outer band | `--color-sage` | `#abc270` |
+| Middle band | `--color-yellow` | `#fec868` |
+| Inner band / core | `--color-orange` | `#fda769` |
+| Horizon / ink | `--color-brown` | `#473c33` |
 | Field / cream | `--color-cream` | `#f8f2e3` |
 
-On a brown surface, the lockup inherits cream (`text-[var(--color-cream)]`)
-for the check and word; the seal stays sage; the spark shifts to yellow
-via `mark-inverse.svg` for external assets.
+The horizon follows `currentColor`, so on a brown surface it inherits cream
+(`text-[var(--color-cream)]`) while the warm bands stay put. The
+`mark-inverse.svg` static asset bakes the cream horizon for external use on
+dark backgrounds.
 
 ## 5. Clear space and minimum size
 
-- **Clear space:** at least half the seal's height on every side. The
+- **Clear space:** at least half the mark's height on every side. The
   `LogoLockup` bakes this into its gap; do not crowd it manually.
 - **Minimum size:** the mark down to 16px (favicon) using `variant="mark"`.
-  The full mark with spark down to 24px. The lockup down to 20px word
+  The full three-band mark down to 24px. The lockup down to 20px word
   height.
 
 ## 6. Asset map
@@ -94,23 +102,26 @@ via `mark-inverse.svg` for external assets.
 
 ## 7. The receipt-stamp pattern
 
-The mark is not just decoration; on a verdict receipt (`/v/[id]`) it is
-the trust artifact. Render it with `variant="stamp"` in the receipt
-header. As the verification protocol opens up (horizon 3), the same seal
-is what external consumers look for to confirm a deliverable cleared the
-Stuviora gate. Keep the stamp treatment consistent everywhere a verdict
-is shown.
+On a verdict receipt (`/v/[id]`) the mark is the trust artifact, not just
+decoration. Render it with `variant="stamp"` in the receipt header: the
+dawn sits inside a thin roundel and reads as an official seal. As the
+verification protocol opens up (horizon 3), the same mark is what external
+consumers look for to confirm a deliverable cleared the Stuviora gate. Keep
+the stamp treatment consistent everywhere a verdict is shown.
 
 ## 8. Do and do not
 
 Do:
 - Use the tokens in app code; use the literal hexes only in standalone assets.
-- Keep the seal sage and the check high-contrast against its field.
-- Use `variant="mark"` when the spark would muddy a tiny rendering.
+- Keep the bands in the warm-earth order (sage, gold, amber) so they read as
+  one glow.
+- Use `variant="mark"` when the third band would muddy a tiny rendering.
 
 Do not:
-- Recolor the seal outside the palette, or fill it with a gradient.
+- Recolor the bands outside the palette, or turn them into a full-spectrum
+  rainbow.
+- Add a badge, ring, or box around the mark except the receipt `stamp` ring.
 - Stretch, rotate, or add a drop shadow to the mark.
 - Set the wordmark in a non-serif face.
 - Use em-dashes or en-dashes anywhere in brand copy (repo-wide rule).
-- Re-introduce the old leaf mark; it is retired.
+- Re-introduce the old Gate Seal or leaf marks; both are retired.

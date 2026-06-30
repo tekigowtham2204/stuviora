@@ -1,48 +1,47 @@
 import * as React from "react";
 
 interface LogomarkProps extends React.SVGProps<SVGSVGElement> {
-  /** Seal-ring color. Existing call sites pass the sage token; defaults to
-   *  currentColor so the mark still renders as one color when omitted. */
+  /** Outer-band color (the widest arc of the aurora). Call sites pass the
+   *  sage token; defaults to currentColor so the mark still renders in one
+   *  color when omitted. */
   accent?: string;
-  /** Spark color. Defaults to the warm orange token; ignored when `mono`. */
-  spark?: string;
-  /** Collapse to a single color (seal + spark follow currentColor). Use for
-   *  favicons, embossing, and one-color print. */
+  /** Collapse the whole mark to a single color (favicon, embossing, and
+   *  one-color print). Every band and the horizon follow currentColor. */
   mono?: boolean;
   /**
-   * - `full`  seal + check + spark (default; the brand mark).
-   * - `mark`  seal + check only, no spark (cleanest at favicon sizes).
-   * - `stamp` adds the outer "official stamp" ring; for the receipt PASS seal.
+   * - `full`  three aurora bands + horizon (default; the brand mark).
+   * - `mark`  two bands + horizon (cleanest at favicon sizes).
+   * - `stamp` adds the outer seal ring; for the receipt verdict header.
    */
   variant?: "full" | "mark" | "stamp";
 }
 
 /**
- * Stuviora logomark: "The Gate Seal".
+ * Stuviora logomark: "The Aurora".
  *
- * A protective seal (trust, escrow) with a deliberate gate-opening at the
- * top-right through which a verified check passes, resolving in a spark.
- * The mark encodes the moat in one glyph: the seal is "Trust the platform",
- * the gap is the AI quality gate, the check is PASS, the spark is the
- * student's brilliance emerging ("Viora").
+ * The idea is hidden in the name: Stu-VIORA -> aurora, the dawn. The mark is
+ * a sunrise of warm light lifting over a steady horizon: bands of sage, gold,
+ * and amber rising off a brown ground line. It reads as the dawn of a
+ * student's career and the warm field ("aura") around their work; the horizon
+ * line is the quiet trust anchor underneath.
  *
- * Two-tone by default (seal = `accent`, check = currentColor, spark =
- * `spark`); degrades cleanly to one color via `mono`. The check reads as
- * "approved" down to 16px, and the `stamp` variant doubles as the PASS
- * seal on verdict receipts.
+ * Multi-tone by default (outer = `accent`, then yellow, then orange; the
+ * horizon follows currentColor so it inherits ink on light and cream on
+ * dark). `mono` collapses everything to currentColor; `stamp` adds the seal
+ * ring used on verdict receipts.
  */
 export function Logomark({
   accent = "currentColor",
-  spark = "var(--color-orange)",
   mono = false,
   variant = "full",
   className,
   ...props
 }: LogomarkProps) {
-  const sealColor = mono ? "currentColor" : accent;
-  const sparkColor = mono ? "currentColor" : spark;
-  const showSpark = variant !== "mark";
-  const showStampRing = variant === "stamp";
+  const outer = mono ? "currentColor" : accent;
+  const mid = mono ? "currentColor" : "var(--color-yellow)";
+  const inner = mono ? "currentColor" : "var(--color-orange)";
+  const showMid = variant !== "mark";
+  const showRing = variant === "stamp";
 
   return (
     <svg
@@ -52,49 +51,51 @@ export function Logomark({
       aria-hidden="true"
       {...props}
     >
-      {/* Optional outer ring: the "official stamp" double edge. */}
-      {showStampRing && (
-        <path
-          d="M30.5 11 V21 A10.5 10.5 0 0 1 21 30.5 H11 A10.5 10.5 0 0 1 1.5 21 V11 A10.5 10.5 0 0 1 11 1.5 H21 A10.5 10.5 0 0 1 30.5 11 Z"
-          stroke={sealColor}
+      {/* Seal ring: the official-stamp border on verdict receipts. */}
+      {showRing && (
+        <circle
+          cx="16"
+          cy="16"
+          r="14.5"
+          stroke="currentColor"
           strokeWidth="1"
-          opacity="0.55"
+          opacity="0.5"
         />
       )}
 
-      {/* The seal: a rounded-square ring left open at the top-right (the gate). */}
+      {/* Outer band of the aurora. */}
       <path
-        d="M28 13 V19 A9 9 0 0 1 19 28 H13 A9 9 0 0 1 4 19 V13 A9 9 0 0 1 13 4 H18"
-        stroke={sealColor}
-        strokeWidth="2.5"
+        d="M4 22 A12 12 0 0 1 28 22"
+        stroke={outer}
+        strokeWidth="2.6"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
 
-      {/* S — left letter of the SV monogram. */}
-      <path
-        d="M12 9 C12 6 6 6 6 11 C6 15 12 15 12 19 C12 23 6 23 6 21"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* V — right letter; arm exits through the gate notch. */}
-      <path
-        d="M15 9 L20.5 23 L26 7"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      {/* The spark: brilliance emerging where the check clears the gate. */}
-      {showSpark && (
+      {/* Middle band (dropped in the compact `mark` variant). */}
+      {showMid && (
         <path
-          d="M26 3.4 C26 5.6 26.4 6 28.6 6 C26.4 6 26 6.4 26 8.6 C26 6.4 25.6 6 23.4 6 C25.6 6 26 5.6 26 3.4 Z"
-          fill={sparkColor}
+          d="M8 22 A8 8 0 0 1 24 22"
+          stroke={mid}
+          strokeWidth="2.6"
+          strokeLinecap="round"
         />
       )}
+
+      {/* Inner band: the warm core of the dawn. */}
+      <path
+        d="M12 22 A4 4 0 0 1 20 22"
+        stroke={inner}
+        strokeWidth="2.6"
+        strokeLinecap="round"
+      />
+
+      {/* Horizon: the steady trust line the dawn rises over. */}
+      <path
+        d="M4 22 H28"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Stuviora">
   <rect width="32" height="32" rx="7" fill="#f8f2e3"/>
-  <path d="M26 12 V18 A8 8 0 0 1 18 26 H13 A8 8 0 0 1 5 18 V13 A8 8 0 0 1 13 5 H17" fill="none" stroke="#abc270" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M11 10 C11 7 6 7 6 11 C6 14 11 14 11 18 C11 22 6 22 6 20" fill="none" stroke="#473c33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M14 10 L19 22 L24.4 8" fill="none" stroke="#473c33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M24.4 4 C24.4 5.9 24.8 6.3 26.7 6.3 C24.8 6.3 24.4 6.7 24.4 8.6 C24.4 6.7 24 6.3 22.1 6.3 C24 6.3 24.4 5.9 24.4 4 Z" fill="#fda769"/>
+  <path d="M5 23 A11 11 0 0 1 27 23" fill="none" stroke="#abc270" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M9 23 A7 7 0 0 1 23 23" fill="none" stroke="#fec868" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M12.5 23 A3.5 3.5 0 0 1 19.5 23" fill="none" stroke="#fda769" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M5 23 H27" fill="none" stroke="#473c33" stroke-width="1.8" stroke-linecap="round"/>
 </svg>

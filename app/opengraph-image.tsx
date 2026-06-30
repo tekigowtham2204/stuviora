@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 // Default Open Graph image (1200x630). Generated at the edge so social shares
-// show a branded preview: the Gate Seal + the Fraunces wordmark + the promise.
+// show a branded preview: the Aurora mark + the Fraunces wordmark + the promise.
 export const alt = "Stuviora: Hire students. Trust the platform.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -43,33 +43,32 @@ export default async function OpengraphImage() {
           color: "#473c33",
         }}
       >
-        {/* Lockup: seal + wordmark */}
+        {/* Lockup: aurora + wordmark */}
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
             <path
-              d="M28 13 V19 A9 9 0 0 1 19 28 H13 A9 9 0 0 1 4 19 V13 A9 9 0 0 1 13 4 H18"
+              d="M4 22 A12 12 0 0 1 28 22"
               stroke="#abc270"
-              strokeWidth="2.5"
+              strokeWidth="2.6"
               strokeLinecap="round"
-              strokeLinejoin="round"
             />
             <path
-              d="M12 9 C12 6 6 6 6 11 C6 15 12 15 12 19 C12 23 6 23 6 21"
+              d="M8 22 A8 8 0 0 1 24 22"
+              stroke="#fec868"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M12 22 A4 4 0 0 1 20 22"
+              stroke="#fda769"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M4 22 H28"
               stroke="#473c33"
-              strokeWidth="2.2"
+              strokeWidth="1.8"
               strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M15 9 L20.5 23 L26 7"
-              stroke="#473c33"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M26 3.4 C26 5.6 26.4 6 28.6 6 C26.4 6 26 6.4 26 8.6 C26 6.4 25.6 6 23.4 6 C25.6 6 26 5.6 26 3.4 Z"
-              fill="#fda769"
             />
           </svg>
           <div
